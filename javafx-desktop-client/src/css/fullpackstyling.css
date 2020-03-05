@@ -1,0 +1,20 @@
+.button{
+-fx-background-color: #EBEBEB;
+-fx-background-radius: 0em;
+}
+
+.button:hover{
+-fx-background-color: #fff;
+}
+
+.button:pressed{
+-fx-background-color: #fff;
+}
+
+.button:focused{
+-fx-background-color: #fff;
+}
+
+.menubuttonclicked{
+-fx-background-color: #fff;
+}

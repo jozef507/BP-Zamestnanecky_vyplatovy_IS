@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="bp" prefHeight="562.0" prefWidth="856.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerMainPain">
+   <left>
+      <VBox alignment="CENTER" prefHeight="600.0" prefWidth="170.0" style="-fx-background-color: #EBEBEB;" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="button1" alignment="BASELINE_LEFT" defaultButton="true" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn1" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Zamestnanci">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="button2" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn2" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Výkon">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="button3" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn3" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Neprítomnosť">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="button4" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn4" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Výplaty">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets top="15.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="button5" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn5" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Prehľady">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="button6" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn6" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Firma">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets top="15.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="button7" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn7" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Legislatíva">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <AnchorPane fx:id="ap" minHeight="0.0" minWidth="0.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>

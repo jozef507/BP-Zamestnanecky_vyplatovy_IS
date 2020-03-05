@@ -1,0 +1,199 @@
+package application.gui;
+
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class ControllerMainPain implements Initializable {
+
+    private FXMLLoader pageLoader;
+
+    @FXML
+    private AnchorPane ap;
+    @FXML
+    private BorderPane bp;
+    @FXML
+    private Button button1, button2, button3, button4, button5, button6, button7;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        loadAnchorPage("page_employees");
+        menuButtonClicked("b1");
+    }
+
+    public ControllerMainPain()
+    {
+        pageLoader = null;
+    }
+
+    public void btn1(MouseEvent mouseEvent)
+    {
+        loadAnchorPage("page_employees");
+        menuButtonClicked("b1");
+    }
+
+    public void btn2(MouseEvent mouseEvent)
+    {
+
+        loadScrollPage("page2");
+        menuButtonClicked("b2");
+    }
+
+    public void btn3(MouseEvent mouseEvent)
+    {
+        loadAnchorPage("page3");
+        menuButtonClicked("b3");
+    }
+
+    public void btn4(MouseEvent mouseEvent)
+    {
+        menuButtonClicked("b4");
+    }
+
+    public void btn5(MouseEvent mouseEvent)
+    {
+        menuButtonClicked("b5");
+    }
+
+    public void btn6(MouseEvent mouseEvent)
+    {
+        menuButtonClicked("b6");
+    }
+
+    public void btn7(MouseEvent mouseEvent)
+    {
+        menuButtonClicked("b7");
+    }
+
+    public void loadScrollPage(String page)
+    {
+         try {
+            this.pageLoader = new FXMLLoader(getClass().getResource("fxml/"+page+".fxml"));
+            ScrollPane newPane = this.pageLoader.load();
+
+            ap.getChildren().removeAll();
+            ap.getChildren().setAll(newPane);
+
+            AnchorPane.setBottomAnchor(newPane, 0.0);
+            AnchorPane.setLeftAnchor(newPane, 0.0);
+            AnchorPane.setRightAnchor(newPane, 0.0);
+            AnchorPane.setTopAnchor(newPane, 0.0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadScrollPage(FXMLLoader l)
+    {
+         try {
+             this.pageLoader = l;
+            ScrollPane newPane = this.pageLoader.load();
+
+            ap.getChildren().removeAll();
+            ap.getChildren().setAll(newPane);
+
+            AnchorPane.setBottomAnchor(newPane, 0.0);
+            AnchorPane.setLeftAnchor(newPane, 0.0);
+            AnchorPane.setRightAnchor(newPane, 0.0);
+            AnchorPane.setTopAnchor(newPane, 0.0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadAnchorPage(String page)
+    {
+         try {
+             this.pageLoader = new FXMLLoader(getClass().getResource("fxml/"+page+".fxml"));
+             AnchorPane newPane = this.pageLoader.load();
+
+             ap.getChildren().removeAll();
+             ap.getChildren().setAll(newPane);
+
+            AnchorPane.setBottomAnchor(newPane, 0.0);
+            AnchorPane.setLeftAnchor(newPane, 0.0);
+            AnchorPane.setRightAnchor(newPane, 0.0);
+            AnchorPane.setTopAnchor(newPane, 0.0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadAnchorPage(FXMLLoader l)
+    {
+         try {
+             this.pageLoader = l;
+             AnchorPane newPane = this.pageLoader.load();
+
+             ap.getChildren().removeAll();
+             ap.getChildren().setAll(newPane);
+
+            AnchorPane.setBottomAnchor(newPane, 0.0);
+            AnchorPane.setLeftAnchor(newPane, 0.0);
+            AnchorPane.setRightAnchor(newPane, 0.0);
+            AnchorPane.setTopAnchor(newPane, 0.0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void menuButtonClicked(String button)
+    {
+        button1.getStyleClass().removeAll("menubuttonclicked");
+        button2.getStyleClass().removeAll("menubuttonclicked");
+        button3.getStyleClass().removeAll("menubuttonclicked");
+        button4.getStyleClass().removeAll("menubuttonclicked");
+        button5.getStyleClass().removeAll("menubuttonclicked");
+        button6.getStyleClass().removeAll("menubuttonclicked");
+        button7.getStyleClass().removeAll("menubuttonclicked");
+
+        if(button.equals("b1"))
+        {
+            button1.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b2"))
+        {
+            button2.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b3"))
+        {
+            button3.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b4"))
+        {
+            button4.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b5"))
+        {
+            button5.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b6"))
+        {
+            button6.getStyleClass().add("menubuttonclicked");
+        }
+         else if(button.equals("b7"))
+        {
+            button7.getStyleClass().add("menubuttonclicked");
+        }
+    }
+
+
+
+}

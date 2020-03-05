@@ -1,0 +1,18 @@
+.box{
+    -fx-background-color: #ebebeb;
+    -fx-border-width:  0.1;
+    -fx-border-color: black;
+}
+
+.click-box{
+    -fx-background-color: #ebebeb;
+    -fx-border-width:  0.1;
+    -fx-border-color: black;
+}
+
+.click-box:hover{
+    -fx-background-color: #ffffff;
+    -fx-border-color: cadetblue;
+    -fx-border-width:  1;
+}
+
