@@ -4,6 +4,12 @@
     -fx-border-color: black;
 }
 
+.box-second{
+    -fx-background-color: #ebebeb;
+    -fx-border-width:  0 0.1 0.1 0.1;
+    -fx-border-color: black;
+}
+
 .click-box{
     -fx-background-color: #ebebeb;
     -fx-border-width:  0.1;
@@ -12,7 +18,20 @@
 
 .click-box:hover{
     -fx-background-color: #ffffff;
-    -fx-border-color: cadetblue;
-    -fx-border-width:  1;
+    -fx-border-color: blue;
+    -fx-border-width:  0.5;
 }
+
+.click-box-current{
+    -fx-background-color: #ebebeb;
+    -fx-border-width:  0.5;
+    -fx-border-color: limegreen;
+}
+
+.click-box-current:hover{
+    -fx-background-color: #ffffff;
+    -fx-border-color: blue;
+    -fx-border-width:  0.5;
+}
+
 

@@ -17,8 +17,8 @@ public class RelationOV
         this.id = id;
         this.type = type;
         this.origin = origin;
-        if(expiration==null)
-            this.expiration = "žiadne";
+        if(expiration==null || expiration.equals("00.00.0000"))
+            this.expiration = "aktuálne";
         else
             this.expiration = expiration;
         this.nextDemandsID = nextdemands;

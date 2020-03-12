@@ -24,22 +24,28 @@ import java.util.ResourceBundle;
 public class ControllerMainPain implements Initializable {
 
     private FXMLLoader pageLoader;
+    private String backPage;
+    private String arg1, arg2, arg3;
 
     @FXML
     private AnchorPane ap;
     @FXML
     private BorderPane bp;
     @FXML
-    private Button button1, button2, button3, button4, button5, button6, button7;
+    private Button button1, button2, button3, button4, button5, button6, button7, back;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadAnchorPage("page_employees");
         menuButtonClicked("b1");
+        desibleBackPage();
     }
 
     public ControllerMainPain()
     {
+        MainPaneManager.setC(this);
+
         pageLoader = null;
     }
 
@@ -80,6 +86,70 @@ public class ControllerMainPain implements Initializable {
     public void btn7(MouseEvent mouseEvent)
     {
         menuButtonClicked("b7");
+    }
+
+    public void backClick(MouseEvent mouseEvent)
+    {
+        if(this.backPage.equals("page_employees"))
+        {
+            loadAnchorPage("page_employees");
+        }
+        else if(this.backPage.equals("page_employee_details"))
+        {
+            FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details"+".fxml"));
+            l.setControllerFactory(c -> {
+                return new ControllerPageEmployeeDetails(this.arg1);
+            });
+            loadScrollPage(l);
+        }
+        else if(this.backPage.equals("page_employee_important"))
+        {
+            FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_important"+".fxml"));
+            l.setControllerFactory(c -> {
+                return new ControllerPageEmployeeImportant(this.arg1, this.arg2);
+            });
+            MainPaneManager.getC().loadScrollPage(l);
+        }
+    }
+
+    private void menuButtonClicked(String button)
+    {
+        button1.getStyleClass().removeAll("menubuttonclicked");
+        button2.getStyleClass().removeAll("menubuttonclicked");
+        button3.getStyleClass().removeAll("menubuttonclicked");
+        button4.getStyleClass().removeAll("menubuttonclicked");
+        button5.getStyleClass().removeAll("menubuttonclicked");
+        button6.getStyleClass().removeAll("menubuttonclicked");
+        button7.getStyleClass().removeAll("menubuttonclicked");
+
+        if(button.equals("b1"))
+        {
+            button1.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b2"))
+        {
+            button2.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b3"))
+        {
+            button3.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b4"))
+        {
+            button4.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b5"))
+        {
+            button5.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b6"))
+        {
+            button6.getStyleClass().add("menubuttonclicked");
+        }
+        else if(button.equals("b7"))
+        {
+            button7.getStyleClass().add("menubuttonclicked");
+        }
     }
 
     public void loadScrollPage(String page)
@@ -154,45 +224,45 @@ public class ControllerMainPain implements Initializable {
         }
     }
 
-    private void menuButtonClicked(String button)
+    public void setBackPage(String p)
     {
-        button1.getStyleClass().removeAll("menubuttonclicked");
-        button2.getStyleClass().removeAll("menubuttonclicked");
-        button3.getStyleClass().removeAll("menubuttonclicked");
-        button4.getStyleClass().removeAll("menubuttonclicked");
-        button5.getStyleClass().removeAll("menubuttonclicked");
-        button6.getStyleClass().removeAll("menubuttonclicked");
-        button7.getStyleClass().removeAll("menubuttonclicked");
-
-        if(button.equals("b1"))
-        {
-            button1.getStyleClass().add("menubuttonclicked");
-        }
-        else if(button.equals("b2"))
-        {
-            button2.getStyleClass().add("menubuttonclicked");
-        }
-        else if(button.equals("b3"))
-        {
-            button3.getStyleClass().add("menubuttonclicked");
-        }
-        else if(button.equals("b4"))
-        {
-            button4.getStyleClass().add("menubuttonclicked");
-        }
-        else if(button.equals("b5"))
-        {
-            button5.getStyleClass().add("menubuttonclicked");
-        }
-        else if(button.equals("b6"))
-        {
-            button6.getStyleClass().add("menubuttonclicked");
-        }
-         else if(button.equals("b7"))
-        {
-            button7.getStyleClass().add("menubuttonclicked");
-        }
+        this.arg1=null;
+        this.arg2=null;
+        this.arg3=null;
+        this.back.setDisable(false);
+        this.backPage = p;
     }
+
+    public void setBackPage(String p, String arg1)
+    {
+        this.arg1=null;
+        this.arg2=null;
+        this.arg3=null;
+        this.back.setDisable(false);
+        this.backPage = p;
+        this.arg1 = arg1;
+    }
+
+    public void setBackPage(String p, String arg1, String arg2)
+    {
+        this.arg1=null;
+        this.arg2=null;
+        this.arg3=null;
+        this.back.setDisable(false);
+        this.backPage = p;
+        this.arg1 = arg1;
+        this.arg2 = arg2;
+    }
+
+
+    public void desibleBackPage()
+    {
+        this.back.setDisable(true);
+        this.backPage = null;
+    }
+
+
+
 
 
 

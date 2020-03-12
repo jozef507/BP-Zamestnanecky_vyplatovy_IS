@@ -56,11 +56,11 @@ public class ControllerLogin /*implements Initializable*/
 
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/main_pane.fxml"));
                     Parent root1 = loader.load();
-                    ControllerMainPain c = loader.getController();
-                    MainPaneManager.setC(c);
+                    //ControllerMainPain c = loader.getController();
+                    //MainPaneManager.setC(c);
 
                     primaryStage.setTitle("Hlavné okno");
-                    primaryStage.setScene(new Scene(root1, 985, 562));
+                    primaryStage.setScene(new Scene(root1, 985, 602));
                     primaryStage.setMinHeight(500);
                     primaryStage.setMinWidth(600);
                     primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {

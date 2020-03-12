@@ -41,26 +41,6 @@ public class ControllerPageEmployees
     public void initialize() throws IOException, InterruptedException
     {
 
-        try{
-            employeeOVS = employeeSelect();
-            places = getPlaces();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-
         //set table columns
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         lastNameCol.setCellValueFactory(new PropertyValueFactory<>("lastname"));
@@ -163,8 +143,31 @@ public class ControllerPageEmployees
             });
             return row ;
         });
+
+        MainPaneManager.getC().desibleBackPage();
     }
 
+    public ControllerPageEmployees() {
+        try{
+            employeeOVS = employeeSelect();
+            places = getPlaces();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+    }
 
     private boolean isFiltered(EmployeeOV employeeOV, String inp, String pla, String rel)
     {

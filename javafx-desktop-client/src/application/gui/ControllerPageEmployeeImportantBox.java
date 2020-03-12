@@ -43,9 +43,19 @@ public class ControllerPageEmployeeImportantBox {
         to.setText(sto);
         children_under.setText(schildren_under);
         children_over.setText(schildren_over);
-        retirement.setText(sretirement);
-        invalidity.setText(sinvalidity);
-        part.setText(spart);
+        if(sretirement.equals("0"))
+            retirement.setText("nie");
+        else
+            retirement.setText("áno");
+        if(sinvalidity.equals("0"))
+            invalidity.setText("nie");
+        else
+            invalidity.setText("áno");
+        if(spart.equals("0"))
+            part.setText("nie");
+        else
+            part.setText("áno");
+
     }
 
     public ControllerPageEmployeeImportantBox(String sinsComp, String stown, String sstreet, String snum, String schildren_under, String schildren_over, String spart, String sretirement, String sinvalidity, String sfrom, String sto) {

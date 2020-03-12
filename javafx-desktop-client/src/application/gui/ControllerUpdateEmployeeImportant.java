@@ -29,7 +29,7 @@ public class ControllerUpdateEmployeeImportant
     private String retirement;
     private String invalidity;
 
-    private ControllerPageEmployeeDetails c;
+    private ControllerPageEmployeeImportant c;
 
     public TextField insCompF, townF, streetF, numF, childUnderF,
             childOverF;
@@ -64,7 +64,7 @@ public class ControllerUpdateEmployeeImportant
 
     public ControllerUpdateEmployeeImportant(String id, String insComp, String town, String street, String num,
                                              String childUnder, String childOver, String part, String retirement,
-                                             String invalidity, ControllerPageEmployeeDetails c) {
+                                             String invalidity, ControllerPageEmployeeImportant c) {
         this.id = id;
         this.insComp = insComp;
         this.town = town;

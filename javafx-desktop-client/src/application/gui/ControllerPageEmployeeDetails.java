@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -35,6 +36,8 @@ public class ControllerPageEmployeeDetails
             num, from, children_under, children_over, retirement, invalidity, insComp, part;
     @FXML
     private HBox hb;
+     @FXML
+    private ScrollPane sp;
     @FXML
     private VBox vb;
     @FXML
@@ -47,37 +50,8 @@ public class ControllerPageEmployeeDetails
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
-        try {
-            this.setEmployee();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-
         setTextFields();
-
-        for(int i = 0; i<this.employeeD.getRelations().size(); i++)
-        {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details_box"+".fxml"));
-            RelationOV rel = this.employeeD.getRelations().get(i);
-            loader.setControllerFactory(c -> {
-                return new ControllerPageEmployeeDetailsBox(rel);
-            });
-            HBox newPane = loader.load();
-            vb.getChildren().addAll(newPane);
-        }
+        setBoxes();
 
         update1.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -100,7 +74,25 @@ public class ControllerPageEmployeeDetails
     }
 
     public ControllerPageEmployeeDetails(String employeID){
+
         this.employeeID = employeID;
+        this.hBoxes = new ArrayList<>();
+        MainPaneManager.getC().setBackPage("page_employees");
+        try {
+            this.setEmployee();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+        }
     }
 
 
@@ -141,7 +133,7 @@ public class ControllerPageEmployeeDetails
         ArrayList<RelationOV> relations = new ArrayList<>();
         for (int i = 0 ; i<json.getSize(); i++) {
             RelationOV rel = new RelationOV(
-                    json.getElement(i, "id"),
+                    json.getElement(i, "v_id"),
                     json.getElement(i, "typ"),
                     json.getElement(i, "nice_date1"),
                     json.getElement(i, "nice_date2"),
@@ -174,58 +166,9 @@ public class ControllerPageEmployeeDetails
         primaryStage.show();
     }
 
-    /*private void openUpdateEmployeeImportantScene(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_employee_important.fxml"));
-        loader.setControllerFactory(c -> {
-            return new ControllerUpdateEmployeeImportant(employeeD.getDuID(), employeeD.getInsComp(), employeeD.getTown(),
-                    employeeD.getStreet(), employeeD.getNumber(), employeeD.getChildrenUnder(),
-                    employeeD.getChildrenOver(), employeeD.getPart(), employeeD.getRetirement(),employeeD.getInvalidity(), this);
-        });
-        Parent root1 = null;
-        try {
-            root1 = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Stage primaryStage = new Stage();
-        primaryStage.setTitle("Úprava dôležitých informácií pracujúceho");
-        primaryStage.setScene(new Scene(root1, 505, 495));
-        primaryStage.initModality(Modality.APPLICATION_MODAL);
-        primaryStage.show();
-    }*/
-
-    /*private void returnEmployeeImportant()
-    {
-        CustomAlert al = new CustomAlert("Vrátenie zmien dôležitých údajov", "Ste si istý že chcete navrátiť zmeny dôležitých údajov pracujúceho?", "", "Áno", "Nie");
-        if(!al.showWait())
-            return;
-        HttpClientClass ht = new HttpClientClass();
-        try {
-            ht.sendDelete("employee/delete_imp/"+this.employeeD.getDuID(), LoggedInUser.getToken(), LoggedInUser.getId());
-            setEmployee();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-
-        setTextFields();
-    }*/
 
 
-
-    private void setTextFields()
+       private void setTextFields()
     {
         name.setText(this.employeeD.getName()+" "+ this.employeeD.getLastname());
         phone.setText(this.employeeD.getPhone());
@@ -244,6 +187,34 @@ public class ControllerPageEmployeeDetails
         part.setText(this.employeeD.getPart());
         retirement.setText(this.employeeD.getRetirement());
         invalidity.setText(this.employeeD.getInvalidity());
+    }
+
+    private ArrayList<HBox> hBoxes;
+
+    private void setBoxes()
+    {
+        for (int i = 0; i<this.hBoxes.size(); i++)
+        {
+            vb.getChildren().remove(hBoxes.get(i));
+        }
+        hBoxes.clear();
+
+        for(int i = 0; i<this.employeeD.getRelations().size(); i++)
+        {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details_box"+".fxml"));
+            RelationOV rel = this.employeeD.getRelations().get(i);
+            loader.setControllerFactory(c -> {
+                return new ControllerPageEmployeeDetailsBox(rel, this.employeeD);
+            });
+            HBox newPane = null;
+            try {
+                newPane = loader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            vb.getChildren().addAll(newPane);
+            hBoxes.add(newPane);
+        }
     }
 
     public void updateInfo()
@@ -267,5 +238,31 @@ public class ControllerPageEmployeeDetails
             return;
         }
         setTextFields();
+        setBoxes();
+    }
+
+
+    public void add1(MouseEvent mouseEvent)
+    {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_relation.fxml"));
+        loader.setControllerFactory(c -> {
+            return new ControllerAddRelation(this);
+        });
+        Parent root1 = null;
+        try {
+            root1 = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Úprava informácií pracujúceho");
+        primaryStage.setScene(new Scene(root1, 826, 600));
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.show();
+    }
+
+    public EmployeeD getEmployeeD()
+    {
+        return this.employeeD;
     }
 }
