@@ -5,7 +5,7 @@ class EmployeeMod extends CI_Model
 {
 	public function get_all_employees()
 	{
-		$query = $this->db->query("select p.*, count(v.id) as c from pracujuci p left join pracovny_vztah v on p.id = v.pracujuci where (now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null)) or v.pracujuci is null group by p.id");
+		$query = $this->db->query("select p.*, count(v.id) as c from pracujuci p left join pracovny_vztah v on p.id = v.pracujuci group by p.id");
 		return $query->result();
 	}
 
@@ -17,19 +17,19 @@ class EmployeeMod extends CI_Model
 
 	public function get_relations_places_details($id)
 	{
-		$query = $this->db->query("select v.typ, pr.nazov from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia po join pracovisko pr on p.id = v.pracujuci and v.id = ppv.pracovny_vztah and ppv.pozicia = po.id and po.pracovisko = pr.id where now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null) and p.id = ".$id);
+		$query = $this->db->query("select v.typ, pr.nazov from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia po join pracovisko pr on p.id = v.pracujuci and v.id = ppv.pracovny_vztah and ppv.pozicia = po.id and po.pracovisko = pr.id where now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null or v.datum_vyprsania = '0000-00-00') and p.id = ".$id);
 		return $query->result();
 	}
 
 	public function get_emp_usr_imp($id)
 	{
-		$query = $this->db->query("select pk.id as pk_id, pk.email, pk.typ_prav, p.id as p_id, p.*, du.id as du_id, du.*,  DATE_FORMAT(p.datum_narodenia,'%d.%m.%Y') as nice_date1, DATE_FORMAT(du.platnost_od,'%d.%m.%Y') as nice_date2 from prihlasovacie_konto pk join pracujuci p join dolezite_udaje_pracujuceho du on p.id = du.pracujuci and p.prihlasovacie_konto = pk.id where p.id = ".$id." and now() > du.platnost_od and (now() < du.platnost_do or du.platnost_do is null)");
+		$query = $this->db->query("select pk.id as pk_id, pk.email, pk.typ_prav, p.id as p_id, p.*, du.id as du_id, du.*,  DATE_FORMAT(p.datum_narodenia,'%d.%m.%Y') as nice_date1, DATE_FORMAT(du.platnost_od,'%d.%m.%Y') as nice_date2 from prihlasovacie_konto pk join pracujuci p join dolezite_udaje_pracujuceho du on p.id = du.pracujuci and p.prihlasovacie_konto = pk.id where p.id = ".$id." and now() > du.platnost_od and (now() < du.platnost_do or du.platnost_do is null or du.platnost_do = '0000-00-00')");
 		return $query->result();
 	}
 
 	public function get_emp_rel_ov($id)
 	{
-		$query = $this->db->query("select p.id, v.*, ppv.id, ppv.dalsie_podmienky, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(v.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(v.datum_vyprsania,'%d.%m.%Y') as nice_date2 from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on p.id = v.pracujuci and v.id=ppv.pracovny_vztah and ppv.pozicia=poz.id and poz.pracovisko=pr.id where (now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null)) and (now() > ppv.platnost_od and (now() < ppv.platnost_do or ppv.platnost_do is null)) and p.id =". $id);
+		$query = $this->db->query("select p.id as p_id, v.*, v.id as v_id, ppv.id as ppv_id, ppv.dalsie_podmienky, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(v.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(v.datum_vyprsania,'%d.%m.%Y') as nice_date2 from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on p.id = v.pracujuci and v.id=ppv.pracovny_vztah and ppv.pozicia=poz.id and poz.pracovisko=pr.id where  p.id = ". $id." order by v.datum_vzniku desc");
 		return $query->result();
 	}
 

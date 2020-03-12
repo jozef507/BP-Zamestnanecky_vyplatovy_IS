@@ -56,15 +56,28 @@ $route['employee']['get']           = 'employee';
 $route['employee/update']['post']           = 'employee/update';
 $route['employee/update_imp']['post']           = 'employee/update_imp';
 $route['employee/detail/(:num)']['get']           = 'employee/detail/$1';
-$route['employee/relations_places_details/(:num)']['get'] = 'employee/relations_places_details/$1';
-$route['employee/emp_usr_imp/(:num)']['get'] = 'employee/emp_usr_imp/$1';
-$route['employee/emp_rel_ov/(:num)']['get'] = 'employee/emp_rel_ov/$1';
-$route['employee/count_imp_pay/(:num)']['get'] = 'employee/count_imp_pay/$1';
-$route['employee/all_imp/(:num)']['get'] = 'employee/all_imp/$1';
-$route['employee/delete_imp/(:num)']['delete'] = 'employee/delete_imp/$1';
+$route['employee/relations_places_details/(:num)']['get']		 = 'employee/relations_places_details/$1';
+$route['employee/emp_usr_imp/(:num)']['get'] 		= 'employee/emp_usr_imp/$1';
+$route['employee/emp_rel_ov/(:num)']['get'] 		= 'employee/emp_rel_ov/$1';
+$route['employee/count_imp_pay/(:num)']['get']		 = 'employee/count_imp_pay/$1';
+$route['employee/all_imp/(:num)']['get'] 		= 'employee/all_imp/$1';
+$route['employee/delete_imp/(:num)']['delete'] 			= 'employee/delete_imp/$1';
 
+$route['relation/detail/(:num)']['get']           = 'relation/detail/$1';
 $route['relation/nxt_dmnds_d/(:num)']['get']           = 'relation/nxt_dmnds_d/$1';
+$route['relation/con_ncon_po_pl/(:num)']['get']           = 'relation/con_ncon_po_pl/$1';
+$route['relation/crt_rel']['post']           = 'relation/crt_rel';
+$route['relation/upd_rel']['post']           = 'relation/upd_rel';
+$route['relation/del_rel/(:num)']['delete']           = 'relation/del_rel/$1';
+$route['relation/del_cons/(:num)']['delete']           = 'relation/del_cons/$1';
+
 $route['place']['get']           = 'place';
+
+$route['position']['get']           = 'position';
+
+$route['wage/forms']['get']           = 'wage/forms';
+$route['wage/wage_of_con/(:num)']['get']           = 'wage/wage_of_con/$1';
+$route['wage/crt_wage']['post']           = 'wage/crt_wage';
 
 $route['default_controller'] = 'Employee';
 $route['404_override'] = '';
