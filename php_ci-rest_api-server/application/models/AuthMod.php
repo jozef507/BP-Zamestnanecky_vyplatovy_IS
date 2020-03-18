@@ -51,7 +51,7 @@ class AuthMod extends CI_Model
 	public function login($username,$password)
 	{
 		$client_service = $this->input->get_request_header('Client-Service', TRUE);
-		$q  = $this->db->select('heslo,id,typ_prav')->from('prihlasovacie_konto')->where('email',$username)->get()->row();
+		$q  = $this->db->select('heslo,id,typ_prav,aktualne')->from('prihlasovacie_konto')->where('email',$username)->get()->row();
 
 		if($q == ""){
 			return array('status' => 403,'message' => 'Zadany nespravny prihlasovaci e-mail!');
@@ -59,11 +59,24 @@ class AuthMod extends CI_Model
 			$usertype = $q->typ_prav;
 			$hashed_password = $q->heslo;
 			$id              = $q->id;
+			$is_current = $q->aktualne;
 			if (hash_equals($hashed_password, $password)) {
-				if($usertype=="zamestnanec" && $client_service!=$this->client_service_android_phone)
-				{
+
+				if($is_current==0)
+					return array('status' => 403,'message' => 'Vase prihlasovacie konto je neaktualne!');
+
+				$flag = false;
+				if($usertype=="zamestnanec" && $client_service==$this->client_service_android_phone)
+					$flag=true;
+				elseif($usertype=="admin" && ($client_service==$this->client_service_jfx_desktop || $client_service==$this->client_service_android_phone))
+					$flag=true;
+				elseif($usertype=="riaditeľ" && ($client_service==$this->client_service_jfx_desktop || $client_service==$this->client_service_android_phone))
+					$flag=true;
+				elseif($usertype=="účtovník" && ($client_service==$this->client_service_jfx_desktop || $client_service==$this->client_service_android_phone))
+					$flag=true;
+				if($flag==false)
 					return array('status' => 403,'message' => 'Nemate pristup do tejto aplikacie!');
-				}
+
 
 				$last_login = date('Y-m-d H:i:s');
 				$token = crypt(substr( md5(rand()), 0, 7), "");
@@ -76,7 +89,7 @@ class AuthMod extends CI_Model
 					return array('status' => 500,'message' => 'Internal server error.');
 				} else {
 					$this->db->trans_commit();
-					return array('status' => 200, 'message' => 'Successfully login.', 'id' => $id, 'token' => $token);
+					return array('status' => 200, 'message' => 'Successfully login.', 'id' => $id, 'token' => $token, 'role' => $usertype);
 				}
 			} else {
 				return array('status' => 403,'message' => 'Zadane nespravne heslo!');

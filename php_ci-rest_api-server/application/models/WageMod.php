@@ -21,7 +21,20 @@ class WageMod extends CI_Model
 		return $query->result_array();
 	}
 
+	public function delete_form($id)
+	{
+		$this->db->trans_start();
 
+			$this->db->where('id', $id)->delete('forma_mzdy');
+
+		if ($this->db->trans_status() === FALSE){
+			$this->db->trans_rollback();
+			return array('status' => 500,'message' => 'Internal server error.');
+		} else {
+			$this->db->trans_commit();
+			return array('status' => 200, 'message' => 'Operation done successfuly!', 'id' => $id);
+		}
+	}
 
 	public function create_wage()
 	{
@@ -77,6 +90,34 @@ class WageMod extends CI_Model
 		} else {
 			$this->db->trans_commit();
 			return array('status' => 200, 'message' => 'Operation done successfuly!', 'wage_id' => $wage_id);
+		}
+	}
+
+	public function create_form()
+	{
+		$params = $_REQUEST;
+
+		$form_id = null;
+		$form_name = $params['name'];
+		$form_unit = $params['unit'];
+		$form_unitshort = $params['unitshort'];
+
+		$this->db->trans_start();
+
+			$data = array(
+				'nazov' => $form_name,
+				'jednotka_vykonu' => $form_unit,
+				'skratka_jednotky' => $form_unitshort
+			);
+			$this->db->insert('forma_mzdy', $data);
+			$form_id = $this->db->insert_id();
+
+		if ($this->db->trans_status() === FALSE){
+			$this->db->trans_rollback();
+			return array('status' => 500,'message' => 'Internal server error.');
+		} else {
+			$this->db->trans_commit();
+			return array('status' => 200, 'message' => 'Operation done successfuly!', 'form_id' => $form_id);
 		}
 	}
 

@@ -53,8 +53,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['auth/login']['post']           = 'auth/login';
 
 $route['employee']['get']           = 'employee';
+$route['employee/emp_usr/(:num)']['get']           = 'employee/emp_usr/$1';
+$route['employee/emps_usrs']['get']           = 'employee/emps_usrs';
 $route['employee/update']['post']           = 'employee/update';
 $route['employee/update_imp']['post']           = 'employee/update_imp';
+$route['employee/crt_emp']['post']           = 'employee/crt_emp';
+$route['employee/crt_usr']['post']           = 'employee/crt_usr';
+$route['employee/upd_usr']['post']           = 'employee/upd_usr';
+$route['employee/upd_usr_pas']['post']           = 'employee/upd_usr_pas';
 $route['employee/detail/(:num)']['get']           = 'employee/detail/$1';
 $route['employee/relations_places_details/(:num)']['get']		 = 'employee/relations_places_details/$1';
 $route['employee/emp_usr_imp/(:num)']['get'] 		= 'employee/emp_usr_imp/$1';
@@ -70,14 +76,40 @@ $route['relation/crt_rel']['post']           = 'relation/crt_rel';
 $route['relation/upd_rel']['post']           = 'relation/upd_rel';
 $route['relation/del_rel/(:num)']['delete']           = 'relation/del_rel/$1';
 $route['relation/del_cons/(:num)']['delete']           = 'relation/del_cons/$1';
+$route['relation/del_lst_cons/(:num)/(:num)']['delete']           = 'relation/del_lst_cons/$1/$2';
 
 $route['place']['get']           = 'place';
+$route['place/del_place/(:num)']['delete']           = 'place/del_place/$1';
+$route['place/crt_place']['post']           = 'place/crt_place';
 
 $route['position']['get']           = 'position';
+$route['position/pos_lvl']['get']           = 'position/pos_lvl';
+$route['position/lvls']['get']           = 'position/lvls';
+$route['position/crt_pos']['post']           = 'position/crt_pos';
+$route['position/upd_pos']['post']           = 'position/upd_pos';
+$route['position/del_pos/(:num)/(:num)']['delete']           = 'position/del_pos/$1/$2';
 
 $route['wage/forms']['get']           = 'wage/forms';
+$route['wage/del_form/(:num)']['delete']           = 'wage/del_form/$1';
 $route['wage/wage_of_con/(:num)']['get']           = 'wage/wage_of_con/$1';
 $route['wage/crt_wage']['post']           = 'wage/crt_wage';
+$route['wage/crt_form']['post']           = 'wage/crt_form';
+
+$route['minwage']['get']           = 'minwage';
+$route['minwage/del_minwg/(:num)']['delete']           = 'minwage/del_minwg/$1';
+$route['minwage/crt_minwg']['post']           = 'minwage/crt_minwg';
+$route['minwage/upd_minwg']['post']           = 'minwage/upd_minwg';
+
+$route['level']['get']           = 'level';
+$route['level/crt_lev']['post']           = 'level/crt_lev';
+$route['level/upd_lev']['post']           = 'level/upd_lev';
+$route['level/del_lev/(:num)']['delete']           = 'level/del_lev/$1';
+
+$route['surcharge']['get']           = 'surcharge';
+$route['surcharge/del_sur/(:num)']['delete']           = 'surcharge/del_sur/$1';
+$route['surcharge/crt_sur']['post']           = 'surcharge/crt_sur';
+$route['surcharge/upd_sur']['post']           = 'surcharge/upd_sur';
+
 
 $route['default_controller'] = 'Employee';
 $route['404_override'] = '';

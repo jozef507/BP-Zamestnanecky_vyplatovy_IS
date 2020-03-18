@@ -246,6 +246,49 @@ class RelationMod extends CI_Model
 		}
 	}
 
+	public function delete_last_conditions($id, $prev_id)
+	{
+		$query = $this->db->query("select pracovny_vztah from podmienky_pracovneho_vztahu where id = ".$id);
+		$relid =  $query->row()->pracovny_vztah;
+
+		$query = $this->db->query("select count(id) as count from podmienky_pracovneho_vztahu where pracovny_vztah = ".$relid);
+		$count =  $query->row()->count;
+		if($count<2)
+		{
+			return array('status' => 403,'message' => 'Nie je mozne odstranit posledne ostavajuce podmienky vztahu!');
+		}
+
+		$this->db->trans_start();
+
+			$wage_array = $this->WageMod->get_wage_by_conditions($id);
+			foreach ($wage_array as $row)
+			{
+				$this->db->where('id',$row['id'])->delete('zakladna_mzda');
+			}
+
+			$query = $this->db->query("select dalsie_podmienky from podmienky_pracovneho_vztahu where id = ".$id);
+			$row = $query->row();
+			$nconid =  $row->dalsie_podmienky;
+
+			$this->db->where('id',$id)->delete('podmienky_pracovneho_vztahu');
+
+			$this->db->where('id',$nconid)->delete('dalsie_podmienky');
+
+			$data = array(
+				'platnost_do' => null
+			);
+			$this->db->where('id', $prev_id)->update('podmienky_pracovneho_vztahu', $data);
+
+
+		if ($this->db->trans_status() === FALSE){
+			$this->db->trans_rollback();
+			return array('status' => 500,'message' => 'Internal server error.');
+		} else {
+			$this->db->trans_commit();
+			return array('status' => 200, 'message' => 'Operation done successfuly!', 'nconid' => $nconid);
+		}
+	}
+
 
 
 
