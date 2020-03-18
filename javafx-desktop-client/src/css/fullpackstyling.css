@@ -4,7 +4,11 @@
 }
 
 .button:hover{
--fx-background-color: #fff;
+    -fx-background-color: #fff;
+}
+
+.button:focused{
+    -fx-background-color: #fff;
 }
 
 .button2{
@@ -15,6 +19,12 @@
 .button2:hover{
 -fx-background-color: #fff;
 }
+
+.button2:focused{
+    -fx-background-color: #ebebeb;
+}
+
+
 
 .menubuttonclicked{
 -fx-background-color: #fff;
