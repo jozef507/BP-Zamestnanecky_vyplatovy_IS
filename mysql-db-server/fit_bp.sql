@@ -54,6 +54,7 @@ create table prihlasovacie_konto
     posledne_prihlasenie datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     vytvorene_v datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     aktualizovane_v datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    aktualne boolean not null default true,
 
     primary key (id),
     constraint u_konto unique (email)
@@ -80,7 +81,7 @@ create table pracujuci
     telefon char (10) not null check (CHAR_LENGTH(telefon)=10),
     rodne_cislo char(10) not null check ( CHAR_LENGTH(rodne_cislo)=10 ),
     datum_narodenia date not null,
-    prihlasovacie_konto int not null,
+    prihlasovacie_konto int null,
 
     primary key (id),
     constraint pracujuci_c1 foreign key (prihlasovacie_konto) references prihlasovacie_konto(id),
@@ -307,7 +308,7 @@ create table typ_priplatku
     id int not null auto_increment,
 	nazov varchar(50) not null ,
 	percentualna_cast float not null,
-	pocitany_zo varchar(25) not null check (pocitany_zo='minimalna_mzda' || pocitany_zo='priemerna_mzda' || pocitany_zo='zakladna_mzda'),
+	pocitany_zo varchar(25) not null check (pocitany_zo='minimálna mzda' || pocitany_zo='priemerná mzda' || pocitany_zo='základná mzda'),
 	platnost_od date not null,
 	platnost_do date null,
 
@@ -556,7 +557,7 @@ call odstran_pracujuceho(1);*/
 insert into prihlasovacie_konto(heslo, email, typ_prav, posledne_prihlasenie, vytvorene_v, aktualizovane_v)
     values ('5731d026710d223ef4b2494fc3e975a9', 'vlado@gmail.com', 'riaditeľ', '2020-02-20 11:30:55', '2015-12-25 10:35:16', '2015-12-25 10:35:16');
 insert into prihlasovacie_konto(heslo, email, typ_prav, posledne_prihlasenie, vytvorene_v, aktualizovane_v)
-    values ('21d2124db4d2f47684c5398ad74e4e2b', 'helenka@gmail.com', 'učtovník', '2020-02-24 11:30:55', '2015-12-25 10:35:16', '2015-12-25 10:35:16');
+    values ('21d2124db4d2f47684c5398ad74e4e2b', 'helenka@gmail.com', 'účtovník', '2020-02-24 11:30:55', '2015-12-25 10:35:16', '2015-12-25 10:35:16');
 insert into prihlasovacie_konto( heslo, email, posledne_prihlasenie, vytvorene_v, aktualizovane_v)
     values ( 'a32afbe54e4fbab0c8c44c01f5b90792', 'martinka@gmail.com', '2020-02-20 11:30:55', '2015-12-25 10:35:16', '2015-12-25 10:35:16');
 insert into prihlasovacie_konto( heslo, email, posledne_prihlasenie, vytvorene_v, aktualizovane_v)
@@ -573,8 +574,8 @@ insert into prihlasovacie_konto( heslo, email, posledne_prihlasenie, vytvorene_v
     values ( 'b4285951608f1297e3a26254fc2fda51', 'maja@gmail.com', '2020-02-20 11:30:55', '2015-12-25 10:35:16', '2015-12-25 10:35:16');
 insert into prihlasovacie_konto( heslo, email, posledne_prihlasenie, vytvorene_v, aktualizovane_v)
     values ( 'c00b6488be9f58ea9ac154cd24142ed1', 'palko@gmail.com', '2020-02-24 11:30:55', '2015-12-25 10:35:16', '2015-12-25 10:35:16');
-insert into prihlasovacie_konto( heslo, email, posledne_prihlasenie, vytvorene_v, aktualizovane_v)
-    values ( '256f035bd7cf72238fad007fb9199c66', 'jozko@gmail.com', '2020-02-20 11:30:55', '2015-12-25 10:35:16', '2015-12-25 10:35:16');
+insert into prihlasovacie_konto( heslo, email, typ_prav, posledne_prihlasenie, vytvorene_v, aktualizovane_v)
+    values ( '256f035bd7cf72238fad007fb9199c66', 'jozko@gmail.com', 'admin', '2020-02-20 11:30:55', '2015-12-25 10:35:16', '2015-12-25 10:35:16');
 
 
 insert into pracujuci(meno, priezvisko, telefon, rodne_cislo, datum_narodenia, prihlasovacie_konto)
@@ -636,8 +637,6 @@ insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo
 insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
     values ('Union', 'Víťaz', 'Víťaz', '507', '0', '0', false, false, false, '2016-01-01', null, 11);
 
-insert into pracovny_vztah(typ, datum_vzniku, datum_vyprsania, pracujuci)
-    values ('PP: na plný úväzok', '2005-01-01', null, 1); /*1*/
 insert into pracovny_vztah(typ, datum_vzniku, datum_vyprsania, pracujuci)
     values ('PP: na plný úväzok', '2005-01-01', null, 2); /*2*/
 insert into pracovny_vztah(typ, datum_vzniku, datum_vyprsania, pracujuci)
@@ -1604,6 +1603,7 @@ call pridat_odpracovane_hodiny(@m, 14,'2020-01-31', '10:00', '13:00', null, 150,
 /*select p.nazov, sn.cislo_stupna from pozicia p join pozicia_stupen_narocnosti psn join stupen_narocnosti sn on p.id=psn.pozicia and psn.stupen_narocnosti = sn.id;*/
 select p.*, count(v.id) as c from pracujuci p join pracovny_vztah v on p.id = v.pracujuci where now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null) group by p.id;
 select p.*, count(v.id) as c from pracujuci p left join pracovny_vztah v on p.id = v.pracujuci  where (now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null)) or v.pracujuci is null group by p.id;
+select p.*, count(v.id) as c from pracujuci p left join pracovny_vztah v on p.id = v.pracujuci  group by p.id;
 
 /*select v.typ, pr.nazov from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia po join pracovisko pr
 on p.id = v.pracujuci and v.id = ppv.pracovny_vztah and ppv.pozicia = po.id and po.pracovisko = pr.id
@@ -1611,9 +1611,48 @@ where now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania
 
 select pk.id as pk_id, pk.*, p.id as p_id, p.*, du.id as du_id, du.* from prihlasovacie_konto pk join pracujuci p join dolezite_udaje_pracujuceho du on p.id = du.pracujuci and p.prihlasovacie_konto = pk.id where p.id = 1 and now() > du.platnost_od and (now() < du.platnost_do or du.platnost_do is null);
 
-select p.id, v.*, ppv.id, ppv.dalsie_podmienky, poz.nazov, pr.nazov from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on p.id = v.pracujuci and v.id=ppv.pracovny_vztah and ppv.pozicia=poz.id and poz.pracovisko=pr.id where (now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null)) and (now() > ppv.platnost_od and (now() < ppv.platnost_do or ppv.platnost_do is null)) and p.id = 11;
+select p.id, v.*, ppv.id, ppv.dalsie_podmienky, poz.nazov, pr.nazov from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on p.id = v.pracujuci and v.id=ppv.pracovny_vztah and ppv.pozicia=poz.id and poz.pracovisko=pr.id
+where (p.id = 1)  /*and (now() < v.datum_vyprsania or v.datum_vyprsania is null) and  (now() < ppv.platnost_do or ppv.platnost_do is null)*/ ;
+select p.id, v.*, ppv.id, ppv.dalsie_podmienky, poz.nazov, pr.nazov from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on p.id = v.pracujuci and v.id=ppv.pracovny_vztah and ppv.pozicia=poz.id and poz.pracovisko=pr.id
+where   (p.id = 1)  and (now() < v.datum_vyprsania or v.datum_vyprsania is null or v.datum_vyprsania = '0000-00-00') and  (now() < ppv.platnost_do or ppv.platnost_do is null or ppv.platnost_do = '0000-00-00') ;
 
 select count(vp.id) as c from dolezite_udaje_pracujuceho dup join vyplatna_paska vp on dup.id = vp.dolezite_udaje_pracujuceho where dup.id = 1;
 
 select dup.id from pracujuci p join dolezite_udaje_pracujuceho dup on p.id = dup.pracujuci where dup.platnost_do is not null and p.id = 1 order by dup.platnost_od desc limit 1;
 select dup.* from pracujuci p join dolezite_udaje_pracujuceho dup on p.id = dup.pracujuci where p.id=1 order by dup.platnost_od;
+
+select dp.*, ppv.*, dp.id as dp_id, ppv.id as ppv_id, pr.nazov as pr_nazov, po.nazov as po_nazov from dalsie_podmienky dp
+    right outer join podmienky_pracovneho_vztahu ppv on dp.id = ppv.dalsie_podmienky
+    join pozicia po on ppv.pozicia = po.id
+    join pracovisko pr on po.pracovisko = pr.id
+    where ppv.pracovny_vztah=2;
+
+select p.id, v.*, ppv.id, ppv.dalsie_podmienky, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(v.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(v.datum_vyprsania,'%d.%m.%Y') as nice_date2 from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on p.id = v.pracujuci and v.id=ppv.pracovny_vztah and ppv.pozicia=poz.id and poz.pracovisko=pr.id where  p.id = 11 order by v.datum_vzniku desc;
+select * from zakladna_mzda zm where zm.podmienky_pracovneho_vztahu = 9;
+
+select count(id) from podmienky_pracovneho_vztahu where pracovny_vztah = 2;
+
+select pk.id as pk_id, pk.email, pk.typ_prav, p.id as p_id, p.*, du.id as du_id, du.*,  DATE_FORMAT(p.datum_narodenia,'%d.%m.%Y') as nice_date1, DATE_FORMAT(du.platnost_od,'%d.%m.%Y') as nice_date2 from prihlasovacie_konto pk right join pracujuci p  on p.prihlasovacie_konto = pk.id join dolezite_udaje_pracujuceho du on p.id = du.pracujuci where p.id = 13 and now() > du.platnost_od and (now() < du.platnost_do or du.platnost_do is null or du.platnost_do = '0000-00-00');
+
+/*ALTER TABLE prihlasovacie_konto
+ADD COLUMN aktualne boolean not null default true;*/
+
+
+select p.*,  v.typ as p2_nazov, p3.nazov as p3_nazov from pracovisko p3 join pozicia p2 on p2.pracovisko = p3.id join podmienky_pracovneho_vztahu ppv on ppv.pozicia = p2.id join pracovny_vztah v on v.id = ppv.pracovny_vztah right join pracujuci p on  p.id = v.pracujuci order by p.id;
+
+select p.*,  v.typ as p2_nazov, p3.nazov as p3_nazov from pracujuci p left join pracovny_vztah v on p.id = v.pracujuci join podmienky_pracovneho_vztahu ppv on v.id = ppv.pracovny_vztah join pozicia p2 on ppv.pozicia = p2.id join pracovisko p3 on p2.pracovisko = p3.id order by p.id;
+
+select po.*, pr.nazov, sn.cislo_stupna from pracovisko pr join pozicia po on pr.id = po.pracovisko join pozicia_stupen_narocnosti psn on po.id = psn.pozicia join stupen_narocnosti sn on psn.stupen_narocnosti = sn.id where sn.platnost_od <= now() and sn.platnost_do>= now() or sn.platnost_do is null;
+select sn.* from stupen_narocnosti sn where sn.platnost_od <= now() and sn.platnost_do>= now() or sn.platnost_do is null;
+
+select * from minimalna_mzda where stupen_narocnosti = 1 order by platnost_od desc limit 1;
+
+select pk.id as pk_id, pk.email, pk.typ_prav, p.id as p_id, p.*, du.id as du_id, du.*,  DATE_FORMAT(p.datum_narodenia,'%d.%m.%Y') as nice_date1, DATE_FORMAT(du.platnost_od,'%d.%m.%Y') as nice_date2
+from prihlasovacie_konto pk
+         right join pracujuci p  on p.prihlasovacie_konto = pk.id
+         left join dolezite_udaje_pracujuceho du on p.id = du.pracujuci
+where p.id = 12  and  ((now() > du.platnost_od and (now() < du.platnost_do or du.platnost_do is null)));
+
+select pk.id as pk_id, pk.email, pk.typ_prav, p.id as p_id, p.*,  DATE_FORMAT(p.datum_narodenia,'%d.%m.%Y') as nice_date1 from prihlasovacie_konto pk right join pracujuci p  on p.prihlasovacie_konto = pk.id where p.id = 12 ;
+
+select du.id as du_id, du.*, DATE_FORMAT(du.platnost_od,'%d.%m.%Y') as nice_date2 from dolezite_udaje_pracujuceho du where du.pracujuci = 12  and  ((now() > du.platnost_od and (now() < du.platnost_do or du.platnost_do is null)));
