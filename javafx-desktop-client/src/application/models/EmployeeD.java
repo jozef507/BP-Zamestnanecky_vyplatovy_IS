@@ -5,12 +5,14 @@ import java.util.ArrayList;
 public class EmployeeD
 {
     private String id, name, lastname, phone, bornNum, bornDate;
-    private String pkID, email, userType;
+    private String pkID, email, password, userType, lastLogIn, created, isCurrent;
     private String duID, insComp, town, street, number, from, childrenUnder, childrenOver, part, retirement, invalidity;
 
     private ArrayList<RelationOV> relations;
 
-    public EmployeeD(String id, String name, String lastname, String phone, String bornNum, String bornDate,String pkid, String email,
+    public EmployeeD() {}
+
+    public EmployeeD(String id, String name, String lastname, String phone, String bornNum, String bornDate, String pkid, String email,
                      String userType, String duid, String inscomp, String town, String street, String number, String from, String childrenUnder,
                      String childrenOver, String part, String retirement, String invalidity) {
         this.id = id;
@@ -235,5 +237,37 @@ public class EmployeeD
 
     public void setPart(String part) {
         this.part = part;
+    }
+
+    public String getIsCurrent() {
+        return isCurrent;
+    }
+
+    public void setIsCurrent(String isCurrent) {
+        this.isCurrent = isCurrent;
+    }
+
+    public String getLastLogIn() {
+        return lastLogIn;
+    }
+
+    public void setLastLogIn(String lastLogIn) {
+        this.lastLogIn = lastLogIn;
+    }
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

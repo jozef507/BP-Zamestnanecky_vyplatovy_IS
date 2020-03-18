@@ -35,6 +35,47 @@ public class EmployeeOV
         this.places = new ArrayList<>();
     }
 
+    public EmployeeOV() {
+        this.workRelations = new ArrayList<>();
+        this.places = new ArrayList<>();
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public void setPhonenumber(String phonenumber) {
+        this.phonenumber = phonenumber;
+    }
+
+    public void setBornnumber(String bornnumber) {
+        this.bornnumber = bornnumber;
+    }
+
+    public void setBorndate(String borndate) {
+        this.borndate = borndate;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public void setWorkRelations(ArrayList<String> workRelations) {
+        this.workRelations = workRelations;
+    }
+
+    public void setPlaces(ArrayList<String> places) {
+        this.places = places;
+    }
+
     public int getId()
     {
         return this.id;
@@ -83,6 +124,20 @@ public class EmployeeOV
     public ArrayList<String> getPlaces()
     {
         return this.places;
+    }
+
+    public void addWorkRelation(String workRelation)
+    {
+        this.workRelations.add(workRelation);
+    }
+
+    public void addPlace(String place)
+    {
+        this.places.add(place);
+    }
+
+    public void setActrelat(int actrelat) {
+        this.actrelat = actrelat;
     }
 
     public void setLists() throws IOException, InterruptedException, CommunicationException {

@@ -2,7 +2,12 @@ package application.models;
 
 public class PositionD
 {
-    String id, name, place, characteristic;
+    String id, name, place, characteristic,
+        placeID, placeName,
+        levelID, levelLevel;
+
+    public PositionD() {
+    }
 
     public PositionD(String id, String name, String place, String characteristic) {
         this.id = id;
@@ -41,5 +46,37 @@ public class PositionD
 
     public void setCharacteristic(String characteristic) {
         this.characteristic = characteristic;
+    }
+
+    public String getPlaceName() {
+        return placeName;
+    }
+
+    public void setPlaceName(String placeName) {
+        this.placeName = placeName;
+    }
+
+    public String getLevelLevel() {
+        return levelLevel;
+    }
+
+    public void setLevelLevel(String levelLevel) {
+        this.levelLevel = levelLevel;
+    }
+
+    public String getPlaceID() {
+        return placeID;
+    }
+
+    public void setPlaceID(String placeID) {
+        this.placeID = placeID;
+    }
+
+    public String getLevelID() {
+        return levelID;
+    }
+
+    public void setLevelID(String levelID) {
+        this.levelID = levelID;
     }
 }

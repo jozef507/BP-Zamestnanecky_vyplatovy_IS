@@ -4,6 +4,9 @@ public class WageFormD
 {
     String id, name, unit, unitShort;
 
+    public WageFormD() {
+    }
+
     public WageFormD(String id, String name, String unit, String unitShort) {
         this.id = id;
         this.name = name;

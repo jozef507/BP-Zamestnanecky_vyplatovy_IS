@@ -3,7 +3,9 @@ package application.models;
 public class ImportantD
 {
     private String id, insComp, town, street, num, childUnder, childOver,
-        part, retirement, invalidity, from, to;
+        part, retirement, invalidity, from, to, employeeID;
+
+    public ImportantD() {}
 
     public ImportantD(String id, String insComp, String town, String street, String num, String childUnder, String childOver, String part, String retirement, String invalidity, String from, String to) {
         this.id = id;
@@ -116,5 +118,13 @@ public class ImportantD
 
     public void setTo(String to) {
         this.to = to;
+    }
+
+    public String getEmployeeID() {
+        return employeeID;
+    }
+
+    public void setEmployeeID(String employeeID) {
+        this.employeeID = employeeID;
     }
 }
