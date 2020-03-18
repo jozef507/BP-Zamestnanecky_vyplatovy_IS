@@ -4,6 +4,7 @@ import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -42,6 +43,7 @@ public class ControllerUpdateEmployeeImportant
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
+        this.changeFocus();
         this.setDatePicker();
         this.setComboBoxes();
         this.setInputs();
@@ -49,6 +51,14 @@ public class ControllerUpdateEmployeeImportant
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                if(!checkFormular()) return;
+                if(!checkFormularTypes()) return;
+
+
+                CustomAlert al = new CustomAlert("Uloženie zmien dôležitých údajov", "Ste si istý že chcete uložiť zmeny dôležitých údajov pracujúceho?", "", "Áno", "Nie");
+                if(!al.showWait())
+                    return;
+
                 updateEmployeeImp();
             }
         });
@@ -78,6 +88,17 @@ public class ControllerUpdateEmployeeImportant
         this.c = c;
     }
 
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        insCompF.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                insCompF.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
     private void setDatePicker()
     {
         StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
@@ -105,10 +126,68 @@ public class ControllerUpdateEmployeeImportant
         begin.setPromptText("D.M.RRRR");
     }
 
+    private boolean checkFormular()
+    {
+        boolean flag = true;
+        label.setVisible(false);
+
+        if(insCompF.getText() == null || insCompF.getText().trim().isEmpty())
+            flag=false;
+        else if(townF.getText() == null || townF.getText().trim().isEmpty())
+            flag=false;
+        else if(streetF.getText() == null || streetF.getText().trim().isEmpty())
+            flag=false;
+        else if(numF.getText() == null || numF.getText().trim().isEmpty())
+            flag=false;
+        else if(childUnderF.getText() == null || childUnderF.getText().trim().isEmpty())
+            flag=false;
+        else if(childOverF.getText() == null || childOverF.getText().trim().isEmpty())
+            flag=false;
+        else if(partF.getSelectionModel().isEmpty())
+            flag=false;
+        else if(retirementF.getSelectionModel().isEmpty())
+            flag=false;
+        else if(invalidityF.getSelectionModel().isEmpty())
+            flag=false;
+        else if(begin.getValue()==null)
+            flag=false;
+
+
+        if(!flag)
+        {
+            System.out.println("Nevyplené alebo nesprávne vyplnené údaje.");
+            label.setText("Nevyplené údaje.");
+            label.setVisible(true);
+            return false;
+        }
+        return flag;
+    }
+
+    private boolean checkFormularTypes()
+    {
+        boolean flag = true;
+
+        if(!childOverF.getText().matches("(^\\d\\d?$)")) flag=false;
+        else if(!childUnderF.getText().matches("(^\\d\\d?$)")) flag=false;
+        else if(!numF.getText().matches("(^\\d*$)")) flag=false;
+
+        if(!flag)
+        {
+            System.out.println("Niektoré vyplnené údaje majú nesprávny formát.");
+            label.setText("Niektoré vyplnené údaje majú nesprávny formát.");
+            label.setVisible(true);
+            return flag;
+        }
+        return flag;
+        /*try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }*/
+    }
+
+
     private void updateEmployeeImp()  {
-        CustomAlert al = new CustomAlert("Uloženie zmien dôležitých údajov", "Ste si istý že chcete uložiť zmeny dôležitých údajov pracujúceho?", "", "Áno", "Nie");
-        if(!al.showWait())
-            return;
 
         String sInsComp = insCompF.getText();
         String sTown = townF.getText();

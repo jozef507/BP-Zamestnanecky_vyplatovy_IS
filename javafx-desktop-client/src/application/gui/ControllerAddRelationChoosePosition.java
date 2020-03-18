@@ -6,6 +6,7 @@ import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.EmployeeOV;
+import application.models.PlaceD;
 import application.models.PositionD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -139,6 +140,11 @@ public class ControllerAddRelationChoosePosition
     {
         try {
             PositionD p = tab.getSelectionModel().getSelectedItem();
+            if(p==null)
+            {
+                CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
+                return;
+            }
             controllerAddRelation.setChoosenPosition(p);
             controllerAddRelation.setPositionElements();
             System.out.println(p.toString());

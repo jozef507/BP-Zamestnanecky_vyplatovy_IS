@@ -6,6 +6,7 @@ import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.*;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
@@ -65,6 +66,7 @@ public class ControllerUpdateRelation implements ControllerRelation
     {
 
         setDatePicker();
+        changeFocus();
 
         if(controllerPageEmployeeDetailsRelation.getRelationD().getType().equals("D: o vykonaní práce")
             || controllerPageEmployeeDetailsRelation.getRelationD().getType().equals("D: o pracovnej činnosti")
@@ -160,10 +162,126 @@ public class ControllerUpdateRelation implements ControllerRelation
 
     public void create(MouseEvent mouseEvent)
     {
-        if(!checkFormular())
+        if(!checkFormular()) return;
+        if(!checkFormularTypes()) return;
+
+        CustomAlert al = new CustomAlert("Zmena podmienok pracovného vzťahu", "Ste si istý že chcete zmeňiť podmienky pracovného vzťahu?", "", "Áno", "Nie");
+        if(!al.showWait())
             return;
 
+        this.setModelsFromInputs();
 
+        try {
+            updateRelation();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+
+        controllerPageEmployeeDetailsRelation.updateInfo();
+        Stage stage = (Stage) vb.getScene().getWindow();
+        stage.close();
+    }
+
+
+
+    private boolean checkFormular()
+    {
+        boolean flag = true;
+        infoLabel.setVisible(false);
+
+        if(!hb.isDisable())
+        {
+            if(hollidayTime.getText() == null || hollidayTime.getText().trim().isEmpty())
+                flag=false;
+            else if(weekTime.getText() == null || weekTime.getText().trim().isEmpty())
+                flag=false;
+            else if(testTime.getText() == null || testTime.getText().trim().isEmpty())
+                flag=false;
+            else if(sackTime.getText() == null || sackTime.getText().trim().isEmpty())
+                flag=false;
+        }
+
+
+        else if(choosenPosition == null)
+            flag=false;
+        else if(wagesControllers.size() == 0)
+            flag=false;
+
+        for(int i = 0;i<wagesControllers.size();i++)
+        {
+            if(wagesControllers.get(i).getForm().getSelectionModel().isEmpty())
+                flag=false;
+            else if(wagesControllers.get(i).getTarif().getText() == null || wagesControllers.get(i).getTarif().getText().trim().isEmpty())
+                flag=false;
+            else if(wagesControllers.get(i).getLabel().getText() == null || wagesControllers.get(i).getLabel().getText().trim().isEmpty())
+                flag=false;
+            else if( wagesControllers.get(i).getPayDate().isDisable()==false && wagesControllers.get(i).getPayDate().getValue()==null)
+                flag=false;
+
+            if(!flag)
+                break;
+        }
+
+        if(!flag)
+        {
+            System.out.println("Nevyplené alebo nesprávne vyplnené údaje.");
+            infoLabel.setVisible(true);
+            return false;
+        }
+        return flag;
+    }
+
+    private boolean checkFormularTypes()
+    {
+        boolean flag = true;
+
+        if(testTime.getText().matches("^\\+?-?\\d+$")) flag=false;
+        else if(sackTime.getText().matches("^\\+?-?\\d+$")) flag=false;
+        else if(hollidayTime.getText().matches("^\\+?-?\\d+(\\.\\d+)?$")) flag=false;
+        try {
+            double d = Double.parseDouble(weekTime.getText());
+            if(d>40) flag=false;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+
+        for(int i = 0;i<wagesControllers.size();i++)
+        {
+            if(!wagesControllers.get(i).getTarif().getText().matches("^\\+?-?\\d+(\\.\\d+)?$")) flag=false;
+            if(!flag) break;
+        }
+
+        if(!flag)
+        {
+            System.out.println("Niektoré vyplnené údaje majú nesprávny formát.");
+            infoLabel.setText("Niektoré vyplnené údaje majú nesprávny formát.");
+            infoLabel.setVisible(true);
+            return flag;
+        }
+        return flag;
+        /*try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }*/
+    }
+
+
+    private void setModelsFromInputs()
+    {
         ConditionsD conditionsD = new ConditionsD();
         conditionsD.setFrom(from.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         conditionsD.setTo("NULL");
@@ -212,76 +330,6 @@ public class ControllerUpdateRelation implements ControllerRelation
 
             wageDs.add(wageD);
         }
-
-        try {
-            updateRelation();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-
-        controllerPageEmployeeDetailsRelation.updateInfo();
-        Stage stage = (Stage) vb.getScene().getWindow();
-        stage.close();
-    }
-
-    private boolean checkFormular()
-    {
-        boolean flag = true;
-        infoLabel.setVisible(false);
-
-        if(!hb.isDisable())
-        {
-            if(hollidayTime.getText() == null || hollidayTime.getText().trim().isEmpty())
-                flag=false;
-            else if(weekTime.getText() == null || weekTime.getText().trim().isEmpty())
-                flag=false;
-            else if(testTime.getText() == null || testTime.getText().trim().isEmpty())
-                flag=false;
-            else if(sackTime.getText() == null || sackTime.getText().trim().isEmpty())
-                flag=false;
-        }
-
-
-        else if(choosenPosition == null)
-            flag=false;
-        else if(wagesControllers.size() == 0)
-            flag=false;
-
-        for(int i = 0;i<wagesControllers.size();i++)
-        {
-            if(wagesControllers.get(i).getForm().getSelectionModel().isEmpty())
-                flag=false;
-            else if(wagesControllers.get(i).getTarif().getText() == null || wagesControllers.get(i).getTarif().getText().trim().isEmpty())
-                flag=false;
-            else if(wagesControllers.get(i).getLabel().getText() == null || wagesControllers.get(i).getLabel().getText().trim().isEmpty())
-                flag=false;
-            else if( wagesControllers.get(i).getPayDate().isDisable()==false && wagesControllers.get(i).getPayDate().getValue()==null)
-                flag=false;
-
-            if(!flag)
-                break;
-        }
-
-        if(!flag)
-        {
-            System.out.println("Nevyplené alebo nesprávne vyplnené údaje.");
-            infoLabel.setVisible(true);
-            return false;
-        }
-        return flag;
     }
 
     private void updateRelation() throws InterruptedException, IOException, CommunicationException {
@@ -332,5 +380,16 @@ public class ControllerUpdateRelation implements ControllerRelation
             ht.sendPost("wage/crt_wage", LoggedInUser.getToken(), LoggedInUser.getId());
         }
 
+    }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        from.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                from.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
     }
 }

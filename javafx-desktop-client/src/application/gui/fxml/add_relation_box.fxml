@@ -42,15 +42,15 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Text>
-            <CheckBox fx:id="employee" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <CheckBox fx:id="time" mnemonicParsing="false" prefHeight="19.0" prefWidth="20.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <ComboBox fx:id="form" prefHeight="25.0" prefWidth="252.0" GridPane.columnIndex="1" />
-            <ComboBox fx:id="way" prefHeight="25.0" prefWidth="254.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nutné evid. čas" GridPane.rowIndex="3">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Text>
+            <ComboBox fx:id="form" prefHeight="25.0" prefWidth="252.0" GridPane.columnIndex="1" />
+            <ComboBox fx:id="way" prefHeight="25.0" prefWidth="254.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <CheckBox fx:id="employee" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <CheckBox fx:id="time" mnemonicParsing="false" prefHeight="19.0" prefWidth="20.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
          </children>
          <padding>
             <Insets left="5.0" right="5.0" />
@@ -84,8 +84,8 @@
                </font>
             </Text>
             <TextField fx:id="tarif" GridPane.columnIndex="1" />
-            <TextField fx:id="label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <DatePicker fx:id="payDate" prefHeight="25.0" prefWidth="277.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          </children>
          <padding>
             <Insets left="5.0" right="5.0" />

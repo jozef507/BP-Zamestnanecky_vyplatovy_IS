@@ -13,8 +13,12 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,8 +44,6 @@ public class ControllerPageEmployees
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
-
-        //set table columns
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         lastNameCol.setCellValueFactory(new PropertyValueFactory<>("lastname"));
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -62,9 +64,6 @@ public class ControllerPageEmployees
                 "Bez aktuálneho vzťahu"
         );
         relat.getSelectionModel().selectFirst();
-
-
-
 
         place.getItems().add("Pracovisko:");
         for (String p:places)
@@ -169,6 +168,29 @@ public class ControllerPageEmployees
         }
     }
 
+    public void updateInfo()
+    {
+        try {
+            employeeOVS = employeeSelect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+        tab.setItems(employeeOVS);
+    }
+
     private boolean isFiltered(EmployeeOV employeeOV, String inp, String pla, String rel)
     {
 
@@ -226,38 +248,49 @@ public class ControllerPageEmployees
         return flag;
     }
 
+
     private ObservableList<EmployeeOV> employeeSelect() throws IOException, InterruptedException, CommunicationException {
         ObservableList<EmployeeOV> employeeOVS = FXCollections.observableArrayList();
 
         HttpClientClass ht = new HttpClientClass();
         ht.sendGet("employee", LoggedInUser.getToken(), LoggedInUser.getId());
-
         JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        EmployeeOV newEmployeeOV = null;
+
+        String prevEmployeeID="-1";
         for(int i=0; i<json.getSize(); i++)
         {
-            newEmployeeOV = new EmployeeOV(
-                        (Integer.parseInt(json.getElement(i, "id"))),
-                        (json.getElement(i, "meno")),
-                        (json.getElement(i, "priezvisko")),
-                        (json.getElement(i, "telefon")),
-                        (json.getElement(i, "rodne_cislo")),
-                        (json.getElement(i, "datum_narodenia")),
-                        (json.getElement(i, "prihlasovacie_konto")),
-                        (Integer.parseInt(json.getElement(i, "c")))
-            );
-            employeeOVS.add(newEmployeeOV);
+            if(!json.getElement(i,"id").equals(prevEmployeeID))
+            {
+                EmployeeOV newEmployeeOV = new EmployeeOV();
+
+                newEmployeeOV.setId(Integer.parseInt(json.getElement(i, "id")));
+                newEmployeeOV.setName(json.getElement(i, "meno"));
+                newEmployeeOV.setLastname(json.getElement(i, "priezvisko"));
+                newEmployeeOV.setPhonenumber(json.getElement(i, "telefon"));
+                newEmployeeOV.setBornnumber(json.getElement(i, "rodne_cislo"));
+                newEmployeeOV.setBorndate(json.getElement(i, "datum_narodenia"));
+                newEmployeeOV.setLogin(json.getElement(i, "prihlasovacie_konto"));
+                if(json.getElement(i, "p2_nazov")==null)
+                {
+                    newEmployeeOV.setActrelat(0);
+                }
+                else
+                {
+                    newEmployeeOV.setActrelat(1);
+                    newEmployeeOV.addWorkRelation(json.getElement(i, "p2_nazov"));
+                    newEmployeeOV.addPlace(json.getElement(i, "p3_nazov"));
+                }
+                employeeOVS.add(newEmployeeOV);
+            }
+            else
+            {
+                employeeOVS.get(employeeOVS.size()-1).addWorkRelation(json.getElement(i, "p2_nazov"));
+                employeeOVS.get(employeeOVS.size()-1).addPlace(json.getElement(i, "p3_nazov"));
+                employeeOVS.get(employeeOVS.size()-1).setActrelat(employeeOVS.get(employeeOVS.size()-1).getActrelat()+1);
+            }
+            prevEmployeeID = json.getElement(i,"id");
         }
 
-        for (EmployeeOV e: employeeOVS)
-        {
-            try {
-                e.setLists();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                break;
-            }
-        }
         return employeeOVS;
     }
 
@@ -276,13 +309,20 @@ public class ControllerPageEmployees
 
     public void btn(ActionEvent actionEvent)
     {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_employee.fxml"));
+        loader.setControllerFactory(c -> {
+            return new ControllerAddEmployee(this);
+        });
+        Parent root1 = null;
         try {
-            EmployeeOV e = tab.getSelectionModel().getSelectedItem();
-            System.out.println(e.toString());
-        }catch (Exception e)
-        {
-            System.out.println("Nevybraný žiadny element!");
+            root1 = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Úprava informácií pracujúceho");
+        primaryStage.setScene(new Scene(root1, 505, 600));
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.show();
     }
 }

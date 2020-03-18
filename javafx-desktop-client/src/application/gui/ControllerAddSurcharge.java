@@ -1,0 +1,208 @@
+package application.gui;
+
+import application.alerts.CustomAlert;
+import application.exceptions.CommunicationException;
+import application.httpcomunication.HttpClientClass;
+import application.httpcomunication.LoggedInUser;
+import application.models.LevelD;
+import application.models.PlaceD;
+import application.models.SurchargeTypeD;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
+public class ControllerAddSurcharge
+{
+    public Button cancel;
+    public Button create;
+    public DatePicker from;
+    public TextField name, part;
+    public ComboBox<String> base;
+    public Label label;
+
+    private ArrayList<String> bases;
+
+    private ControllerPageLegislationSurcharge controllerPageLegislationSurcharge;
+    private SurchargeTypeD surchargeTypeD;
+
+
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        setDatePicker();
+        setComboboxes();
+        changeFocus();
+    }
+
+    public ControllerAddSurcharge(ControllerPageLegislationSurcharge controllerPageLegislationSurcharge) {
+        this.controllerPageLegislationSurcharge = controllerPageLegislationSurcharge;
+        this.surchargeTypeD = new SurchargeTypeD();
+        this.bases = new ArrayList<>();
+        this.bases.add("minimálna mzda");
+        this.bases.add("priemerná mzda");
+        this.bases.add("základná mzda");
+    }
+
+    public void cancelClick(MouseEvent mouseEvent) {
+        Stage stage = (Stage) cancel.getScene().getWindow();
+        stage.close();
+    }
+
+    public void createClick(MouseEvent mouseEvent)
+    {
+        if(!this.checkFormular()) return;
+        if(!this.checkFormularTypes()) return;
+
+        CustomAlert al = new CustomAlert("Vytvorenie stupňa náročnosti", "Ste si istý že chcete vytvoriť nový stupeň náročnosti?", "", "Áno", "Nie");
+        if(!al.showWait()) return;
+
+        this.setModelsFromInputs();
+        try {
+            this.createSurcharge();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+
+        this.controllerPageLegislationSurcharge.updateInfo();
+        Stage stage = (Stage) cancel.getScene().getWindow();
+        stage.close();
+    }
+
+    private boolean checkFormular()
+    {
+        boolean flag = true;
+        label.setVisible(false);
+
+        if(name.getText() == null || name.getText().trim().isEmpty())
+            flag=false;
+        else if(part.getText() == null || part.getText().trim().isEmpty())
+            flag=false;
+
+        if(from.getValue()==null)
+            flag=false;
+
+        if(base.getSelectionModel().isEmpty())
+            flag=false;
+
+        if(!flag)
+        {
+            System.out.println("Nevyplené údaje.");
+            label.setText("Nevyplené údaje.");
+            label.setVisible(true);
+            return false;
+        }
+        return flag;
+    }
+
+    private boolean checkFormularTypes()
+    {
+        boolean flag = true;
+
+       try {
+            double d = Double.parseDouble(part.getText());
+            if(!(d>0 && d<1)) flag = false;
+        } catch (NumberFormatException nfe) {
+           flag=false;
+        }
+
+        if(!flag)
+        {
+            System.out.println("Niektoré vyplnené údaje majú nesprávny formát.");
+            label.setText("Niektoré vyplnené údaje majú nesprávny formát.");
+            label.setVisible(true);
+            return false;
+        }
+        return flag;
+
+    }
+
+    private void setModelsFromInputs()
+    {
+        this.surchargeTypeD.setName(name.getText());
+        this.surchargeTypeD.setPart(part.getText());
+        this.surchargeTypeD.setFrom(from.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        this.surchargeTypeD.setBase(base.getValue());
+    }
+
+    private void createSurcharge() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("name", this.surchargeTypeD.getName());
+        ht.addParam("part", this.surchargeTypeD.getPart());
+        ht.addParam("base", this.surchargeTypeD.getBase());
+        ht.addParam("from", this.surchargeTypeD.getFrom());
+
+        ht.sendPost("surcharge/crt_sur", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        from.setConverter(converter);
+        from.setPromptText("D.M.RRRR");
+    }
+
+    private void setComboboxes()
+    {
+        for (String p:this.bases)
+        {
+            base.getItems().add(p);
+        }
+
+    }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                name.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+
+}

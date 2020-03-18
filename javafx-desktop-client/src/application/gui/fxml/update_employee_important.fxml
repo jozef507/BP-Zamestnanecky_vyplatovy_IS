@@ -92,20 +92,20 @@
                               <Font size="14.0" />
                            </font>
                         </Text>
-                        <TextField fx:id="insCompF" GridPane.columnIndex="1" />
-                        <TextField fx:id="townF" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField fx:id="streetF" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <TextField fx:id="numF" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <TextField fx:id="childUnderF" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <TextField fx:id="childOverF" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <ComboBox fx:id="partF" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                        <ComboBox fx:id="retirementF" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                        <ComboBox fx:id="invalidityF" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nadobúda platnosť od" GridPane.rowIndex="9">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Text>
+                        <TextField fx:id="insCompF" GridPane.columnIndex="1" />
+                        <TextField fx:id="townF" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="streetF" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="numF" promptText="iba číslice" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <TextField fx:id="childUnderF" promptText="1-2 číslice (cifry)" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <TextField fx:id="childOverF" promptText="1-2 číslice (cifry)" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <ComboBox fx:id="partF" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        <ComboBox fx:id="retirementF" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <ComboBox fx:id="invalidityF" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                         <DatePicker fx:id="begin" prefHeight="25.0" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                      </children>
                   </GridPane>
@@ -117,7 +117,7 @@
                   </HBox>
                   <HBox alignment="CENTER" prefHeight="0.0" prefWidth="415.0">
                      <children>
-                        <Label fx:id="label" />
+                        <Label fx:id="label" textFill="#f80707" />
                      </children>
                   </HBox>
                </children>

@@ -70,7 +70,6 @@ public class ControllerPageEmployeeDetailsRelation
             CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
                     "\nKontaktujte administrátora systému!", e.toString());
         }
-
     }
 
     @FXML
@@ -127,7 +126,31 @@ public class ControllerPageEmployeeDetailsRelation
 
     public void removeCon(MouseEvent mouseEvent)
     {
-
+        HttpClientClass ht = new HttpClientClass();
+        try {
+            ht.sendDelete("relation/del_lst_cons/"+this.conditionsDs.get(this.conditionsDs.size()-1).getId()+"/"+this.conditionsDs.get(this.conditionsDs.size()-2).getId(), LoggedInUser.getToken(), LoggedInUser.getId());
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Chyba",
+                    "Nie je možné odstrániť posledné podmienky pracovného vzťahu.", e.getMessage());
+            return;
+        }catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+        updateInfo();
     }
 
     public RelationD getRelationD()
@@ -228,6 +251,7 @@ public class ControllerPageEmployeeDetailsRelation
     }
 
     private void setConditionsDs() throws InterruptedException, IOException, CommunicationException {
+        this.conditionsDs.clear();
         HttpClientClass ht = new HttpClientClass();
         ht.sendGet("relation/con_ncon_po_pl/"+this.relationD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
         JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());

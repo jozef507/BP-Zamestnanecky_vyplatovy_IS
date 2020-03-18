@@ -5,6 +5,7 @@ import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -45,12 +46,20 @@ public class ControllerUpdateEmployee
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
+        this.changeFocus();
         this.setDatePicker();
         this.setInputs();
 
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                if(!checkFormular()) return;
+                if(!checkFormularTypes()) return;
+
+                CustomAlert al = new CustomAlert("Aktualizácia údajov pracujúceho", "Ste si istý že chcete uložiť zmeny dôležitých údajov pracujúceho?", "", "Áno", "Nie");
+                if(!al.showWait())
+                    return;
+
                 updateEmployee();
             }
         });
@@ -110,13 +119,6 @@ public class ControllerUpdateEmployee
         String sBornnumber = bornnumber.getText();
         String sDate = borndate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        if(sName.equals("") || sLastname.equals("") || sPhone.equals("") || sBornnumber.equals("") || sDate.equals(""))
-        {
-            label.setTextFill(Color.RED);
-            label.setText("Vstupné textové polia nesmú ostať prázdne!");
-            return;
-        }
-
         HttpClientClass ht = new HttpClientClass();
         ht.addParam("id", this.employeeID);
         ht.addParam("name", sName);
@@ -161,4 +163,66 @@ public class ControllerUpdateEmployee
         LocalDate localDate = LocalDate.parse(date, formatter);
         borndate.setValue(localDate);
     }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                name.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+    private boolean checkFormular()
+    {
+        boolean flag = true;
+        label.setVisible(false);
+
+        if(name.getText() == null || name.getText().trim().isEmpty())
+            flag=false;
+        else if(lastname.getText() == null || lastname.getText().trim().isEmpty())
+            flag=false;
+        else if(phone.getText() == null || phone.getText().trim().isEmpty())
+            flag=false;
+        else if(bornnumber.getText() == null || bornnumber.getText().trim().isEmpty())
+            flag=false;
+        else if(borndate.getValue()==null)
+            flag=false;
+
+        if(!flag)
+        {
+            System.out.println("Nevyplené alebo nesprávne vyplnené údaje.");
+            label.setText("Nevyplené údaje.");
+            label.setVisible(true);
+            return false;
+        }
+        return flag;
+    }
+
+    private boolean checkFormularTypes()
+    {
+        boolean flag = true;
+
+        if(!phone.getText().matches("(^0\\d{9}$)|(^[+]421\\d{9}$)|(^[+]420\\d{9}$)|(^\\d{9}$)")) flag=false;
+        else if(!bornnumber.getText().matches("(^\\d{10}$)")) flag=false;
+
+
+        if(!flag)
+        {
+            System.out.println("Niektoré vyplnené údaje majú nesprávny formát.");
+            label.setText("Niektoré vyplnené údaje majú nesprávny formát.");
+            label.setVisible(true);
+            return flag;
+        }
+        return flag;
+        /*try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }*/
+    }
+
+
 }

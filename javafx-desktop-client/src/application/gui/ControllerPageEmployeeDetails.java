@@ -31,6 +31,7 @@ import java.util.Optional;
 
 public class ControllerPageEmployeeDetails
 {
+
     @FXML
     private Text name, phone, email, born_num, born_date, username, role, town, street,
             num, from, children_under, children_over, retirement, invalidity, insComp, part;
@@ -98,35 +99,34 @@ public class ControllerPageEmployeeDetails
 
     private void setEmployee() throws InterruptedException, IOException, CommunicationException {
         HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("employee/emp_usr_imp/"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
+        ht.sendGet("-+"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
         JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
 
-        this.employeeD = new EmployeeD(
-                json.getElement(0, "p_id"),
-                json.getElement(0, "meno"),
-                json.getElement(0, "priezvisko"),
-                json.getElement(0, "telefon"),
-                json.getElement(0, "rodne_cislo"),
-                json.getElement(0, "nice_date1"),
-                json.getElement(0, "pk_id"),
-                json.getElement(0, "email"),
-                json.getElement(0, "typ_prav"),
-                json.getElement(0, "du_id"),
-                json.getElement(0, "zdravotna_poistovna"),
-                json.getElement(0, "mesto"),
-                json.getElement(0, "ulica"),
-                json.getElement(0, "cislo"),
-                json.getElement(0, "nice_date2"),
-                json.getElement(0, "pocet_deti_do_6_rokov"),
-                json.getElement(0, "pocet_deti_nad_6_rokov"),
-                json.getElement(0, "uplatnenie_nedzanitelnej_casti"),
-                json.getElement(0, "poberatel_starobneho_dochodku"),
-                json.getElement(0, "poberatel_invalidneho_dochodku")
-        );
+        this.employeeD = new EmployeeD();
+        this.employeeD.setId(json.getElement(0, "p_id"));
+        this.employeeD.setName(json.getElement(0, "meno"));
+        this.employeeD.setLastname( json.getElement(0, "priezvisko"));
+        this.employeeD.setPhone(json.getElement(0, "telefon"));
+        this.employeeD.setBornNum(json.getElement(0, "rodne_cislo"));
+        this.employeeD.setBornDate(json.getElement(0, "nice_date1"));
+        this.employeeD.setPkID(json.getElement(0, "pk_id"));
+        this.employeeD.setEmail(json.getElement(0, "email"));
+        this.employeeD.setUserType(json.getElement(0, "typ_prav"));
 
-        ht.sendGet("employee/count_imp_pay/"+this.employeeD.getDuID(), LoggedInUser.getToken(), LoggedInUser.getId());
-        json = new JsonArrayClass(ht.getRespnseBody());
-        String c = json.getElement(0, "c");
+        if(json.getSize()==2)
+        {
+            this.employeeD.setDuID(json.getElement(1, "du_id"));
+            this.employeeD.setInsComp(json.getElement(1, "zdravotna_poistovna"));
+            this.employeeD.setTown( json.getElement(1, "mesto"));
+            this.employeeD.setStreet(json.getElement(1, "ulica"));
+            this.employeeD.setNumber( json.getElement(1, "cislo"));
+            this.employeeD.setFrom(json.getElement(1, "nice_date2"));
+            this.employeeD.setChildrenUnder(json.getElement(1, "pocet_deti_do_6_rokov"));
+            this.employeeD.setChildrenOver(json.getElement(1, "pocet_deti_nad_6_rokov"));
+            this.employeeD.setPart(json.getElement(1, "uplatnenie_nedzanitelnej_casti"));
+            this.employeeD.setRetirement(json.getElement(1, "poberatel_starobneho_dochodku"));
+            this.employeeD.setInvalidity(json.getElement(1, "poberatel_invalidneho_dochodku"));
+        }
 
         ht.sendGet("employee/emp_rel_ov/"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
         json = new JsonArrayClass(ht.getRespnseBody());

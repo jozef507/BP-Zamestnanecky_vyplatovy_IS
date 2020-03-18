@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="570.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerPageLegislationLevy">
+<children>
+   <VBox alignment="CENTER" prefHeight="560.0" prefWidth="683.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <children>
+            <HBox alignment="CENTER" prefHeight="39.0" prefWidth="790.0" spacing="15.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Typy odvodov">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
+         <HBox alignment="CENTER" prefHeight="70.0" prefWidth="786.0" spacing="15.0">
+            <children>
+               <TextField fx:id="input" prefHeight="30.0" prefWidth="412.0" promptText="Hľadaj id, názov">
+                     <font>
+                        <Font size="14.0" />
+                     </font></TextField>
+            </children>
+         </HBox>
+         <TableView fx:id="tab" prefHeight="384.0" prefWidth="807.0" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="idCol" prefWidth="40.0" text="ID" />
+                  <TableColumn fx:id="nameCol" prefWidth="171.0" text="Názov" />
+                  <TableColumn fx:id="partEeCol" prefWidth="210.0" text="Podiel zamestnanca (desatiný tvar)" />
+                  <TableColumn fx:id="partErCol" prefWidth="220.0" text="Podiel zamestnávateľa (desatiný tvar)" />
+                  <TableColumn fx:id="fromCol" prefWidth="130.0" text="Platný od" />
+                  <TableColumn fx:id="toCol" prefWidth="130.0" text="Platný do" />
+               </columns>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor></TableView>
+         <HBox alignment="CENTER" prefHeight="69.0" prefWidth="810.0" spacing="15.0">
+            <children>
+                  <Button fx:id="update" mnemonicParsing="false" onMouseClicked="#onUpdateClick" prefHeight="40.0" prefWidth="130.0" text="Ukončiť platnosť" />
+                  <Button fx:id="remove" mnemonicParsing="false" onMouseClicked="#onRemoveClick" prefHeight="40.0" prefWidth="130.0" text="Odobrať" />
+               <Button fx:id="add" mnemonicParsing="false" onMouseClicked="#onAddClick" prefHeight="40.0" prefWidth="130.0" text="Pridať" />
+            </children>
+         </HBox>
+      </children>
+         <padding>
+            <Insets left="10.0" right="10.0" />
+         </padding>
+   </VBox>
+</children>
+</AnchorPane>

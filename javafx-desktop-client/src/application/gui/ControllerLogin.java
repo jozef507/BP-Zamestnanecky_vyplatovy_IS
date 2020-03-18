@@ -5,6 +5,7 @@ import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +17,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -39,6 +41,13 @@ public class ControllerLogin /*implements Initializable*/
     private TextField usernameT;
     @FXML
     private Button btn;
+    @FXML
+    private AnchorPane ap;
+
+    @FXML
+    public void initialize() {
+        this.changeFocus();
+    }
 
 
     @FXML
@@ -66,7 +75,7 @@ public class ControllerLogin /*implements Initializable*/
                     primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
                         public void handle(WindowEvent we) {
                             System.out.println("Stage is closing");
-                            logout();
+                            LoggedInUser.logout();
                         }
                     });
                     primaryStage.show();
@@ -76,6 +85,17 @@ public class ControllerLogin /*implements Initializable*/
                 }
             }
         }
+    }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        usernameT.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                ap.requestFocus();
+                firstTime.setValue(false);
+            }
+        });
     }
 
 
@@ -126,30 +146,10 @@ public class ControllerLogin /*implements Initializable*/
             JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
             LoggedInUser.setId(json.getElement(0, "id"));
             LoggedInUser.setToken(json.getElement( 0,"token"));
+            LoggedInUser.setEmail(email);
+            LoggedInUser.setRole(json.getElement( 0,"role"));
         }
         return status;
-    }
-
-    private void logout()
-    {
-        HttpClientClass ht = new HttpClientClass();
-        try {
-            ht.sendPost("auth/logout", LoggedInUser.getToken(), LoggedInUser.getId());
-        }catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-        }
     }
 
     private String getMd5(String input)

@@ -194,67 +194,14 @@ public class ControllerAddRelation implements ControllerRelation
 
     public void create(MouseEvent mouseEvent)
     {
-        if(!checkFormular())
+        if(!this.checkFormular()) return;
+        if(!this.checkFormularTypes()) return;
+
+        CustomAlert al = new CustomAlert("Pridanie pracovného vzťahu", "Ste si istý že chcete pridať nový pracovný vzťah vybranému pracujúcemu?", "", "Áno", "Nie");
+        if(!al.showWait())
             return;
 
-        RelationD relationD = new RelationD();
-        relationD.setType(relType.getValue().toString());
-        relationD.setFrom(relBegin.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        if(isEnd.isSelected())
-            relationD.setTo(relEnd.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        else
-            relationD.setTo("NULL");
-        relationD.setEmployeeID(this.controllerPageEmployeeDetails.getEmployeeD().getId());
-        this.relationD = relationD;
-
-        ConditionsD conditionsD = new ConditionsD();
-        conditionsD.setFrom(relBegin.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        conditionsD.setTo("NULL");
-        conditionsD.setPositionID(this.choosenPosition.getId());
-        this.conditionsD = conditionsD;
-
-        NextConditionsD nextConditionsD = new NextConditionsD();
-        if(hb.isDisable()) {
-            nextConditionsD = null;
-        } else {
-            if(isMain.isSelected())
-                nextConditionsD.setIsMain("1");
-            else
-                nextConditionsD.setIsMain("0");
-
-            if(isUniform.isSelected())
-                nextConditionsD.setIsWeekTimeUniform("1");
-            else
-                nextConditionsD.setIsWeekTimeUniform("0");
-            nextConditionsD.setHollidayTime(hollidayTime.getText());
-            nextConditionsD.setWeekTime(weekTime.getText());
-            nextConditionsD.setTestTime(testTime.getText());
-            nextConditionsD.setSackTime(sackTime.getText());
-        }
-        this.nextConditionsD = nextConditionsD;
-
-        for (int i = 0; i<wagesControllers.size(); i++)
-        {
-            WageD wageD = new WageD();
-            wageD.setLabel(this.wagesControllers.get(i).label.getText());
-            if(this.wagesControllers.get(i).employee.isSelected())
-                wageD.setEmployeeEnter("1");
-            else
-                wageD.setEmployeeEnter("0");
-            if(this.wagesControllers.get(i).time.isSelected())
-                wageD.setTimeImportant("1");
-            else
-                wageD.setTimeImportant("0");
-            wageD.setTarif(this.wagesControllers.get(i).tarif.getText());
-            wageD.setPayWay(this.wagesControllers.get(i).way.getValue().toString());
-            if(this.wagesControllers.get(i).payDate.isDisable())
-                wageD.setPayDate("NULL");
-            else
-                wageD.setPayDate(this.wagesControllers.get(i).payDate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-            wageD.setWageFormID(this.wagesControllers.get(i).getFormID());
-
-            wageDs.add(wageD);
-        }
+       this.setModelsFromInputs();
 
         try {
             createRelation();
@@ -326,11 +273,109 @@ public class ControllerAddRelation implements ControllerRelation
 
         if(!flag)
         {
-            System.out.println("Nevyplené alebo nesprávne vyplnené údaje.");
+            System.out.println("Nevyplené údaje.");
+            infoLabel.setText("Nevyplené údaje.");
             infoLabel.setVisible(true);
             return false;
         }
         return flag;
+    }
+
+    private boolean checkFormularTypes()
+    {
+        boolean flag = true;
+
+        if(testTime.getText().matches("^\\+?-?\\d+$")) flag=false;
+        else if(sackTime.getText().matches("^\\+?-?\\d+$")) flag=false;
+        else if(hollidayTime.getText().matches("^\\+?-?\\d+(\\.\\d+)?$")) flag=false;
+        try {
+            double d = Double.parseDouble(weekTime.getText());
+            if(d>40) flag=false;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+
+        for(int i = 0;i<wagesControllers.size();i++)
+        {
+            if(!wagesControllers.get(i).getTarif().getText().matches("^\\+?-?\\d+(\\.\\d+)?$")) flag=false;
+            if(!flag) break;
+        }
+
+        if(!flag)
+        {
+            System.out.println("Niektoré vyplnené údaje majú nesprávny formát.");
+            infoLabel.setText("Niektoré vyplnené údaje majú nesprávny formát.");
+            infoLabel.setVisible(true);
+            return flag;
+        }
+        return flag;
+        /*try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }*/
+    }
+
+    private void setModelsFromInputs()
+    {
+        RelationD relationD = new RelationD();
+        relationD.setType(relType.getValue().toString());
+        relationD.setFrom(relBegin.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        if(isEnd.isSelected())
+            relationD.setTo(relEnd.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        else
+            relationD.setTo("NULL");
+        relationD.setEmployeeID(this.controllerPageEmployeeDetails.getEmployeeD().getId());
+        this.relationD = relationD;
+
+        ConditionsD conditionsD = new ConditionsD();
+        conditionsD.setFrom(relBegin.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        conditionsD.setTo("NULL");
+        conditionsD.setPositionID(this.choosenPosition.getId());
+        this.conditionsD = conditionsD;
+
+        NextConditionsD nextConditionsD = new NextConditionsD();
+        if(hb.isDisable()) {
+            nextConditionsD = null;
+        } else {
+            if(isMain.isSelected())
+                nextConditionsD.setIsMain("1");
+            else
+                nextConditionsD.setIsMain("0");
+
+            if(isUniform.isSelected())
+                nextConditionsD.setIsWeekTimeUniform("1");
+            else
+                nextConditionsD.setIsWeekTimeUniform("0");
+            nextConditionsD.setHollidayTime(hollidayTime.getText());
+            nextConditionsD.setWeekTime(weekTime.getText());
+            nextConditionsD.setTestTime(testTime.getText());
+            nextConditionsD.setSackTime(sackTime.getText());
+        }
+        this.nextConditionsD = nextConditionsD;
+
+        for (int i = 0; i<wagesControllers.size(); i++)
+        {
+            WageD wageD = new WageD();
+            wageD.setLabel(this.wagesControllers.get(i).label.getText());
+            if(this.wagesControllers.get(i).employee.isSelected())
+                wageD.setEmployeeEnter("1");
+            else
+                wageD.setEmployeeEnter("0");
+            if(this.wagesControllers.get(i).time.isSelected())
+                wageD.setTimeImportant("1");
+            else
+                wageD.setTimeImportant("0");
+            wageD.setTarif(this.wagesControllers.get(i).tarif.getText());
+            wageD.setPayWay(this.wagesControllers.get(i).way.getValue().toString());
+            if(this.wagesControllers.get(i).payDate.isDisable())
+                wageD.setPayDate("NULL");
+            else
+                wageD.setPayDate(this.wagesControllers.get(i).payDate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            wageD.setWageFormID(this.wagesControllers.get(i).getFormID());
+
+            this.wageDs.add(wageD);
+        }
     }
 
     private void createRelation() throws InterruptedException, IOException, CommunicationException {
