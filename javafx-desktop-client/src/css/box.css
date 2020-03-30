@@ -18,8 +18,6 @@
 
 .click-box:hover{
     -fx-background-color: #ffffff;
-    -fx-border-color: blue;
-    -fx-border-width:  0.5;
 }
 
 .click-box-current{
@@ -30,8 +28,6 @@
 
 .click-box-current:hover{
     -fx-background-color: #ffffff;
-    -fx-border-color: blue;
-    -fx-border-width:  0.5;
 }
 
 
