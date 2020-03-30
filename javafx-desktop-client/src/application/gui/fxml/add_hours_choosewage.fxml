@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="224.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerAddHoursChoosewage">
+   <children>
+      <VBox alignment="CENTER" prefHeight="304.0" prefWidth="810.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <TableView fx:id="tab" prefHeight="384.0" prefWidth="807.0" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="idCol" prefWidth="40.0" text="ID" />
+                  <TableColumn fx:id="formCol" prefWidth="156.0" text="Forma" />
+                  <TableColumn fx:id="labelCol" prefWidth="151.0" text="Popis" />
+                  <TableColumn fx:id="unitCol" prefWidth="106.0" text="Jed. výkonu" />
+                  <TableColumn fx:id="tarifCol" prefWidth="100.0" text="Tarifa za jed." />
+                  <TableColumn fx:id="empCol" prefWidth="122.0" text="Evid. zamestnanec" />
+                  <TableColumn fx:id="timeCol" prefWidth="146.0" text="Evid. času" />
+                  <TableColumn fx:id="dateCol" prefWidth="125.0" text="Dátum vyplatenia" />
+               </columns>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </TableView>
+            <HBox alignment="CENTER" minHeight="-Infinity" prefHeight="69.0" prefWidth="810.0" spacing="15.0" VBox.vgrow="NEVER">
+               <children>
+                  <Button mnemonicParsing="false" onMouseClicked="#btn1" prefHeight="40.0" prefWidth="154.0" text="Zrušiť" />
+                  <Button mnemonicParsing="false" onMouseClicked="#btn2" prefHeight="40.0" prefWidth="154.0" text="Vybrať" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </children>
+</AnchorPane>

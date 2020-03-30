@@ -38,7 +38,7 @@
                                     <Font size="20.0" />
                                  </font>
                               </Text>
-                              <Button fx:id="update1" focusTraversable="false" mnemonicParsing="false" text="Upraviť" GridPane.columnIndex="1">
+                              <Button fx:id="update1" focusTraversable="false" mnemonicParsing="false" styleClass="button3" text="Upraviť" GridPane.columnIndex="1">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></Button>
@@ -214,7 +214,7 @@
                               <RowConstraints minHeight="10.0" prefHeight="40.0" valignment="BOTTOM" vgrow="SOMETIMES" />
                            </rowConstraints>
                            <children>
-                              <Button fx:id="update2" focusTraversable="false" mnemonicParsing="false" prefWidth="58.0" text="Všetky" GridPane.columnIndex="1">
+                              <Button fx:id="update2" focusTraversable="false" mnemonicParsing="false" prefWidth="58.0" styleClass="button3" text="Všetky" GridPane.columnIndex="1">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></Button>
@@ -392,7 +392,7 @@
                                     <Font size="16.0" />
                                  </font>
                               </Text>
-                              <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#add1" prefWidth="58.0" text="Pridať" GridPane.columnIndex="1">
+                              <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#add1" prefWidth="58.0" styleClass="button3" text="Pridať" GridPane.columnIndex="1">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor>

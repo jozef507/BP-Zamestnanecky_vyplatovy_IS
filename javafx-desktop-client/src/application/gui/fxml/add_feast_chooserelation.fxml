@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="770.0" prefWidth="810.0" stylesheets="@../../../css/fullpackstyling.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerAddFeastChooserelation">
+   <children>
+      <VBox alignment="CENTER" prefHeight="812.0" prefWidth="810.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox alignment="BOTTOM_LEFT" fillHeight="false" minHeight="21.0" prefHeight="30.0" prefWidth="790.0">
+               <children>
+                  <GridPane prefHeight="24.0" prefWidth="790.0" HBox.hgrow="ALWAYS">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="774.0" />
+                        <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="-Infinity" prefWidth="125.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="40.0" valignment="BOTTOM" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Prehľad pracovných vzťahov firmy">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
+                        </Text>
+                        <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#onAddRelation" prefWidth="90.0" styleClass="button3" text="Pridať vzťah" GridPane.columnIndex="1">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                     </children>
+                  </GridPane>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="47.0" prefWidth="790.0" spacing="15.0">
+               <children>
+                  <TextField fx:id="input" prefHeight="25.0" prefWidth="291.0" promptText="Hľadaj id, meno" />
+                  <ComboBox fx:id="place" prefWidth="200.0" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </HBox>
+            <TableView fx:id="tab" prefHeight="317.0" prefWidth="790.0">
+               <columns>
+                  <TableColumn fx:id="idEmpCol" prefWidth="51.0" text="ID Zam" />
+                  <TableColumn fx:id="nameCol" prefWidth="145.0" text="Priezvisko a meno" />
+                  <TableColumn fx:id="idRelCol" prefWidth="75.0" text="ID Vzť" />
+                  <TableColumn fx:id="relationCol" prefWidth="151.0" text="Vzťah" />
+                  <TableColumn fx:id="fromCol" prefWidth="96.0" text="Vznik" />
+                  <TableColumn fx:id="toCol" prefWidth="98.0" text="Vypršanie" />
+                  <TableColumn fx:id="placeCol" prefWidth="170.0" text="Pracovisko" />
+                  <TableColumn fx:id="positionCol" prefWidth="170.0" text="Pozícia" />
+               </columns>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </TableView>
+            <HBox alignment="BOTTOM_LEFT" fillHeight="false" minHeight="21.0" prefHeight="29.0" prefWidth="790.0">
+               <children>
+                  <GridPane prefHeight="37.0" prefWidth="755.0" HBox.hgrow="ALWAYS">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="774.0" />
+                        <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="-Infinity" prefWidth="125.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="40.0" valignment="BOTTOM" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Vybrané pracovné vzťahy">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
+                        </Text>
+                        <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#onRemoveRelation" prefWidth="98.0" styleClass="button3" text="Odobrať vzťah" GridPane.columnIndex="1">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                     </children>
+                  </GridPane>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" top="20.0" />
+               </VBox.margin>
+            </HBox>
+            <TableView fx:id="tab1" prefHeight="202.0" prefWidth="790.0">
+               <columns>
+                  <TableColumn fx:id="idEmpCol1" prefWidth="51.0" text="ID Zam" />
+                  <TableColumn fx:id="nameCol1" prefWidth="145.0" text="Priezvisko a meno" />
+                  <TableColumn fx:id="idRelCol1" prefWidth="75.0" text="ID Vzť" />
+                  <TableColumn fx:id="relationCol1" prefWidth="151.0" text="Vzťah" />
+                  <TableColumn fx:id="fromCol1" prefWidth="96.0" text="Vznik" />
+                  <TableColumn fx:id="toCol1" prefWidth="98.0" text="Vypršanie" />
+                  <TableColumn fx:id="placeCol1" prefWidth="170.0" text="Pracovisko" />
+                  <TableColumn fx:id="positionCol1" prefWidth="170.0" text="Pozícia" />
+               </columns>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </TableView>
+            <HBox alignment="CENTER" prefHeight="69.0" prefWidth="810.0" spacing="15.0">
+               <children>
+                  <Button mnemonicParsing="false" onMouseClicked="#btn1" prefHeight="40.0" prefWidth="154.0" styleClass="button3" text="Zrušiť" />
+                  <Button mnemonicParsing="false" onMouseClicked="#btn2" prefHeight="40.0" prefWidth="154.0" styleClass="button3" text="Potvrdiť" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" top="20.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+         <padding>
+            <Insets left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </children>
+</AnchorPane>

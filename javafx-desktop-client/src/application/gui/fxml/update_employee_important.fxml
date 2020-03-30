@@ -111,8 +111,8 @@
                   </GridPane>
                   <HBox alignment="CENTER" prefHeight="40.0" prefWidth="200.0" spacing="20.0">
                      <children>
-                        <Button fx:id="cancel" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" text="Zrušiť" />
-                        <Button fx:id="ok" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" text="Potvrdiť" />
+                        <Button fx:id="cancel" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" styleClass="button3" text="Zrušiť" />
+                        <Button fx:id="ok" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" styleClass="button3" text="Potvrdiť" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER" prefHeight="0.0" prefWidth="415.0">

@@ -19,7 +19,7 @@
             <Font size="14.0" />
          </font>
       </PasswordField>
-      <Button fx:id="btn" layoutX="182.0" layoutY="189.0" mnemonicParsing="false" onMouseClicked="#loginButton" prefHeight="35.0" prefWidth="101.0" stylesheets="@../../../css/fullpackstyling.css" text="Prihásiť">
+      <Button fx:id="btn" layoutX="182.0" layoutY="189.0" mnemonicParsing="false" onMouseClicked="#loginButton" prefHeight="35.0" prefWidth="101.0" styleClass="button3" stylesheets="@../../../css/fullpackstyling.css" text="Prihásiť">
          <font>
             <Font size="16.0" />
          </font>

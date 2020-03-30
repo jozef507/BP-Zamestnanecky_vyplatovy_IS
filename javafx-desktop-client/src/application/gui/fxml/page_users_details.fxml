@@ -141,16 +141,16 @@
                                     <Font size="16.0" />
                                  </font>
                               </Text>
-                              <Button fx:id="create" focusTraversable="false" mnemonicParsing="false" onMouseClicked="#createClick" text="Vytvoriť" GridPane.columnIndex="3">
+                              <Button fx:id="create" focusTraversable="false" mnemonicParsing="false" onMouseClicked="#createClick" styleClass="button3" text="Vytvoriť" GridPane.columnIndex="3">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></Button>
-                              <Button fx:id="update" focusTraversable="false" mnemonicParsing="false" onMouseClicked="#updateClick" text="Upraviť" GridPane.columnIndex="2">
+                              <Button fx:id="update" focusTraversable="false" mnemonicParsing="false" onMouseClicked="#updateClick" styleClass="button3" text="Upraviť" GridPane.columnIndex="2">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
                               </Button>
-                              <Button fx:id="change" focusTraversable="false" mnemonicParsing="false" onMouseClicked="#changeClick" text="Zmeniť heslo" GridPane.columnIndex="1">
+                              <Button fx:id="change" focusTraversable="false" mnemonicParsing="false" onMouseClicked="#changeClick" styleClass="button3" text="Zmeniť heslo" GridPane.columnIndex="1">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor>

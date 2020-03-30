@@ -164,7 +164,7 @@
                               <Font size="11.0" />
                            </font>
                         </Text>
-                        <Button mnemonicParsing="false" onMouseClicked="#logout" prefHeight="50.0" prefWidth="70.0" styleClass="button2" text="Odhlásiť">
+                        <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#logout" prefHeight="50.0" prefWidth="70.0" styleClass="button2" stylesheets="@../../../css/fullpackstyling.css" text="Odhlásiť">
                            <HBox.margin>
                               <Insets bottom="1.0" left="15.0" />
                            </HBox.margin>
