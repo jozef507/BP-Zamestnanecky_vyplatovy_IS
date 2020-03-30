@@ -2,39 +2,13 @@ package application.models;
 
 public class WageD
 {
-    String id, label, employeeEnter, timeImportant, tarif, payWay, payDate, wageFormID, conditionsID;
+    String id, label, employeeEnter, timeImportant, emergencyImportant, tarif, payWay, payDate;
+    String wageFormID, wageFormName, wageFormUnit, wageFormUnitShort;
+    String conditionsID;
 
     public WageD() {
     }
 
-    public WageD(String id, String label, String employeeEnter, String timeImportant, String tarif, String payWay, String payDate, String wageFormID, String conditionsID) {
-        this.id = id;
-        this.label = label;
-        this.employeeEnter = employeeEnter;
-        this.timeImportant = timeImportant;
-        this.tarif = tarif;
-        this.payWay = payWay;
-        if(payDate==null || payDate.equals("00.00.0000"))
-            this.payDate = "žiadne";
-        else
-            this.payDate = payDate;
-        this.wageFormID = wageFormID;
-        this.conditionsID = conditionsID;
-    }
-
-    public WageD(String label, String employeeEnter, String timeImportant, String tarif, String payWay, String payDate, String wageFormID, String conditionsID) {
-        this.label = label;
-        this.employeeEnter = employeeEnter;
-        this.timeImportant = timeImportant;
-        this.tarif = tarif;
-        this.payWay = payWay;
-        if(payDate==null || payDate.equals("00.00.0000"))
-            this.payDate = "žiadne";
-        else
-            this.payDate = payDate;
-        this.wageFormID = wageFormID;
-        this.conditionsID = conditionsID;
-    }
 
     public String getId() {
         return id;
@@ -115,4 +89,41 @@ public class WageD
     public void setConditionsID(String conditionsID) {
         this.conditionsID = conditionsID;
     }
+
+    public String getWageFormName() {
+        return wageFormName;
+    }
+
+    public void setWageFormName(String wageFormName) {
+        this.wageFormName = wageFormName;
+    }
+
+    public String getWageFormUnit() {
+        return wageFormUnit;
+    }
+
+    public void setWageFormUnit(String getWageFormUnit) {
+        this.wageFormUnit = getWageFormUnit;
+    }
+
+    public String getWageFormUnitShort() {
+        return wageFormUnitShort;
+    }
+
+    public void setWageFormUnitShort(String getGetWageFormUnitShort) {
+        this.wageFormUnitShort = getGetWageFormUnitShort;
+    }
+
+    public String getEmergencyImportant() {
+        if(emergencyImportant.equals("0"))
+            return "nie";
+        else
+            return "áno";
+    }
+
+    public void setEmergencyImportant(String emergencyImportant) {
+        this.emergencyImportant = emergencyImportant;
+    }
+
+
 }

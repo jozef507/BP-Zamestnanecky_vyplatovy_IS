@@ -2,7 +2,12 @@ package application.models;
 
 public class RelationD
 {
-    String id, type, from, to, employeeID;
+    String id, type, from, to;
+
+    String employeeID, employeeNameLastname,
+        conditionsID, conditionsFrom, conditionsTo,
+        positionID, positionName,
+        placeID, placeName;
 
     public RelationD() {
     }
@@ -47,7 +52,7 @@ public class RelationD
     }
 
     public String getTo() {
-        if(to==null || to.equals("0000-00-00"))
+        if(to==null)
             return "";
         else
             return to;
@@ -63,5 +68,70 @@ public class RelationD
 
     public void setEmployeeID(String employeeID) {
         this.employeeID = employeeID;
+    }
+
+
+    public String getEmployeeNameLastname() {
+        return employeeNameLastname;
+    }
+
+    public void setEmployeeNameLastname(String employeeNameLastname) {
+        this.employeeNameLastname = employeeNameLastname;
+    }
+
+    public String getConditionsID() {
+        return conditionsID;
+    }
+
+    public void setConditionsID(String conditionsID) {
+        this.conditionsID = conditionsID;
+    }
+
+    public String getConditionsFrom() {
+        return conditionsFrom;
+    }
+
+    public void setConditionsFrom(String conditionsFrom) {
+        this.conditionsFrom = conditionsFrom;
+    }
+
+    public String getConditionsTo() {
+        return conditionsTo;
+    }
+
+    public void setConditionsTo(String conditionsTo) {
+        this.conditionsTo = conditionsTo;
+    }
+
+    public String getPositionID() {
+        return positionID;
+    }
+
+    public void setPositionID(String positionID) {
+        this.positionID = positionID;
+    }
+
+    public String getPositionName() {
+        return positionName;
+    }
+
+    public void setPositionName(String positionName) {
+        this.positionName = positionName;
+    }
+
+    public String getPlaceID() {
+        return placeID;
+    }
+
+    public void setPlaceID(String placeID) {
+        this.placeID = placeID;
+    }
+
+    public String getPlaceName() {
+        return placeName;
+    }
+
+    public void setPlaceName(String placeName) {
+        this.placeName = placeName;
     }
 }
