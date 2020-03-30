@@ -32,6 +32,7 @@ drop table if exists odvod;
 drop table if exists zrazka;
 drop table if exists odpracovany_rok;
 drop table if exists odpracovany_mesiac;
+drop table if exists odpracovany_mesiac_nepritomnost;
 drop table if exists nepritomnost;
 drop table if exists odpracovane_hodiny;
 
@@ -241,6 +242,7 @@ create table zakladna_mzda
     popis varchar(50) not null,
     vykon_eviduje_zamestnanec boolean not null,
     nutne_evidovanie_casu boolean not null,
+    mozne_evidovanie_pohotovosti boolean not null default false,
 	tarifa_za_jednotku_mzdy decimal(12,4) not null,
     sposob_vyplacania varchar(12) not null default 'pravidelne'
         check (sposob_vyplacania = 'pravidelne'  || sposob_vyplacania = 'nepravidelne'),
@@ -399,6 +401,7 @@ create table odpracovany_mesiac
 	vycerpana_dovolenka float not null,
 	odpracovany_rok int not null,
 	vyplatna_paska int null,
+	je_mesiac_uzatvoreny boolean not null default false,
 
     primary key (id),
     constraint odpracovany_mesiac_c1  foreign key (odpracovany_rok) references odpracovany_rok(id),
@@ -406,17 +409,30 @@ create table odpracovany_mesiac
     constraint odpracovany_mesiac_c3  unique (poradie_mesiaca, odpracovany_rok)
 );
 
+
 create table nepritomnost
 ( /*todo - typ*/
     id int not null auto_increment,
-    datum date not null,
+    od date not null,
+    do date not null,
 	je_polovica_dna boolean not null default false,
-	typ_dovodu varchar(50) not null,
+	typ_dovodu varchar(256) not null,
 	popis_dovodu varchar(1024) not null,
-	odpracovany_mesiac int not null,
 
-    primary key (id),
-    constraint nepritomnost_c1  foreign key (odpracovany_mesiac) references odpracovany_mesiac(id)
+	aktualizovane timestamp not null,
+
+    primary key (id)
+);
+
+create table odpracovany_mesiac_nepritomnost
+(
+    /*id int not null auto_increment,*/
+    odpracovany_mesiac int not null,
+    nepritomnost int not null,
+
+    primary key (odpracovany_mesiac, nepritomnost),
+    constraint odpracovany_mesiac_nepritomnost_c1 foreign key (odpracovany_mesiac) references odpracovany_mesiac(id),
+    constraint odpracovany_mesiac_nepritomnost_c2 foreign key (nepritomnost) references nepritomnost(id)
 );
 
 create table odpracovane_hodiny
@@ -425,11 +441,12 @@ create table odpracovane_hodiny
     datum date not null,
     od time  null,
 	do time  null,
-	z_toho_nadcas time null,
+	z_toho_nadcas float null,
 	pocet_vykonanych_jednotiek float  null,
 	zaklad_podielovej_mzdy decimal(16,2)  null,
 	druh_casti_pohotovosti varchar(10) null default null check(druh_casti_pohotovosti is null || druh_casti_pohotovosti='aktívna'
 	                                                            || druh_casti_pohotovosti='neaktívna' ),
+    aktualizovane timestamp not null,
     odpracovany_mesiac int not null,
     zakladna_mzda int not null,
 
@@ -439,56 +456,58 @@ create table odpracovane_hodiny
 );
 
 
+
+
 delimiter //
 
 drop procedure  if exists pridaj_pracujuceho//
 create procedure pridaj_pracujuceho(fheslo varchar(255), ftyp_prav varchar(15), femail varchar(255), fmeno varchar(255), fpriezvisko varchar(255),
-                        ftelefon char(10), frodne_cislo char(10), fdatum_narodenia date )
+                                    ftelefon char(10), frodne_cislo char(10), fdatum_narodenia date )
 begin
     declare exit handler for sqlexception
-    begin
-        show errors;
-        rollback;
-    end;
+        begin
+            show errors;
+            rollback;
+        end;
 
     start transaction ;
-        insert into prihlasovacie_konto(heslo, email, typ_prav) values(fheslo, femail, ftyp_prav);
-        insert into pracujuci(meno, priezvisko, telefon, rodne_cislo, datum_narodenia, prihlasovacie_konto)
-            values (fmeno, fpriezvisko, ftelefon, frodne_cislo, fdatum_narodenia, LAST_INSERT_ID() );
+    insert into prihlasovacie_konto(heslo, email, typ_prav) values(fheslo, femail, ftyp_prav);
+    insert into pracujuci(meno, priezvisko, telefon, rodne_cislo, datum_narodenia, prihlasovacie_konto)
+    values (fmeno, fpriezvisko, ftelefon, frodne_cislo, fdatum_narodenia, LAST_INSERT_ID() );
     commit work ;
 end//
 
 drop procedure  if exists edituj_pracujuceho//
 create procedure edituj_pracujuceho(id_pracujuceho int, femail varchar(255), fmeno varchar(255), fpriezvisko varchar(255),
-                        ftelefon char(10), frodne_cislo char(10), fdatum_narodenia date )
+                                    ftelefon char(10), frodne_cislo char(10), fdatum_narodenia date )
 begin
     declare fid varchar(255);
     declare exit handler for sqlexception
-    begin
-        show errors;
-        rollback;
-    end;
+        begin
+            show errors;
+            rollback;
+        end;
 
     start transaction ;
-        if femail is not null then
-            select prihlasovacie_konto into fid from pracujuci p join prihlasovacie_konto pk on p.prihlasovacie_konto = pk.id where p.id=id_pracujuceho;
-            update prihlasovacie_konto set email = femail where id = fid;
-        end if;
-        if fmeno is not null then
-            update pracujuci set meno = fmeno where id = id_pracujuceho;
-        end if;
-        if fpriezvisko is not null then
-            update pracujuci set priezvisko = fpriezvisko where id = id_pracujuceho;
-        end if;
-        if ftelefon is not null then
-            update pracujuci set telefon = ftelefon where id = id_pracujuceho;
-        end if;
-        if frodne_cislo is not null then
-            update pracujuci set rodne_cislo = frodne_cislo where id = id_pracujuceho;
-        end if;
-        if fdatum_narodenia is not null then
-            update pracujuci set datum_narodenia = fdatum_narodenia where id = id_pracujuceho;
-        end if;
+    if femail is not null then
+        select prihlasovacie_konto into fid from pracujuci p join prihlasovacie_konto pk on p.prihlasovacie_konto = pk.id where p.id=id_pracujuceho;
+        update prihlasovacie_konto set email = femail where id = fid;
+    end if;
+    if fmeno is not null then
+        update pracujuci set meno = fmeno where id = id_pracujuceho;
+    end if;
+    if fpriezvisko is not null then
+        update pracujuci set priezvisko = fpriezvisko where id = id_pracujuceho;
+    end if;
+    if ftelefon is not null then
+        update pracujuci set telefon = ftelefon where id = id_pracujuceho;
+    end if;
+    if frodne_cislo is not null then
+        update pracujuci set rodne_cislo = frodne_cislo where id = id_pracujuceho;
+    end if;
+    if fdatum_narodenia is not null then
+        update pracujuci set datum_narodenia = fdatum_narodenia where id = id_pracujuceho;
+    end if;
     commit work ;
 end//
 
@@ -497,16 +516,16 @@ create procedure odstran_pracujuceho(id_pracujuceho int)
 begin
     declare fid varchar(255);
     declare exit handler for sqlexception
-    begin
-        show errors;
-        rollback;
-    end;
+        begin
+            show errors;
+            rollback;
+        end;
 
     select prihlasovacie_konto into fid from pracujuci p join prihlasovacie_konto pk on p.prihlasovacie_konto = pk.id
     where p.id=id_pracujuceho;
     start transaction ;
-        delete from pracujuci where id=id_pracujuceho;
-        delete from prihlasovacie_konto where id=fid;
+    delete from pracujuci where id=id_pracujuceho;
+    delete from prihlasovacie_konto where id=fid;
     commit work ;
 end//
 
@@ -542,16 +561,19 @@ end//
 
 drop procedure if exists pridat_odpracovane_hodiny//
 create procedure pridat_odpracovane_hodiny(id_mesiaca int, id_zakladna_mzda int, datum date, cas_od time, cas_do time, z_toho_nadcas time,
-                                            pocet_vykonanych_jednotiek float, zaklad_podielovej_mzdy decimal(16,2), druh_casti_pohotovosti varchar(10))
+                                           pocet_vykonanych_jednotiek float, zaklad_podielovej_mzdy decimal(16,2), druh_casti_pohotovosti varchar(10))
 BEGIN
-     INSERT INTO odpracovane_hodiny(datum, od, do, z_toho_nadcas, pocet_vykonanych_jednotiek, zaklad_podielovej_mzdy, druh_casti_pohotovosti, odpracovany_mesiac, zakladna_mzda)
-			VALUES (datum, cas_od, cas_do, z_toho_nadcas, pocet_vykonanych_jednotiek, zaklad_podielovej_mzdy, druh_casti_pohotovosti,id_mesiaca, id_zakladna_mzda);
+    INSERT INTO odpracovane_hodiny(datum, od, do, z_toho_nadcas, pocet_vykonanych_jednotiek, zaklad_podielovej_mzdy, druh_casti_pohotovosti, odpracovany_mesiac, zakladna_mzda)
+    VALUES (datum, cas_od, cas_do, z_toho_nadcas, pocet_vykonanych_jednotiek, zaklad_podielovej_mzdy, druh_casti_pohotovosti,id_mesiaca, id_zakladna_mzda);
 END//
 
 delimiter ;
 
+
 /*call pridaj_pracujuceho('apo', 'riaditeľ', 'apo@apo', 'Jozef', 'Jozef', '0910000000', '9805548135', '1980-04-04');
 call odstran_pracujuceho(1);*/
+
+
 
 
 insert into prihlasovacie_konto(heslo, email, typ_prav, posledne_prihlasenie, vytvorene_v, aktualizovane_v)
@@ -757,40 +779,40 @@ insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_c
     values (true, 21, 37.5, true, 90, 90); /*11*/
 
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2005-01-01', null, 2, 1, 1); /*2*/
+    values ('2005-01-01', null, 1, 1, 1); /*2*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2015-01-01', null, 3, 2, 2); /*3*/
+    values ('2015-01-01', null, 2, 2, 2); /*3*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2019-01-01', '2019-12-31', 4, 3, null); /*4*/
+    values ('2019-01-01', '2019-12-31', 3, 3, null); /*4*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2020-01-01', '2020-12-31', 5, 3, null); /*4*/
+    values ('2020-01-01', '2020-12-31', 4, 3, null); /*4*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2012-01-01', null, 6, 3, 3); /*5*/
+    values ('2012-01-01', null, 5, 3, 3); /*5*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2008-01-01', null, 7, 4, 4); /*6*/
+    values ('2008-01-01', null, 6, 4, 4); /*6*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2004-01-01', null, 8, 5, 5); /*7*/
+    values ('2004-01-01', null, 7, 5, 5); /*7*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2019-01-01', null, 9, 5, 6); /*8*/
+    values ('2019-01-01', null, 8, 5, 6); /*8*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2019-01-01', null, 10, 6, 7); /*9*/
+    values ('2019-01-01', null, 9, 6, 7); /*9*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2016-01-01', null, 11, 7, 8); /*10*/
+    values ('2016-01-01', null, 10, 7, 8); /*10*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2016-01-01', null, 12, 2, 9); /*11*/
+    values ('2016-01-01', null, 11, 2, 9); /*11*/
 insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2020-01-01', '2020-12-31', 13, 7, null); /*11*/
+    values ('2020-01-01', '2020-12-31', 12, 7, null); /*11*/
 
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
     values ('časová-hodinová', 'hodina', 'hod');
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
     values ('časová-mesačná', 'mesiac', 'mes');
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
-    values ('vykonová-kusy', 'kus', 'ks');
+    values ('výkonová-kusy', 'kus', 'ks');
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
-    values ('vykonová-balenia', 'balenie', 'bal');
+    values ('výkonová-balenia', 'balenie', 'bal');
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
-    values ('podielova-tržba', 'euro', '€');
+    values ('podielová-tržba', 'euro', '€');
 
 insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vykon_eviduje_zamestnanec, nutne_evidovanie_casu,  datum_vyplatenia, forma_mzdy, podmienky_pracovneho_vztahu)
     values (950, 'pravidelne', 'časová mzda',true, true, null, 2, 1); /*2*/
@@ -1417,7 +1439,7 @@ call pridat_odpracovane_hodiny(@m, 10,'2020-01-02', '8:00', '16:00', null, null,
 call pridat_odpracovane_hodiny(@m, 10,'2020-01-03', '8:00', '16:00', null, null,1100, null);
 call pridat_odpracovane_hodiny(@m, 10,'2020-01-07', '8:00', '16:00', null, null,900, null);
 call pridat_odpracovane_hodiny(@m, 10,'2020-01-08', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-11', '8:00', '16:00', '02:00', null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-11', '8:00', '16:00', 2.00, null,1100, null);
 call pridat_odpracovane_hodiny(@m, 10,'2020-01-12', '8:00', '16:00', null, null,1000, null);
 call pridat_odpracovane_hodiny(@m, 10,'2020-01-13', '8:00', '16:00', null, null,900, null);
 call pridat_odpracovane_hodiny(@m, 10,'2020-01-14', '8:00', '16:00', null, null,1100, null);
@@ -1656,3 +1678,45 @@ where p.id = 12  and  ((now() > du.platnost_od and (now() < du.platnost_do or du
 select pk.id as pk_id, pk.email, pk.typ_prav, p.id as p_id, p.*,  DATE_FORMAT(p.datum_narodenia,'%d.%m.%Y') as nice_date1 from prihlasovacie_konto pk right join pracujuci p  on p.prihlasovacie_konto = pk.id where p.id = 12 ;
 
 select du.id as du_id, du.*, DATE_FORMAT(du.platnost_od,'%d.%m.%Y') as nice_date2 from dolezite_udaje_pracujuceho du where du.pracujuci = 12  and  ((now() > du.platnost_od and (now() < du.platnost_do or du.platnost_do is null)));
+
+select count(v.id) as count from pracovny_vztah v where pracujuci = 11;
+
+select fm.id as fm_id, fm.nazov as fm_nazov, zm.id as zm_id, zm.popis as zm_popis, oh.*,  DATE_FORMAT(oh.datum,'%d.%m.%Y') as nice_date1, TIME_FORMAT(oh.od, '%H:%i') as nice_time1, om.id as om_id, om.poradie_mesiaca,
+    orr.id as orr_id, orr.rok, ppv.id as ppv_id, pv.id as pv_id, pv.typ as pv_typ, p.id as p_id, p.meno, p.priezvisko, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov
+from forma_mzdy fm
+    join zakladna_mzda zm on fm.id = zm.forma_mzdy
+    join odpracovane_hodiny oh on zm.id = oh.zakladna_mzda
+    join odpracovany_mesiac om on oh.odpracovany_mesiac = om.id
+    join odpracovany_rok orr on om.odpracovany_rok = orr.id
+    join podmienky_pracovneho_vztahu ppv on orr.podmienky_pracovneho_vztahu = ppv.id
+    join pracovny_vztah pv on ppv.pracovny_vztah = pv.id
+    join pracujuci p on pv.pracujuci = p.id
+    join pozicia po on ppv.pozicia = po.id
+    join pracovisko pr on po.pracovisko = pr.id
+where oh.datum = '2020-01-02' order by p_id;
+
+UPDATE odpracovane_hodiny SET do = '16:30:00' WHERE odpracovane_hodiny.id = 1;
+
+select p.id as p_id, p.meno as p_meno, p.priezvisko as p_priezvisko, pv.*, ppv.id as ppv_id, ppv.platnost_od as ppv_platnost_od, ppv.platnost_do as ppv_platnost_do, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov from pracujuci p join pracovny_vztah pv on p.id = pv.pracujuci join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah join pozicia po on ppv.pozicia = po.id join pracovisko pr on po.pracovisko = pr.id where ppv.id=1;
+select om.* from podmienky_pracovneho_vztahu ppv left join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu left join odpracovany_mesiac om on o.id = om.odpracovany_rok
+where ppv.id = 12 and o.rok=2020 and om.poradie_mesiaca=2;
+
+select fm.id as fm_id, fm.nazov as fm_nazov, zm.id as zm_id, zm.popis as zm_popis, oh.*, oh.id as oh_id,  DATE_FORMAT(oh.datum,'%d.%m.%Y') as nice_date1, TIME_FORMAT(oh.od, '%H %i') as nice_time1,
+       TIME_FORMAT(oh.do, '%H %i') as nice_time2,  om.id as om_id, om.poradie_mesiaca, orr.id as orr_id, orr.rok, ppv.id as ppv_id, pv.id as pv_id, pv.typ as pv_typ, p.id as p_id,
+       p.meno, p.priezvisko, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov
+from forma_mzdy fm
+    join zakladna_mzda zm on fm.id = zm.forma_mzdy
+    join odpracovane_hodiny oh on zm.id = oh.zakladna_mzda
+    join odpracovany_mesiac om on oh.odpracovany_mesiac = om.id
+    join odpracovany_rok orr on om.odpracovany_rok = orr.id
+    join podmienky_pracovneho_vztahu ppv on orr.podmienky_pracovneho_vztahu = ppv.id
+    join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pracujuci p on pv.pracujuci = p.id
+    join pozicia po on ppv.pozicia = po.id
+    join pracovisko pr on po.pracovisko = pr.id
+where oh.aktualizovane <= now() and oh.aktualizovane >= DATE_SUB(now(), INTERVAL 3 DAY) order by oh.aktualizovane desc;
+
+
+
+
+select n.*, n.id as n_id,  DATE_FORMAT(n.od,'%d.%m.%Y') as nice_date1, DATE_FORMAT(n.do,'%d.%m.%Y') as nice_date2,  om.id as om_id, om.poradie_mesiaca, orr.id as orr_id, orr.rok, ppv.id as ppv_id, pv.id as pv_id, pv.typ as pv_typ, p.id as p_id, p.meno, p.priezvisko, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov from nepritomnost n join odpracovany_mesiac_nepritomnost omn on n.id=omn.nepritomnost join odpracovany_mesiac om on omn.odpracovany_mesiac = om.id join odpracovany_rok orr on om.odpracovany_rok = orr.id join podmienky_pracovneho_vztahu ppv on orr.podmienky_pracovneho_vztahu = ppv.id join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pracujuci p on pv.pracujuci = p.id join pozicia po on ppv.pozicia = po.id join pracovisko pr on po.pracovisko = pr.id where n.aktualizovane <= now() and n.aktualizovane >= DATE_SUB(now(), INTERVAL 3 DAY)  group by n.id order by n.aktualizovane desc;
+select n.*, n.id as n_id,  DATE_FORMAT(n.od,'%d.%m.%Y') as nice_date1, DATE_FORMAT(n.do,'%d.%m.%Y') as nice_date2, ppv.id as ppv_id, pv.id as pv_id, pv.typ as pv_typ, p.id as p_id, p.meno, p.priezvisko, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov from nepritomnost n join odpracovany_mesiac_nepritomnost omn on n.id=omn.nepritomnost join odpracovany_mesiac om on omn.odpracovany_mesiac = om.id join odpracovany_rok orr on om.odpracovany_rok = orr.id join podmienky_pracovneho_vztahu ppv on orr.podmienky_pracovneho_vztahu = ppv.id join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pracujuci p on pv.pracujuci = p.id join pozicia po on ppv.pozicia = po.id join pracovisko pr on po.pracovisko = pr.id where n.aktualizovane <= now() and n.aktualizovane >= DATE_SUB(now(), INTERVAL 3 DAY)  group by n.id order by n.aktualizovane desc;
