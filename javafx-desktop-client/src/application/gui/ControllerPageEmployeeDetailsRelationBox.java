@@ -158,6 +158,7 @@ public class ControllerPageEmployeeDetailsRelationBox
             wageD.setPayWay(json.getElement(i, "sposob_vyplacania"));
             wageD.setPayDate(json.getElement(i, "datum_vyplatenia"));
             wageD.setTimeImportant(json.getElement(i, "nutne_evidovanie_casu"));
+            wageD.setEmergencyImportant(json.getElement(i, "mozne_evidovanie_pohotovosti"));
             wageD.setWageFormID(json.getElement(i, "forma_mzdy"));
             wageD.setConditionsID(json.getElement(i, "podmienky_pracovneho_vztahu"));
             this.wageDS.add(wageD);

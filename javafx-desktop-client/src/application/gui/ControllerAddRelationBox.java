@@ -23,7 +23,7 @@ public class ControllerAddRelationBox
 {
 
     public CheckBox employee;
-    public CheckBox time;
+    public CheckBox time, emergency;
     public ComboBox form;
     public ComboBox way;
     public TextField tarif;

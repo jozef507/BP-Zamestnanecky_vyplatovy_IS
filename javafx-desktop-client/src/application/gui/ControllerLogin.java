@@ -12,10 +12,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -47,44 +46,14 @@ public class ControllerLogin /*implements Initializable*/
     @FXML
     public void initialize() {
         this.changeFocus();
+        this.onEnterClick(usernameT);
+        this.onEnterClick(passwordT);
     }
-
 
     @FXML
     public void loginButton(MouseEvent actionEvent)
     {
-        setLabel(Color.BLACK,"Prihlasujem...");
-        if (actionEvent.getSource() == btn) {
-            if (login().equals("Success")) {
-                try {
-                    Node node = (Node) actionEvent.getSource();
-                    Stage stage = (Stage) node.getScene().getWindow();
-                    stage.close();
-
-                    Stage primaryStage = new Stage();
-
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/main_pane.fxml"));
-                    Parent root1 = loader.load();
-                    //ControllerMainPain c = loader.getController();
-                    //MainPaneManager.setC(c);
-
-                    primaryStage.setTitle("Hlavné okno");
-                    primaryStage.setScene(new Scene(root1, 985, 602));
-                    primaryStage.setMinHeight(500);
-                    primaryStage.setMinWidth(600);
-                    primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-                        public void handle(WindowEvent we) {
-                            System.out.println("Stage is closing");
-                            LoggedInUser.logout();
-                        }
-                    });
-                    primaryStage.show();
-
-                } catch (IOException ex) {
-                    System.err.println(ex.getMessage());
-                }
-            }
-        }
+        login();
     }
 
     private void changeFocus()
@@ -98,8 +67,38 @@ public class ControllerLogin /*implements Initializable*/
         });
     }
 
+    private void login()
+    {
+        setLabel(Color.BLACK,"Prihlasujem...");
+        if (serverLogin().equals("Success")) {
+            try {
+                Stage stage = (Stage) btn.getScene().getWindow();
+                stage.close();
 
-    private String login()
+                Stage primaryStage = new Stage();
+
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/main_pane.fxml"));
+                Parent root1 = loader.load();
+
+                primaryStage.setTitle("Hlavné okno");
+                primaryStage.setScene(new Scene(root1, 985, 602));
+                primaryStage.setMinHeight(500);
+                primaryStage.setMinWidth(600);
+                primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                    public void handle(WindowEvent we) {
+                        System.out.println("Stage is closing");
+                        LoggedInUser.logout();
+                    }
+                });
+                primaryStage.show();
+
+            } catch (IOException ex) {
+                System.err.println(ex.getMessage());
+            }
+        }
+    }
+
+    private String serverLogin()
     {
         String status = "Success";
         String email = usernameT.getText();
@@ -174,5 +173,35 @@ public class ControllerLogin /*implements Initializable*/
         label.setTextFill(color);
         label.setText(message);
         System.out.println(message);
+    }
+
+    private void onEnterClick(TextField textField)
+    {
+        textField.setOnKeyPressed(new EventHandler<KeyEvent>()
+        {
+            @Override
+            public void handle(KeyEvent ke)
+            {
+                if (ke.getCode().equals(KeyCode.ENTER))
+                {
+                    login();
+                }
+            }
+        });
+    }
+
+    private void onEnterClick(PasswordField textField)
+    {
+        textField.setOnKeyPressed(new EventHandler<KeyEvent>()
+        {
+            @Override
+            public void handle(KeyEvent ke)
+            {
+                if (ke.getCode().equals(KeyCode.ENTER))
+                {
+                    login();
+                }
+            }
+        });
     }
 }

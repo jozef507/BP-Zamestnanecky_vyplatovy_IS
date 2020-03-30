@@ -12,7 +12,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -109,7 +108,7 @@ public class ControllerPageEmployeeDetailsRelation
     {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_relation.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerUpdateRelation(this);
+            return new ControllerUpdateIntRelation(this);
         });
         Parent root1 = null;
         try {

@@ -103,7 +103,7 @@ public class ControllerAddPlace
     {
         boolean flag = true;
 
-        if(num.getText().matches("^\\+?-?\\d+$")) flag=false;
+        if(!num.getText().matches("^\\+?-?\\d+$")) flag=false;
 
         if(!flag)
         {

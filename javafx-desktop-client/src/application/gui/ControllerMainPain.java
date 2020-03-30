@@ -2,6 +2,7 @@ package application.gui;
 
 import application.httpcomunication.LoggedInUser;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -29,6 +30,7 @@ public class ControllerMainPain implements Initializable {
     private FXMLLoader pageLoader;
     private String backPage;
     private String arg1, arg2, arg3;
+    private Button logoutB;
 
     @FXML
     private AnchorPane ap;
@@ -63,13 +65,13 @@ public class ControllerMainPain implements Initializable {
     public void btn2(MouseEvent mouseEvent)
     {
 
-        loadScrollPage("page2");
+        loadAnchorPage("page_hours");
         menuButtonClicked("b2");
     }
 
     public void btn3(MouseEvent mouseEvent)
     {
-        loadAnchorPage("page3");
+        loadAnchorPage("page_absence");
         menuButtonClicked("b3");
     }
 
@@ -151,10 +153,13 @@ public class ControllerMainPain implements Initializable {
         button1.getStyleClass().removeAll("menubuttonclicked");
         button2.getStyleClass().removeAll("menubuttonclicked");
         button3.getStyleClass().removeAll("menubuttonclicked");
+        button3.getStyleClass().add("soft-border");
         button4.getStyleClass().removeAll("menubuttonclicked");
         button5.getStyleClass().removeAll("menubuttonclicked");
+        button5.getStyleClass().add("soft-border");
         button6.getStyleClass().removeAll("menubuttonclicked");
         button7.getStyleClass().removeAll("menubuttonclicked");
+        button7.getStyleClass().add("soft-border");
         button8.getStyleClass().removeAll("menubuttonclicked");
 
         if(button.equals("b1"))
@@ -167,6 +172,7 @@ public class ControllerMainPain implements Initializable {
         }
         else if(button.equals("b3"))
         {
+            button3.getStyleClass().removeAll("soft-border");
             button3.getStyleClass().add("menubuttonclicked");
         }
         else if(button.equals("b4"))
@@ -175,6 +181,7 @@ public class ControllerMainPain implements Initializable {
         }
         else if(button.equals("b5"))
         {
+            button5.getStyleClass().removeAll("soft-border");
             button5.getStyleClass().add("menubuttonclicked");
         }
         else if(button.equals("b6"))
@@ -183,6 +190,7 @@ public class ControllerMainPain implements Initializable {
         }
         else if(button.equals("b7"))
         {
+            button7.getStyleClass().removeAll("soft-border");
             button7.getStyleClass().add("menubuttonclicked");
         }
         else if(button.equals("b8"))
@@ -340,4 +348,6 @@ public class ControllerMainPain implements Initializable {
             button8.setDisable(true);
         }
     }
+
+
 }

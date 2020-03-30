@@ -17,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -50,7 +51,6 @@ public class ControllerPageEmployees
         bornNumberCol.setCellValueFactory(new PropertyValueFactory<>("bornnumber"));
         phoneNumberCol.setCellValueFactory(new PropertyValueFactory<>("phonenumber"));
         countCol.setCellValueFactory(new PropertyValueFactory<>("actrelat"));
-
         tab.setItems(employeeOVS);
 
         relat.getItems().addAll(
@@ -324,5 +324,56 @@ public class ControllerPageEmployees
         primaryStage.setScene(new Scene(root1, 505, 600));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
+    }
+
+    public void onRemoveClick(MouseEvent mouseEvent)
+    {
+        EmployeeOV em = tab.getSelectionModel().getSelectedItem();
+        if(em==null)
+        {
+            CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
+            return;
+        }
+
+        CustomAlert al = new CustomAlert("Odstránenie pracujúceho", "Ste si istý, že chcete odstrániť vybraného pracujúceho?", "", "Áno", "Nie");
+        if(!al.showWait()) return;
+
+        HttpClientClass ht = new HttpClientClass();
+        try {
+            ht.sendDelete("employee/del_emp/"+em.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+
+        updateInfo();
+    }
+
+    public void OnEnterClick(MouseEvent mouseEvent)
+    {
+        EmployeeOV e = tab.getSelectionModel().getSelectedItem();
+        if(e==null)
+        {
+            CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
+            return;
+        }
+
+        FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details"+".fxml"));
+        l.setControllerFactory(c -> {
+            return new ControllerPageEmployeeDetails(Integer.toString(e.getId()));
+        });
+        MainPaneManager.getC().loadScrollPage(l);
     }
 }

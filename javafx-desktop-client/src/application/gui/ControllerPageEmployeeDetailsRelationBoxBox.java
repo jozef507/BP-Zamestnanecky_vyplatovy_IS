@@ -24,7 +24,7 @@ public class ControllerPageEmployeeDetailsRelationBoxBox
     public Text time;
     public Text tarif;
     public Text date;
-    public Text label;
+    public Text label, emergency;
 
     private WageD wageD;
     private ArrayList<WageFormD> wageFormDS;
@@ -48,6 +48,7 @@ public class ControllerPageEmployeeDetailsRelationBoxBox
         tarif.setText(this.wageD.getTarif());
         date.setText(this.wageD.getPayDate());
         label.setText(this.wageD.getLabel());
+        emergency.setText(this.wageD.getEmergencyImportant());
     }
 
     private String getWageForm(String id)

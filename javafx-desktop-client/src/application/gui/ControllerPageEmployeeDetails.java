@@ -11,12 +11,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -27,7 +24,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Optional;
 
 public class ControllerPageEmployeeDetails
 {
@@ -99,7 +95,7 @@ public class ControllerPageEmployeeDetails
 
     private void setEmployee() throws InterruptedException, IOException, CommunicationException {
         HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("-+"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
+        ht.sendGet("employee/emp_usr_imp/"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
         JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
 
         this.employeeD = new EmployeeD();

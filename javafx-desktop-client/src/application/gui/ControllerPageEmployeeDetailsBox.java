@@ -45,7 +45,7 @@ public class ControllerPageEmployeeDetailsBox
 
     private void setStyle()
     {
-        if(!this.rel.getExpiration().equals("aktuálne"))
+        if(!this.rel.getExpiration().equals(""))
         {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.y");
             LocalDate localDate = LocalDate.parse(this.rel.getExpiration(), formatter);
