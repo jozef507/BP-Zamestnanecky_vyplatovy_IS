@@ -341,4 +341,21 @@ class EmployeeMod extends CI_Model
 			return array('status' => 200, 'message' => 'Operation done successfuly!', 'id' => $id);
 		}
 	}
+
+	public function delete_employee($id)
+	{
+		$this->db->trans_start();
+
+			$this->db->where('pracujuci', $id)->delete('dolezite_udaje_pracujuceho');
+			$this->db->where('id', $id)->delete('pracujuci');
+
+		if($this->db->trans_status() === FALSE){
+			$this->db->trans_rollback();
+			return array('status' => 500,'message' => 'Internal server error.');
+		} else {
+			$this->db->trans_commit();
+			return array('status' => 200, 'message' => 'Operation done successfuly!', 'id' => $id);
+		}
+	}
+
 }

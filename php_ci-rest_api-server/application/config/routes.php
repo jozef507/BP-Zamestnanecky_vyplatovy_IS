@@ -68,10 +68,13 @@ $route['employee/emp_rel_ov/(:num)']['get'] 		= 'employee/emp_rel_ov/$1';
 $route['employee/count_imp_pay/(:num)']['get']		 = 'employee/count_imp_pay/$1';
 $route['employee/all_imp/(:num)']['get'] 		= 'employee/all_imp/$1';
 $route['employee/delete_imp/(:num)']['delete'] 			= 'employee/delete_imp/$1';
+$route['employee/del_emp/(:num)']['delete'] 			= 'employee/del_emp/$1';
 
 $route['relation/detail/(:num)']['get']           = 'relation/detail/$1';
 $route['relation/nxt_dmnds_d/(:num)']['get']           = 'relation/nxt_dmnds_d/$1';
 $route['relation/con_ncon_po_pl/(:num)']['get']           = 'relation/con_ncon_po_pl/$1';
+$route['relation/rel_by_cons/(:num)']['get']           = 'relation/rel_by_cons/$1';
+$route['relation/emp_rel_cons_po_pl']['get']           = 'relation/emp_rel_cons_po_pl';
 $route['relation/crt_rel']['post']           = 'relation/crt_rel';
 $route['relation/upd_rel']['post']           = 'relation/upd_rel';
 $route['relation/del_rel/(:num)']['delete']           = 'relation/del_rel/$1';
@@ -92,6 +95,8 @@ $route['position/del_pos/(:num)/(:num)']['delete']           = 'position/del_pos
 $route['wage/forms']['get']           = 'wage/forms';
 $route['wage/del_form/(:num)']['delete']           = 'wage/del_form/$1';
 $route['wage/wage_of_con/(:num)']['get']           = 'wage/wage_of_con/$1';
+$route['wage/wage_form_of_con/(:num)']['get']           = 'wage/wage_form_of_con/$1';
+$route['wage/wage_form/(:num)']['get']           = 'wage/wage_form/$1';
 $route['wage/crt_wage']['post']           = 'wage/crt_wage';
 $route['wage/crt_form']['post']           = 'wage/crt_form';
 
@@ -110,6 +115,15 @@ $route['surcharge/del_sur/(:num)']['delete']           = 'surcharge/del_sur/$1';
 $route['surcharge/crt_sur']['post']           = 'surcharge/crt_sur';
 $route['surcharge/upd_sur']['post']           = 'surcharge/upd_sur';
 
+$route['hours/hrs/(:any)']['get']           = 'hours/hrs/$1';
+$route['hours/crt_hrs']['post']           = 'hours/crt_hrs';
+$route['hours/upd_hrs']['post']           = 'hours/upd_hrs';
+$route['hours/del_hrs/(:num)']['delete']           = 'hours/del_hrs/$1';
+
+$route['absence/bsnc/(:any)']['get']           = 'absence/bsnc/$1';
+$route['absence/crt_bsnc']['post']           = 'absence/crt_bsnc';
+$route['absence/crt_fst']['post']           = 'absence/crt_fst';
+$route['absence/del_bsnc/(:num)']['delete']           = 'absence/del_bsnc/$1';
 
 $route['default_controller'] = 'Employee';
 $route['404_override'] = '';

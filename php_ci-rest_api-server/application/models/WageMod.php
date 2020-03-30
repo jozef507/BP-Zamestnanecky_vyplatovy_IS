@@ -9,15 +9,27 @@ class WageMod extends CI_Model
 		return $query->result();
 	}
 
-	public function get_wage_by_conditions($id)
+	public function get_wage_form_of_conditions($id)
 	{
-		$query = $this->db->query("select * from zakladna_mzda where podmienky_pracovneho_vztahu=".$id);
-		return $query->result_array();
+		$query = $this->db->query("select zm.*, zm.id as zm_id, fm.*, fm.id as fm_id,  DATE_FORMAT(zm.datum_vyplatenia,'%d.%m.%Y') as nice_date1 from zakladna_mzda zm join forma_mzdy fm on zm.forma_mzdy=fm.id where zm.podmienky_pracovneho_vztahu= ".$id);
+		return $query->result();
 	}
 
 	public function get_wage_of_conditions($id)
 	{
 		$query = $this->db->query("select * from zakladna_mzda zm where zm.podmienky_pracovneho_vztahu = ".$id);
+		return $query->result_array();
+	}
+
+	public function get_wage_by_conditions($id)
+	{
+		$query = $this->db->query("select * from zakladna_mzda zm where zm.podmienky_pracovneho_vztahu = ".$id);
+		return $query->result_array();
+	}
+
+	public function get_wage_form($id)
+	{
+		$query = $this->db->query("select zm.*, zm.id as zm_id, fm.*, fm.id as fm_id,  DATE_FORMAT(zm.datum_vyplatenia,'%d.%m.%Y') as nice_date1 from zakladna_mzda zm join forma_mzdy fm on zm.forma_mzdy=fm.id where zm.id= ".$id);
 		return $query->result_array();
 	}
 
@@ -43,6 +55,7 @@ class WageMod extends CI_Model
 		$wage_label = $params['label'];
 		$wage_employee = $params['employee'];
 		$wage_time = $params['time'];
+		$wage_emergency = $params['emergency'];
 		$wage_tarif = $params['tarif'];
 		$wage_way = $params['way'];
 		if($params['paydate']=='NULL')
@@ -62,6 +75,7 @@ class WageMod extends CI_Model
 				'popis' => $wage_label,
 				'vykon_eviduje_zamestnanec' => $wage_employee,
 				'nutne_evidovanie_casu' => $wage_time,
+				'mozne_evidovanie_pohotovosti' => $wage_emergency,
 				'tarifa_za_jednotku_mzdy' => $wage_tarif,
 				'sposob_vyplacania' => $wage_way,
 				'datum_vyplatenia' => $wage_paydate,
@@ -74,7 +88,7 @@ class WageMod extends CI_Model
 		if ($this->db->trans_status() === FALSE){
 			$this->db->trans_rollback();
 
-			$wage_array = $this->get_wage_by_conditions($con_id);
+			$wage_array = $this->get_wage_of_conditions($con_id);
 			foreach ($wage_array as $row)
 			{
 				$this->db->where('id',$row['id'])->delete('zakladna_mzda');
