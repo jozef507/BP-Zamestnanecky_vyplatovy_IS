@@ -5,6 +5,8 @@
 
 .button:hover{
     -fx-background-color: #fff;
+    -fx-cursor: hand;
+
 }
 
 .button:focused{
@@ -20,10 +22,11 @@
 
 .button3:hover{
     -fx-background-color: #fff;
+    -fx-cursor: hand;
 }
 
 .button3:focused{
-    -fx-background-color: #fff;
+    -fx-background-color:  #ebebeb;
 }
 
 .button2{
