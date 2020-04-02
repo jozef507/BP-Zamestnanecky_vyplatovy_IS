@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="367.0" prefWidth="505.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerAddPosition">
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="367.0" prefWidth="505.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.firm.AddPosition">
    <content>
       <AnchorPane minHeight="223.0" minWidth="455.0" prefHeight="290.0" prefWidth="503.0">
          <children>

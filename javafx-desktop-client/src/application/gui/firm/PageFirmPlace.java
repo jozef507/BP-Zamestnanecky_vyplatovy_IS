@@ -1,13 +1,12 @@
-package application.gui;
+package application.gui.firm;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.PlaceD;
-import application.models.PositionD;
-import application.models.WageFormD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -27,52 +26,17 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.function.Predicate;
 
-public class ControllerPageFirmPlace
+public class PageFirmPlace
 {
 
-    public TableColumn townCol;
-    public TableColumn streetCol, numCol;
-    @FXML
-    private TableView<PlaceD> tab = new TableView<PlaceD>();
-    @FXML
-    public TableColumn nameCol,  idCol;
-    @FXML
-    public TextField input;
-    @FXML
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ObservableList<PlaceD> placeDS;
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        townCol.setCellValueFactory(new PropertyValueFactory<>("town"));
-        streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));
-        numCol.setCellValueFactory(new PropertyValueFactory<>("num"));
 
-        tab.setItems(placeDS);
-
-        FilteredList<PlaceD> filteredData = new FilteredList<>(placeDS, e->true);
-        input.setOnKeyPressed(e ->{
-            input.textProperty().addListener(((observable, oldValue, newValue) -> {
-                filteredData.setPredicate((Predicate<? super PlaceD>) placeD -> {
-                    if (newValue == null || newValue.isEmpty()) {
-                        return true;
-                    }
-                    String inp = newValue.toLowerCase();
-                    return isFiltered(placeD, inp);
-                });
-            }));
-            SortedList<PlaceD> sortedData = new SortedList<>(filteredData);
-            sortedData.comparatorProperty().bind(tab.comparatorProperty());
-            tab.setItems(sortedData);
-        });
-
-        MainPaneManager.getC().setBackPage("page_firm");
-    }
-
-    public ControllerPageFirmPlace() {
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageFirmPlace() {
         try{
             placeDS = placeSelect();
         } catch (IOException e) {
@@ -93,6 +57,9 @@ public class ControllerPageFirmPlace
         }
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     public void onRemoveClick(MouseEvent mouseEvent)
     {
         PlaceD placeD = tab.getSelectionModel().getSelectedItem();
@@ -127,9 +94,9 @@ public class ControllerPageFirmPlace
 
     public void onAddClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_place.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddPlace.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddPlace(this);
+            return new AddPlace(this);
         });
         Parent root1 = null;
         try {
@@ -167,30 +134,6 @@ public class ControllerPageFirmPlace
         tab.setItems(placeDS);
     }
 
-    private boolean isFiltered(PlaceD placeD, String inp)
-    {
-
-        boolean flag1=false;
-        boolean imp1= false;
-        if(!inp.equals(""))
-        {
-            imp1=true;
-            String lowerCaseFilter = inp.toLowerCase();
-            if(placeD.getId().toLowerCase().contains(lowerCaseFilter)){
-                flag1 = true;
-            }else if(placeD.getName().toLowerCase().contains(lowerCaseFilter)) {
-                flag1 = true;
-            }
-        }
-
-        boolean flag = true;
-        if(imp1)
-            flag&=flag1;
-
-        return flag;
-    }
-
-
     private ObservableList<PlaceD> placeSelect() throws InterruptedException, IOException, CommunicationException {
         ObservableList<PlaceD> placeDS = FXCollections.observableArrayList();
 
@@ -217,4 +160,79 @@ public class ControllerPageFirmPlace
         this.updateInfo();
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public TableColumn townCol;
+    public TableColumn streetCol, numCol;
+    @FXML
+    private TableView<PlaceD> tab = new TableView<PlaceD>();
+    @FXML
+    public TableColumn nameCol,  idCol;
+    @FXML
+    public TextField input;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        townCol.setCellValueFactory(new PropertyValueFactory<>("town"));
+        streetCol.setCellValueFactory(new PropertyValueFactory<>("street"));
+        numCol.setCellValueFactory(new PropertyValueFactory<>("num"));
+
+        tab.setItems(placeDS);
+
+        FilteredList<PlaceD> filteredData = new FilteredList<>(placeDS, e->true);
+        input.setOnKeyPressed(e ->{
+            input.textProperty().addListener(((observable, oldValue, newValue) -> {
+                filteredData.setPredicate((Predicate<? super PlaceD>) placeD -> {
+                    if (newValue == null || newValue.isEmpty()) {
+                        return true;
+                    }
+                    String inp = newValue.toLowerCase();
+                    return isFiltered(placeD, inp);
+                });
+            }));
+            SortedList<PlaceD> sortedData = new SortedList<>(filteredData);
+            sortedData.comparatorProperty().bind(tab.comparatorProperty());
+            tab.setItems(sortedData);
+        });
+
+        MainPaneManager.getC().setBackPage("PageFirm");
+    }
+
+    private boolean isFiltered(PlaceD placeD, String inp)
+    {
+
+        boolean flag1=false;
+        boolean imp1= false;
+        if(!inp.equals(""))
+        {
+            imp1=true;
+            String lowerCaseFilter = inp.toLowerCase();
+            if(placeD.getId().toLowerCase().contains(lowerCaseFilter)){
+                flag1 = true;
+            }else if(placeD.getName().toLowerCase().contains(lowerCaseFilter)) {
+                flag1 = true;
+            }
+        }
+
+        boolean flag = true;
+        if(imp1)
+            flag&=flag1;
+
+        return flag;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 }

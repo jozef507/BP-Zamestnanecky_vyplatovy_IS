@@ -1,7 +1,8 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
@@ -25,56 +26,24 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ControllerPageEmployeeDetails
+public class PageEmployeeDetails
 {
-
-    @FXML
-    private Text name, phone, email, born_num, born_date, username, role, town, street,
-            num, from, children_under, children_over, retirement, invalidity, insComp, part;
-    @FXML
-    private HBox hb;
-     @FXML
-    private ScrollPane sp;
-    @FXML
-    private VBox vb;
-    @FXML
-    private Button update1, update2, ret1;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private String employeeID;
     private EmployeeD employeeD;
-    private ArrayList<ControllerPageEmployeeDetailsBox> cBox;
+    private ArrayList<PageEmployeeDetailsBox> cBox;
+    private ArrayList<HBox> hBoxes;
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        setTextFields();
-        setBoxes();
 
-        update1.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                openUpdateEmployeeInfoScene();
-            }
-        });
 
-        update2.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_important"+".fxml"));
-                l.setControllerFactory(c -> {
-                    return new ControllerPageEmployeeImportant(employeeD.getName()+" "+employeeD.getLastname(), employeeID);
-                });
-                MainPaneManager.getC().loadScrollPage(l);
-            }
-        });
-
-    }
-
-    public ControllerPageEmployeeDetails(String employeID){
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageEmployeeDetails(String employeID){
 
         this.employeeID = employeID;
         this.hBoxes = new ArrayList<>();
-        MainPaneManager.getC().setBackPage("page_employees");
+        MainPaneManager.getC().setBackPage("PageEmployee");
         try {
             this.setEmployee();
         } catch (IOException e) {
@@ -93,6 +62,8 @@ public class ControllerPageEmployeeDetails
     }
 
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     private void setEmployee() throws InterruptedException, IOException, CommunicationException {
         HttpClientClass ht = new HttpClientClass();
         ht.sendGet("employee/emp_usr_imp/"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
@@ -127,65 +98,72 @@ public class ControllerPageEmployeeDetails
         ht.sendGet("employee/emp_rel_ov/"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
         json = new JsonArrayClass(ht.getRespnseBody());
         ArrayList<RelationOV> relations = new ArrayList<>();
+
         for (int i = 0 ; i<json.getSize(); i++) {
-            RelationOV rel = new RelationOV(
-                    json.getElement(i, "v_id"),
-                    json.getElement(i, "typ"),
-                    json.getElement(i, "nice_date1"),
-                    json.getElement(i, "nice_date2"),
-                    json.getElement(i, "dalsie_podmienky"),
-                    json.getElement(i, "poz_nazov"),
-                    json.getElement(i, "pr_nazov")
-            );
+            RelationOV rel = new RelationOV();
+            rel.setId(json.getElement(i, "v_id"));
+            rel.setType(json.getElement(i, "typ"));
+            rel.setOrigin(json.getElement(i, "nice_date1"));
+            rel.setExpiration(json.getElement(i, "nice_date2"));
+            rel.setNextDemandsID(json.getElement(i, "dalsie_podmienky"));
+            rel.setFrom(json.getElement(i, "platnost_od"));
+            rel.setTo(json.getElement(i, "platnost_do"));
+            rel.setPosition(json.getElement(i, "poz_nazov"));
+            rel.setPlace(json.getElement(i, "pr_nazov"));
+
             rel.setMainByNextDemands();
             relations.add(rel);
         }
         this.employeeD.setRelations(relations);
     }
-
-    private void openUpdateEmployeeInfoScene(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_employee_info.fxml"));
-        loader.setControllerFactory(c -> {
-            return new ControllerUpdateEmployee(employeeID, employeeD.getName(), employeeD.getLastname(),
-                    employeeD.getPhone(), employeeD.getBornNum(), employeeD.getBornDate(), this);
-        });
-        Parent root1 = null;
-        try {
-            root1 = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Stage primaryStage = new Stage();
-        primaryStage.setTitle("Úprava informácií pracujúceho");
-        primaryStage.setScene(new Scene(root1, 457, 375));
-        primaryStage.initModality(Modality.APPLICATION_MODAL);
-        primaryStage.show();
-    }
-
-
-
-       private void setTextFields()
+    public EmployeeD getEmployeeD()
     {
-        name.setText(this.employeeD.getName()+" "+ this.employeeD.getLastname());
-        phone.setText(this.employeeD.getPhone());
-        email.setText(this.employeeD.getEmail());
-        born_num.setText(this.employeeD.getBornNum());
-        born_date.setText(this.employeeD.getBornDate());
-        username.setText(this.employeeD.getEmail());
-        role.setText(this.employeeD.getUserType());
-        insComp.setText(this.employeeD.getInsComp());
-        town.setText(this.employeeD.getTown());
-        street.setText(this.employeeD.getStreet());
-        num.setText(this.employeeD.getNumber());
-        from.setText(this.employeeD.getFrom());
-        children_under.setText(this.employeeD.getChildrenUnder());
-        children_over.setText(this.employeeD.getChildrenOver());
-        part.setText(this.employeeD.getPart());
-        retirement.setText(this.employeeD.getRetirement());
-        invalidity.setText(this.employeeD.getInvalidity());
+        return this.employeeD;
     }
 
-    private ArrayList<HBox> hBoxes;
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    @FXML
+    private Text name, phone, email, born_num, born_date, username, role, town, street,
+            num, from, children_under, children_over, retirement, invalidity, insComp, part;
+    @FXML
+    private HBox hb;
+    @FXML
+    private ScrollPane sp;
+    @FXML
+    private VBox vb;
+    @FXML
+    private Button update1, update2, ret1;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        setTextFields();
+        setBoxes();
+
+        update1.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                openUpdateEmployeeInfoScene();
+            }
+        });
+
+        update2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FXMLLoader l = new FXMLLoader(getClass().getResource("PageEmployeeImportant.fxml"));
+                l.setControllerFactory(c -> {
+                    return new PageEmployeeImportant(employeeD.getName()+" "+employeeD.getLastname(), employeeID);
+                });
+                MainPaneManager.getC().loadScrollPage(l);
+            }
+        });
+
+    }
 
     private void setBoxes()
     {
@@ -197,10 +175,10 @@ public class ControllerPageEmployeeDetails
 
         for(int i = 0; i<this.employeeD.getRelations().size(); i++)
         {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details_box"+".fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("PageEmployeeDetailsBox.fxml"));
             RelationOV rel = this.employeeD.getRelations().get(i);
             loader.setControllerFactory(c -> {
-                return new ControllerPageEmployeeDetailsBox(rel, this.employeeD);
+                return new PageEmployeeDetailsBox(rel, this.employeeD);
             });
             HBox newPane = null;
             try {
@@ -237,12 +215,35 @@ public class ControllerPageEmployeeDetails
         setBoxes();
     }
 
+    private void setTextFields()
+    {
+        name.setText(this.employeeD.getName()+" "+ this.employeeD.getLastname());
+        phone.setText(this.employeeD.getPhone());
+        email.setText(this.employeeD.getEmail());
+        born_num.setText(this.employeeD.getBornNum());
+        born_date.setText(this.employeeD.getBornDate());
+        username.setText(this.employeeD.getEmail());
+        role.setText(this.employeeD.getUserType());
+        insComp.setText(this.employeeD.getInsComp());
+        town.setText(this.employeeD.getTown());
+        street.setText(this.employeeD.getStreet());
+        num.setText(this.employeeD.getNumber());
+        from.setText(this.employeeD.getFrom());
+        children_under.setText(this.employeeD.getChildrenUnder());
+        children_over.setText(this.employeeD.getChildrenOver());
+        part.setText(this.employeeD.getPart());
+        retirement.setText(this.employeeD.getRetirement());
+        invalidity.setText(this.employeeD.getInvalidity());
+    }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void add1(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_relation.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddRelation.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddRelation(this);
+            return new AddRelation(this);
         });
         Parent root1 = null;
         try {
@@ -257,8 +258,34 @@ public class ControllerPageEmployeeDetails
         primaryStage.show();
     }
 
-    public EmployeeD getEmployeeD()
-    {
-        return this.employeeD;
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+    private void openUpdateEmployeeInfoScene(){
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdateEmployee.fxml"));
+        loader.setControllerFactory(c -> {
+            return new UpdateEmployee(employeeID, employeeD.getName(), employeeD.getLastname(),
+                    employeeD.getPhone(), employeeD.getBornNum(), employeeD.getBornDate(), this);
+        });
+        Parent root1 = null;
+        try {
+            root1 = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Úprava informácií pracujúceho");
+        primaryStage.setScene(new Scene(root1, 457, 375));
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.show();
     }
+
+
+
+
+
+
+
+
+
 }

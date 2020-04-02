@@ -1,43 +1,92 @@
-package application.gui;
+package application.gui.firm;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.PlaceD;
-import application.models.WageFormD;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class ControllerAddPlace
+public class AddPlace
 {
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageFirmPlace pageFirmPlace;
+    private PlaceD placeD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddPlace(PageFirmPlace pageFirmPlace) {
+        this.pageFirmPlace = pageFirmPlace;
+        this.placeD = new PlaceD();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void createWageForm() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("name", this.placeD.getName());
+        ht.addParam("town", this.placeD.getTown());
+        ht.addParam("street", this.placeD.getStreet());
+        ht.addParam("num", this.placeD.getNum());
+
+        ht.sendPost("place/crt_place", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public Label label;
     public TextField name, town, street, num;
 
 
-    private ControllerPageFirmPlace controllerPageFirmPlace;
-    private PlaceD placeD;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         this.changeFocus();
+        this.setTextfieldLimit(name, 255);
+        this.setTextfieldLimit(town, 255);
+        this.setTextfieldLimit(street, 10);
+        this.setTextfieldLimit(num, 10);
     }
 
-    public ControllerAddPlace(ControllerPageFirmPlace controllerPageFirmPlace) {
-        this.controllerPageFirmPlace = controllerPageFirmPlace;
-        this.placeD = new PlaceD();
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
     }
 
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                name.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -71,10 +120,14 @@ public class ControllerAddPlace
             return;
         }
 
-        this.controllerPageFirmPlace.updateInfo();
+        this.pageFirmPlace.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -128,26 +181,7 @@ public class ControllerAddPlace
         this.placeD.setNum(num.getText());
     }
 
-    private void createWageForm() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
 
-        ht.addParam("name", this.placeD.getName());
-        ht.addParam("town", this.placeD.getTown());
-        ht.addParam("street", this.placeD.getStreet());
-        ht.addParam("num", this.placeD.getNum());
 
-        ht.sendPost("place/crt_place", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private void changeFocus()
-    {
-        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && firstTime.get()) {
-                name.getParent().requestFocus();
-                firstTime.setValue(false);
-            }
-        });
-    }
 
 }

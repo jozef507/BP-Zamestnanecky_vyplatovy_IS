@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<ScrollPane fitToWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="826.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerAddRelation">
+<ScrollPane fitToWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="826.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.employee.AddRelation">
   <content>
     <AnchorPane minHeight="0.0" minWidth="0.0">
          <children>
@@ -150,7 +150,7 @@
                               </Text>
                               <CheckBox fx:id="isMain" mnemonicParsing="false" GridPane.columnIndex="1" />
                               <CheckBox fx:id="isUniform" mnemonicParsing="false" prefHeight="19.0" prefWidth="86.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <TextField fx:id="testTime" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <TextField fx:id="testTime" promptText="počet dní" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                            </children>
                            <padding>
                               <Insets left="5.0" right="5.0" />
@@ -182,9 +182,9 @@
                                     <Font name="System Bold" size="14.0" />
                                  </font>
                               </Text>
-                              <TextField fx:id="hollidayTime" GridPane.columnIndex="1" />
-                              <TextField fx:id="weekTime" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <TextField fx:id="sackTime" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <TextField fx:id="hollidayTime" promptText="počet dní" GridPane.columnIndex="1" />
+                              <TextField fx:id="weekTime" promptText="množstvo hodín" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <TextField fx:id="sackTime" promptText="počet dní" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                            </children>
                            <padding>
                               <Insets left="5.0" right="5.0" />

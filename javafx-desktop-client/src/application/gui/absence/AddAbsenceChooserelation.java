@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.absence;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -19,21 +19,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
-public class ControllerAddAbsenceChooserelation
+public class AddAbsenceChooserelation
 {
-    public TextField input;
-    public ComboBox place;
-    public TableColumn idEmpCol, nameCol, idRelCol, relationCol, fromCol, toCol, placeCol, positionCol;
-    public TableView<RelationD> tab;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ObservableList<RelationD> relationDS;
-    ControllerAddAbsence controllerAddAbsence;
+    private AddAbsence addAbsence;
     private ArrayList<String> places;
 
-
-    public ControllerAddAbsenceChooserelation(ControllerAddAbsence controllerAddAbsence)
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddAbsenceChooserelation(AddAbsence addAbsence)
     {
-        this.controllerAddAbsence = controllerAddAbsence;
+        this.addAbsence = addAbsence;
         try {
             this.relationDS = relationSelect();
             this.places = getPlaces();
@@ -56,7 +55,68 @@ public class ControllerAddAbsenceChooserelation
     }
 
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private ObservableList<RelationD> relationSelect() throws IOException, InterruptedException, CommunicationException {
+        ObservableList<RelationD> relationDS = FXCollections.observableArrayList();
 
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("relation/emp_rel_cons_po_pl", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        RelationD newRelationD = null;
+        for(int i=0; i<json.getSize(); i++)
+        {
+            newRelationD = new RelationD();
+
+            newRelationD.setEmployeeID(json.getElement(i, "p_id"));
+            newRelationD.setEmployeeNameLastname(json.getElement(i, "p_priezvisko")+" "+json.getElement(i, "p_meno"));
+
+            newRelationD.setId(json.getElement(i, "id"));
+            newRelationD.setType(json.getElement(i, "typ"));
+            newRelationD.setFrom(json.getElement(i, "nice_date1"));
+            newRelationD.setTo(json.getElement(i, "nice_date2"));
+
+            newRelationD.setConditionsID(json.getElement(i, "ppv_id"));
+            newRelationD.setConditionsFrom(json.getElement(i, "ppv_platnost_od"));
+            newRelationD.setConditionsTo(json.getElement(i, "ppv_platnost_do"));
+
+            newRelationD.setPositionID(json.getElement(i, "po_id"));
+            newRelationD.setPositionName(json.getElement(i, "po_nazov"));
+
+            newRelationD.setPlaceID(json.getElement(i, "pr_id"));
+            newRelationD.setPlaceName(json.getElement(i, "pr_nazov"));
+
+            relationDS.add(newRelationD);
+        }
+
+        return relationDS;
+    }
+
+    private ArrayList<String> getPlaces() throws IOException, InterruptedException, CommunicationException {
+        ArrayList<String> places = new ArrayList<>();
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("place", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        for(int i=0; i<json.getSize(); i++)
+        {
+            places.add(json.getElement(i, "nazov"));
+        }
+        return places;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public TextField input;
+    public ComboBox place;
+    public TableColumn idEmpCol, nameCol, idRelCol, relationCol, fromCol, toCol, placeCol, positionCol;
+    public TableView<RelationD> tab;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize() {
 
         //set table columns
@@ -118,8 +178,8 @@ public class ControllerAddAbsenceChooserelation
                 if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
                     RelationD r = row.getItem();
                     System.out.println(r.toString());
-                    controllerAddAbsence.setChoosenRelation(r);
-                    controllerAddAbsence.setRelationElements();
+                    addAbsence.setChoosenRelation(r);
+                    addAbsence.setRelationElements();
                     Stage stage = (Stage) input.getScene().getWindow();
                     stage.close();
                 }
@@ -127,81 +187,6 @@ public class ControllerAddAbsenceChooserelation
             return row ;
         });
     }
-
-    public void btn1(MouseEvent mouseEvent)
-    {
-        Stage stage = (Stage) input.getScene().getWindow();
-        stage.close();
-    }
-
-    public void btn2(MouseEvent mouseEvent)
-    {
-        try {
-            RelationD r = tab.getSelectionModel().getSelectedItem();
-            if(r==null)
-            {
-                CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
-                return;
-            }
-            controllerAddAbsence.setChoosenRelation(r);
-            controllerAddAbsence.setRelationElements();
-            System.out.println(r.toString());
-            Stage stage = (Stage) input.getScene().getWindow();
-            stage.close();
-        } catch (Exception e) {
-            System.out.println("Nevybraný žiadny element!");
-        }
-    }
-
-    private ObservableList<RelationD> relationSelect() throws IOException, InterruptedException, CommunicationException {
-        ObservableList<RelationD> relationDS = FXCollections.observableArrayList();
-
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("relation/emp_rel_cons_po_pl", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        RelationD newRelationD = null;
-        for(int i=0; i<json.getSize(); i++)
-        {
-            newRelationD = new RelationD();
-
-            newRelationD.setEmployeeID(json.getElement(i, "p_id"));
-            newRelationD.setEmployeeNameLastname(json.getElement(i, "p_priezvisko")+" "+json.getElement(i, "p_meno"));
-
-            newRelationD.setId(json.getElement(i, "id"));
-            newRelationD.setType(json.getElement(i, "typ"));
-            newRelationD.setFrom(json.getElement(i, "nice_date1"));
-            newRelationD.setTo(json.getElement(i, "nice_date2"));
-
-            newRelationD.setConditionsID(json.getElement(i, "ppv_id"));
-            newRelationD.setConditionsFrom(json.getElement(i, "ppv_platnost_od"));
-            newRelationD.setConditionsTo(json.getElement(i, "ppv_platnost_do"));
-
-            newRelationD.setPositionID(json.getElement(i, "po_id"));
-            newRelationD.setPositionName(json.getElement(i, "po_nazov"));
-
-            newRelationD.setPlaceID(json.getElement(i, "pr_id"));
-            newRelationD.setPlaceName(json.getElement(i, "pr_nazov"));
-
-            relationDS.add(newRelationD);
-        }
-
-        return relationDS;
-    }
-
-    private ArrayList<String> getPlaces() throws IOException, InterruptedException, CommunicationException {
-        ArrayList<String> places = new ArrayList<>();
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("place", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            places.add(json.getElement(i, "nazov"));
-        }
-        return places;
-    }
-
 
     private boolean isFiltered(RelationD relationD, String inp, String pla)
     {
@@ -238,4 +223,35 @@ public class ControllerAddAbsenceChooserelation
 
         return flag;
     }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+    public void btn1(MouseEvent mouseEvent)
+    {
+        Stage stage = (Stage) input.getScene().getWindow();
+        stage.close();
+    }
+
+    public void btn2(MouseEvent mouseEvent)
+    {
+        try {
+            RelationD r = tab.getSelectionModel().getSelectedItem();
+            if(r==null)
+            {
+                CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
+                return;
+            }
+            addAbsence.setChoosenRelation(r);
+            addAbsence.setRelationElements();
+            System.out.println(r.toString());
+            Stage stage = (Stage) input.getScene().getWindow();
+            stage.close();
+        } catch (Exception e) {
+            System.out.println("Nevybraný žiadny element!");
+        }
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 }

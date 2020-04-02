@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -25,9 +25,101 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerAddRelation implements ControllerIntRelation
+public class AddRelation implements RelationInterface
 {
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private ArrayList<AddRelationBox> wagesControllers;
+    private PageEmployeeDetails pageEmployeeDetails;
+    private PositionD choosenPosition;
+    private RelationD relationD;
+    private ConditionsD conditionsD;
+    private NextConditionsD nextConditionsD;
+    private ArrayList<WageD> wageDs;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddRelation(PageEmployeeDetails pageEmployeeDetails)
+    {
+        this.wagesControllers = new ArrayList<>();
+        this.wageDs = new ArrayList<>();
+        this.pageEmployeeDetails = pageEmployeeDetails;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+
+    public void setChoosenPosition(PositionD choosenPosition) {
+        this.choosenPosition = choosenPosition;
+    }
+
+    public void setPositionElements()
+    {
+        place.setText(this.choosenPosition.getPlace());
+        position.setText(this.choosenPosition.getName());
+    }
+
+    private void createRelation() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.addParam("type", this.relationD.getType());
+        ht.addParam("begin", this.relationD.getFrom());
+        ht.addParam("end", this.relationD.getTo());
+        ht.addParam("employeeid", this.relationD.getEmployeeID());
+
+        if(this.nextConditionsD!=null)
+        {
+            ht.addParam("nextconditions", "true");
+            ht.addParam("main", this.nextConditionsD.getIsMain());
+            ht.addParam("holliday", this.nextConditionsD.getHollidayTime());
+            ht.addParam("weektime", this.nextConditionsD.getWeekTime());
+            ht.addParam("uniform", this.nextConditionsD.getIsWeekTimeUniform());
+            ht.addParam("testtime", this.nextConditionsD.getTestTime());
+            ht.addParam("sacktime", this.nextConditionsD.getSackTime());
+        }
+        else
+        {
+            ht.addParam("nextconditions", "false");
+
+        }
+
+        ht.addParam("from", this.conditionsD.getFrom());
+        ht.addParam("to", this.conditionsD.getTo());
+        ht.addParam("positionid", this.conditionsD.getPositionID());
+
+        ht.sendPost("relation/crt_rel", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        String relID = json.getElement(0, "rel_id");
+        String nextConID = json.getElement(0, "nextcon_id");
+        String conID = json.getElement(0, "con_id");
+
+        for(int i = 0; i<this.wageDs.size();i++)
+        {
+            ht.addParam("label", this.wageDs.get(i).getLabel());
+            ht.addParam("employee",  this.wageDs.get(i).getEmployeeEnter());
+            ht.addParam("time",  this.wageDs.get(i).getTimeImportant());
+            ht.addParam("emergency",  this.wageDs.get(i).getEmergencyImportant());
+            ht.addParam("tarif",  this.wageDs.get(i).getTarif());
+            ht.addParam("way",  this.wageDs.get(i).getPayWay());
+            ht.addParam("paydate", this.wageDs.get(i).getPayDate());
+            ht.addParam("formid",  this.wageDs.get(i).getWageFormID());
+            ht.addParam("conid",  conID);
+
+            ht.addParam("relid",relID);
+            ht.addParam("conid", conID);
+            ht.addParam("nextconid", nextConID);
+            ht.addParam("prevconds", "NULL");
+
+            ht.sendPost("wage/crt_wage", LoggedInUser.getToken(), LoggedInUser.getId());
+        }
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public VBox vb;
     public HBox hb;
     public Text name;
@@ -47,22 +139,9 @@ public class ControllerAddRelation implements ControllerIntRelation
     public VBox vb_wage;
     public Label infoLabel;
 
-    private ArrayList<ControllerAddRelationBox> wagesControllers;
-    private ControllerPageEmployeeDetails controllerPageEmployeeDetails;
-    private PositionD choosenPosition;
-    private RelationD relationD;
-    private ConditionsD conditionsD;
-    private NextConditionsD nextConditionsD;
-    private ArrayList<WageD> wageDs;
 
-
-    public ControllerAddRelation(ControllerPageEmployeeDetails controllerPageEmployeeDetails)
-    {
-        this.wagesControllers = new ArrayList<>();
-        this.wageDs = new ArrayList<>();
-        this.controllerPageEmployeeDetails = controllerPageEmployeeDetails;
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize()
     {
         setElements();
@@ -82,10 +161,10 @@ public class ControllerAddRelation implements ControllerIntRelation
         });
 
         relType.getSelectionModel().selectedItemProperty().addListener( (options, oldValue, newValue) -> {
-           if(newValue.equals("PP: na plný úväzok") || newValue.equals("PP: na kratší pracovný čas") || newValue.equals("PP: telepráca"))
-               hb.setDisable(false);
-           else
-               hb.setDisable(true);
+            if(newValue.equals("PP: na plný úväzok") || newValue.equals("PP: na kratší pracovný čas") || newValue.equals("PP: telepráca"))
+                hb.setDisable(false);
+            else
+                hb.setDisable(true);
         });
 
     }
@@ -133,16 +212,19 @@ public class ControllerAddRelation implements ControllerIntRelation
         relEnd.setPromptText("D.M.RRRR");
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void addWage(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"add_relation_box"+".fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddRelationBox.fxml"));
         HBox newPane = null;
         try {
             newPane = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ControllerAddRelationBox c = loader.getController();
+        AddRelationBox c = loader.getController();
         wagesControllers.add(c);
         vb_wage.getChildren().addAll(newPane);
     }
@@ -155,9 +237,9 @@ public class ControllerAddRelation implements ControllerIntRelation
 
     public void addPosition(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_relation_chooseposition.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddRelationChooseposition.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddRelationChooseposition(this);
+            return new AddRelationChooseposition(this);
         });
         Parent root1 = null;
         try {
@@ -170,16 +252,6 @@ public class ControllerAddRelation implements ControllerIntRelation
         primaryStage.setScene(new Scene(root1, 810, 570));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
-    }
-
-    public void setChoosenPosition(PositionD choosenPosition) {
-        this.choosenPosition = choosenPosition;
-    }
-
-    public void setPositionElements()
-    {
-        place.setText(this.choosenPosition.getPlace());
-        position.setText(this.choosenPosition.getName());
     }
 
     public void cancel(MouseEvent mouseEvent)
@@ -218,11 +290,14 @@ public class ControllerAddRelation implements ControllerIntRelation
             return;
         }
 
-        controllerPageEmployeeDetails.updateInfo();
+        pageEmployeeDetails.updateInfo();
         Stage stage = (Stage) vb.getScene().getWindow();
         stage.close();
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
     private boolean checkFormular()
     {
         boolean flag = true;
@@ -320,7 +395,7 @@ public class ControllerAddRelation implements ControllerIntRelation
             relationD.setTo(relEnd.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         else
             relationD.setTo("NULL");
-        relationD.setEmployeeID(this.controllerPageEmployeeDetails.getEmployeeD().getId());
+        relationD.setEmployeeID(this.pageEmployeeDetails.getEmployeeD().getId());
         this.relationD = relationD;
 
         ConditionsD conditionsD = new ConditionsD();
@@ -377,58 +452,4 @@ public class ControllerAddRelation implements ControllerIntRelation
         }
     }
 
-    private void createRelation() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-        ht.addParam("type", this.relationD.getType());
-        ht.addParam("begin", this.relationD.getFrom());
-        ht.addParam("end", this.relationD.getTo());
-        ht.addParam("employeeid", this.relationD.getEmployeeID());
-
-        if(this.nextConditionsD!=null)
-        {
-            ht.addParam("nextconditions", "true");
-            ht.addParam("main", this.nextConditionsD.getIsMain());
-            ht.addParam("holliday", this.nextConditionsD.getHollidayTime());
-            ht.addParam("weektime", this.nextConditionsD.getWeekTime());
-            ht.addParam("uniform", this.nextConditionsD.getIsWeekTimeUniform());
-            ht.addParam("testtime", this.nextConditionsD.getTestTime());
-            ht.addParam("sacktime", this.nextConditionsD.getSackTime());
-        }
-        else
-        {
-            ht.addParam("nextconditions", "false");
-
-        }
-
-        ht.addParam("from", this.conditionsD.getFrom());
-        ht.addParam("to", this.conditionsD.getTo());
-        ht.addParam("positionid", this.conditionsD.getPositionID());
-
-        ht.sendPost("relation/crt_rel", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        String relID = json.getElement(0, "rel_id");
-        String nextConID = json.getElement(0, "nextcon_id");
-        String conID = json.getElement(0, "con_id");
-
-        for(int i = 0; i<this.wageDs.size();i++)
-        {
-            ht.addParam("label", this.wageDs.get(i).getLabel());
-            ht.addParam("employee",  this.wageDs.get(i).getEmployeeEnter());
-            ht.addParam("time",  this.wageDs.get(i).getTimeImportant());
-            ht.addParam("emergency",  this.wageDs.get(i).getEmergencyImportant());
-            ht.addParam("tarif",  this.wageDs.get(i).getTarif());
-            ht.addParam("way",  this.wageDs.get(i).getPayWay());
-            ht.addParam("paydate", this.wageDs.get(i).getPayDate());
-            ht.addParam("formid",  this.wageDs.get(i).getWageFormID());
-            ht.addParam("conid",  conID);
-
-            ht.addParam("relid",relID);
-            ht.addParam("conid", conID);
-            ht.addParam("nextconid", nextConID);
-
-            ht.sendPost("wage/crt_wage", LoggedInUser.getToken(), LoggedInUser.getId());
-        }
-
-    }
 }

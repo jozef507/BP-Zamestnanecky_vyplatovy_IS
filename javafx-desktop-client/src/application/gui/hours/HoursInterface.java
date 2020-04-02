@@ -1,11 +1,10 @@
-package application.gui;
+package application.gui.hours;
 
-import application.models.PositionD;
 import application.models.RelationD;
 import application.models.WageD;
 import javafx.scene.layout.VBox;
 
-public interface ControllerIntHours
+public interface HoursInterface
 {
     public void setChoosenRelation(RelationD relationD);
     public RelationD getChoosenRelation();
@@ -13,7 +12,7 @@ public interface ControllerIntHours
     public WageD getChoosenWage();
     public void setRelationElements();
     public void setWageElements();
-    public void removeHoursBox(VBox vb, ControllerAddHoursBox controllerAddHoursBox);
+    public void removeHoursBox(VBox vb, AddHoursBox addHoursBox);
 
 
 }

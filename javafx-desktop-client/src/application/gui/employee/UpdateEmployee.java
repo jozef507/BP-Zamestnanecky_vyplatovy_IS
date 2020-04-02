@@ -1,19 +1,14 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
-import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.paint.Color;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
@@ -21,17 +16,40 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class ControllerUpdateEmployee
+public class UpdateEmployee
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private String employeeID;
     private String employeeName;
     private String employeeLastname;
     private String employeePhone;
     private String employeeBornnumber;
     private String employeeBorndate;
+    private PageEmployeeDetails c;
 
-    private ControllerPageEmployeeDetails c;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public UpdateEmployee(String employeeID, String employeeName, String employeeLastname,
+                          String employeePhone, String employeeBornnumber, String employeeBorndate, PageEmployeeDetails c) {
+        this.employeeID = employeeID;
+        this.employeeName = employeeName;
+        this.employeeLastname = employeeLastname;
+        this.employeePhone = employeePhone;
+        this.employeeBornnumber = employeeBornnumber;
+        this.employeeBorndate = employeeBorndate;
+        this.c = c;
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public TextField name;
     public TextField lastname;
     public TextField phone;
@@ -42,13 +60,18 @@ public class ControllerUpdateEmployee
     public Label label;
 
 
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         this.changeFocus();
         this.setDatePicker();
         this.setInputs();
+        this.setTextfieldLimit(name, 255);
+        this.setTextfieldLimit(lastname, 255);
+        this.setTextfieldLimit(phone, 10);
+        this.setTextfieldLimit(bornnumber, 10);
 
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -73,16 +96,6 @@ public class ControllerUpdateEmployee
         });
     }
 
-    public ControllerUpdateEmployee(String employeeID, String employeeName, String employeeLastname,
-                                    String employeePhone, String employeeBornnumber, String employeeBorndate, ControllerPageEmployeeDetails c) {
-        this.employeeID = employeeID;
-        this.employeeName = employeeName;
-        this.employeeLastname = employeeLastname;
-        this.employeePhone = employeePhone;
-        this.employeeBornnumber = employeeBornnumber;
-        this.employeeBorndate = employeeBorndate;
-        this.c = c;
-    }
 
     private void setDatePicker()
     {
@@ -164,6 +177,12 @@ public class ControllerUpdateEmployee
         borndate.setValue(localDate);
     }
 
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
+    }
+
     private void changeFocus()
     {
         final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
@@ -175,6 +194,13 @@ public class ControllerUpdateEmployee
         });
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
     private boolean checkFormular()
     {
         boolean flag = true;
@@ -223,6 +249,4 @@ public class ControllerUpdateEmployee
             return false;
         }*/
     }
-
-
 }

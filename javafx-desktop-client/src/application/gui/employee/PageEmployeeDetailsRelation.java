@@ -1,7 +1,8 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
@@ -20,31 +21,22 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ControllerPageEmployeeDetailsRelation
+public class PageEmployeeDetailsRelation
 {
-
-    public VBox vb;
-    public Text name;
-    public Text id;
-    public Text type;
-    public Text relFrom;
-    public Text relTo;
-    public VBox vbConditions;
-    public Label infoLabel;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private EmployeeD employeeD;
     private RelationOV relationOV;
-
     private RelationD relationD;
     private ArrayList<ConditionsD> conditionsDs;
     private ArrayList<String> places;
     private ArrayList<String> positions;
     private ArrayList<NextConditionsD> nextConditionsDs;
 
-    private ArrayList<VBox> vBoxes;
 
-
-    public ControllerPageEmployeeDetailsRelation(EmployeeD employeeD, RelationOV relationOV) {
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageEmployeeDetailsRelation(EmployeeD employeeD, RelationOV relationOV) {
         this.employeeD = employeeD;
         this.relationOV = relationOV;
         this.conditionsDs = new ArrayList<>();
@@ -71,13 +63,9 @@ public class ControllerPageEmployeeDetailsRelation
         }
     }
 
-    @FXML
-    public void initialize()
-    {
-        this.setTexts();
-        this.setBoxes();
-    }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     public void updateInfo()
     {
         try {
@@ -104,54 +92,6 @@ public class ControllerPageEmployeeDetailsRelation
         this.setBoxes();
     }
 
-    public void changeCon(MouseEvent mouseEvent)
-    {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_relation.fxml"));
-        loader.setControllerFactory(c -> {
-            return new ControllerUpdateIntRelation(this);
-        });
-        Parent root1 = null;
-        try {
-            root1 = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Stage primaryStage = new Stage();
-        primaryStage.setTitle("Úprava informácií pracujúceho");
-        primaryStage.setScene(new Scene(root1, 826, 600));
-        primaryStage.initModality(Modality.APPLICATION_MODAL);
-        primaryStage.show();
-    }
-
-    public void removeCon(MouseEvent mouseEvent)
-    {
-        HttpClientClass ht = new HttpClientClass();
-        try {
-            ht.sendDelete("relation/del_lst_cons/"+this.conditionsDs.get(this.conditionsDs.size()-1).getId()+"/"+this.conditionsDs.get(this.conditionsDs.size()-2).getId(), LoggedInUser.getToken(), LoggedInUser.getId());
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Chyba",
-                    "Nie je možné odstrániť posledné podmienky pracovného vzťahu.", e.getMessage());
-            return;
-        }catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-        updateInfo();
-    }
-
     public RelationD getRelationD()
     {
         return relationD;
@@ -162,78 +102,6 @@ public class ControllerPageEmployeeDetailsRelation
         return  this.conditionsDs;
     }
 
-    public void remove(MouseEvent mouseEvent)
-    {
-        CustomAlert al = new CustomAlert("Odstránenie pracovného vzťahu", "Ste si istý že chcete odstrániť tento pracovný vzťah?", "", "Áno", "Nie");
-        if(!al.showWait())
-            return;
-
-        try {
-            HttpClientClass ht = new HttpClientClass();
-            ht.sendDelete("relation/del_rel/"+this.relationD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-
-        FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details"+".fxml"));
-        l.setControllerFactory(c -> {
-            return new ControllerPageEmployeeDetails(this.employeeD.getId());
-        });
-        MainPaneManager.getC().loadScrollPage(l);
-    }
-
-
-    private void setTexts()
-    {
-        name.setText(this.employeeD.getName()+" "+this.employeeD.getLastname());
-        id.setText(this.relationD.getId());
-        type.setText(this.relationD.getType());
-        relFrom.setText(this.relationD.getFrom());
-        relTo.setText(this.relationD.getTo());
-
-    }
-
-    private void setBoxes()
-    {
-        for(int i = 0; i<this.vBoxes.size(); i++)
-        {
-            vbConditions.getChildren().remove(this.vBoxes.get(i));
-        }
-        vBoxes.clear();
-
-        for(int i = 0; i<this.conditionsDs.size(); i++)
-        {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details_relation_box"+".fxml"));
-            int ii = i;
-            loader.setControllerFactory(c -> {
-                return new ControllerPageEmployeeDetailsRelationBox(this.conditionsDs.get(ii), this.places.get(ii),this.positions.get(ii),this.nextConditionsDs.get(ii));
-            });
-            VBox newPane = null;
-            try {
-                newPane = loader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //ControllerPageEmployeeDetailsRelationBox c = loader.getController();
-            vbConditions.getChildren().addAll(newPane);
-            vBoxes.add(newPane);
-        }
-
-    }
-
     private void setRelationD() throws InterruptedException, IOException, CommunicationException {
         HttpClientClass ht = new HttpClientClass();
         ht.sendGet("relation/detail/"+this.relationOV.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
@@ -242,8 +110,8 @@ public class ControllerPageEmployeeDetailsRelation
         RelationD relationD = new RelationD();
         relationD.setId(json.getElement(0, "id"));
         relationD.setType(json.getElement(0, "typ"));
-        relationD.setFrom(json.getElement(0, "datum_vzniku"));
-        relationD.setTo(json.getElement(0, "datum_vyprsania"));
+        relationD.setFrom(json.getElement(0, "nice_date1"));
+        relationD.setTo(json.getElement(0, "nice_date2"));
         relationD.setEmployeeID(json.getElement(0, "pracujuci"));
 
         this.relationD = relationD;
@@ -288,5 +156,155 @@ public class ControllerPageEmployeeDetailsRelation
     }
 
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public VBox vb;
+    public Text name;
+    public Text id;
+    public Text type;
+    public Text relFrom;
+    public Text relTo;
+    public VBox vbConditions;
+    public Label infoLabel;
+    private ArrayList<VBox> vBoxes;
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize()
+    {
+        this.setTexts();
+        this.setBoxes();
+    }
+
+    private void setTexts()
+    {
+        name.setText(this.employeeD.getName()+" "+this.employeeD.getLastname());
+        id.setText(this.relationD.getId());
+        type.setText(this.relationD.getType());
+        relFrom.setText(this.relationD.getFrom());
+        relTo.setText(this.relationD.getTo());
+
+    }
+
+    private void setBoxes()
+    {
+        for(int i = 0; i<this.vBoxes.size(); i++)
+        {
+            vbConditions.getChildren().remove(this.vBoxes.get(i));
+        }
+        vBoxes.clear();
+
+        for(int i = 0; i<this.conditionsDs.size(); i++)
+        {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("PageEmployeeDetailsRelationBox.fxml"));
+            int ii = i;
+            loader.setControllerFactory(c -> {
+                return new PageEmployeeDetailsRelationBox(this.conditionsDs.get(ii), this.places.get(ii),this.positions.get(ii),this.nextConditionsDs.get(ii));
+            });
+            VBox newPane = null;
+            try {
+                newPane = loader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //ControllerPageEmployeeDetailsRelationBox c = loader.getController();
+            vbConditions.getChildren().addAll(newPane);
+            vBoxes.add(newPane);
+        }
+
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+    public void changeCon(MouseEvent mouseEvent)
+    {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdateRelation.fxml"));
+        loader.setControllerFactory(c -> {
+            return new UpdateRelation(this);
+        });
+        Parent root1 = null;
+        try {
+            root1 = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Úprava informácií pracujúceho");
+        primaryStage.setScene(new Scene(root1, 826, 600));
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.show();
+    }
+
+    public void removeCon(MouseEvent mouseEvent)
+    {
+        CustomAlert al = new CustomAlert("Odstránenie podmienok pracovného vzťahu", "Ste si istý že chcete odstrániť tieto podmienky pracovného vzťahu.", "", "Áno", "Nie");
+        if(!al.showWait())
+            return;
+
+        HttpClientClass ht = new HttpClientClass();
+        try {
+            ht.sendDelete("relation/del_lst_cons/"+this.conditionsDs.get(this.conditionsDs.size()-1).getId()+"/"+this.conditionsDs.get(this.conditionsDs.size()-2).getId(), LoggedInUser.getToken(), LoggedInUser.getId());
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Chyba",
+                    "Nie je možné odstrániť posledné podmienky pracovného vzťahu.", e.getMessage());
+            return;
+        }catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+        updateInfo();
+    }
+
+    public void remove(MouseEvent mouseEvent)
+    {
+        CustomAlert al = new CustomAlert("Odstránenie pracovného vzťahu", "Ste si istý že chcete odstrániť tento pracovný vzťah?", "", "Áno", "Nie");
+        if(!al.showWait())
+            return;
+
+        try {
+            HttpClientClass ht = new HttpClientClass();
+            ht.sendDelete("relation/del_rel/"+this.relationD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+
+        FXMLLoader l = new FXMLLoader(getClass().getResource("PageEmployeeDetails.fxml"));
+        l.setControllerFactory(c -> {
+            return new PageEmployeeDetails(this.employeeD.getId());
+        });
+        MainPaneManager.getC().loadScrollPage(l);
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
 }

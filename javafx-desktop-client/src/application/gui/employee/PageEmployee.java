@@ -1,7 +1,8 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.models.EmployeeOV;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
@@ -25,9 +26,128 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
-public class ControllerPageEmployees
+public class PageEmployee
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private ObservableList<EmployeeOV> employeeOVS;
+    private ArrayList<String> places;
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageEmployee() {
+        try{
+            employeeOVS = employeeSelect();
+            places = getPlaces();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public void updateInfo()
+    {
+        try {
+            employeeOVS = employeeSelect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+        tab.setItems(employeeOVS);
+    }
+
+
+    private ObservableList<EmployeeOV> employeeSelect() throws IOException, InterruptedException, CommunicationException {
+        ObservableList<EmployeeOV> employeeOVS = FXCollections.observableArrayList();
+
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("employee", LoggedInUser.getToken(), LoggedInUser.getId());
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+
+        String prevEmployeeID="-1";
+        for(int i=0; i<json.getSize(); i++)
+        {
+            if(!json.getElement(i,"id").equals(prevEmployeeID))
+            {
+                EmployeeOV newEmployeeOV = new EmployeeOV();
+
+                newEmployeeOV.setId(Integer.parseInt(json.getElement(i, "id")));
+                newEmployeeOV.setName(json.getElement(i, "meno"));
+                newEmployeeOV.setLastname(json.getElement(i, "priezvisko"));
+                newEmployeeOV.setPhonenumber(json.getElement(i, "telefon"));
+                newEmployeeOV.setBornnumber(json.getElement(i, "rodne_cislo"));
+                newEmployeeOV.setBorndate(json.getElement(i, "datum_narodenia"));
+                newEmployeeOV.setLogin(json.getElement(i, "prihlasovacie_konto"));
+                if(json.getElement(i, "p2_nazov")==null)
+                {
+                    newEmployeeOV.setActrelat(0);
+                }
+                else
+                {
+                    newEmployeeOV.setActrelat(1);
+                    newEmployeeOV.addWorkRelation(json.getElement(i, "p2_nazov"));
+                    newEmployeeOV.addPlace(json.getElement(i, "p3_nazov"));
+                }
+                employeeOVS.add(newEmployeeOV);
+            }
+            else
+            {
+                employeeOVS.get(employeeOVS.size()-1).addWorkRelation(json.getElement(i, "p2_nazov"));
+                employeeOVS.get(employeeOVS.size()-1).addPlace(json.getElement(i, "p3_nazov"));
+                employeeOVS.get(employeeOVS.size()-1).setActrelat(employeeOVS.get(employeeOVS.size()-1).getActrelat()+1);
+            }
+            prevEmployeeID = json.getElement(i,"id");
+        }
+
+        return employeeOVS;
+    }
+
+    private ArrayList<String> getPlaces() throws IOException, InterruptedException, CommunicationException {
+        ArrayList<String> places = new ArrayList<>();
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("place", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        for(int i=0; i<json.getSize(); i++)
+        {
+            places.add(json.getElement(i, "nazov"));
+        }
+        return places;
+    }
+
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     @FXML
     private TableView<EmployeeOV> tab = new TableView<EmployeeOV>();
     @FXML
@@ -39,9 +159,9 @@ public class ControllerPageEmployees
     @FXML
     public ComboBox relat = new ComboBox();
 
-    private ObservableList<EmployeeOV> employeeOVS;
-    private ArrayList<String> places;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
@@ -133,9 +253,9 @@ public class ControllerPageEmployees
                     EmployeeOV e = row.getItem();
                     System.out.println(e.toString());
 
-                    FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details"+".fxml"));
+                    FXMLLoader l = new FXMLLoader(getClass().getResource("PageEmployeeDetails.fxml"));
                     l.setControllerFactory(c -> {
-                        return new ControllerPageEmployeeDetails(Integer.toString(e.getId()));
+                        return new PageEmployeeDetails(Integer.toString(e.getId()));
                     });
                     MainPaneManager.getC().loadScrollPage(l);
                 }
@@ -144,51 +264,6 @@ public class ControllerPageEmployees
         });
 
         MainPaneManager.getC().desibleBackPage();
-    }
-
-    public ControllerPageEmployees() {
-        try{
-            employeeOVS = employeeSelect();
-            places = getPlaces();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-    }
-
-    public void updateInfo()
-    {
-        try {
-            employeeOVS = employeeSelect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-        tab.setItems(employeeOVS);
     }
 
     private boolean isFiltered(EmployeeOV employeeOV, String inp, String pla, String rel)
@@ -249,69 +324,14 @@ public class ControllerPageEmployees
     }
 
 
-    private ObservableList<EmployeeOV> employeeSelect() throws IOException, InterruptedException, CommunicationException {
-        ObservableList<EmployeeOV> employeeOVS = FXCollections.observableArrayList();
 
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("employee", LoggedInUser.getToken(), LoggedInUser.getId());
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-
-        String prevEmployeeID="-1";
-        for(int i=0; i<json.getSize(); i++)
-        {
-            if(!json.getElement(i,"id").equals(prevEmployeeID))
-            {
-                EmployeeOV newEmployeeOV = new EmployeeOV();
-
-                newEmployeeOV.setId(Integer.parseInt(json.getElement(i, "id")));
-                newEmployeeOV.setName(json.getElement(i, "meno"));
-                newEmployeeOV.setLastname(json.getElement(i, "priezvisko"));
-                newEmployeeOV.setPhonenumber(json.getElement(i, "telefon"));
-                newEmployeeOV.setBornnumber(json.getElement(i, "rodne_cislo"));
-                newEmployeeOV.setBorndate(json.getElement(i, "datum_narodenia"));
-                newEmployeeOV.setLogin(json.getElement(i, "prihlasovacie_konto"));
-                if(json.getElement(i, "p2_nazov")==null)
-                {
-                    newEmployeeOV.setActrelat(0);
-                }
-                else
-                {
-                    newEmployeeOV.setActrelat(1);
-                    newEmployeeOV.addWorkRelation(json.getElement(i, "p2_nazov"));
-                    newEmployeeOV.addPlace(json.getElement(i, "p3_nazov"));
-                }
-                employeeOVS.add(newEmployeeOV);
-            }
-            else
-            {
-                employeeOVS.get(employeeOVS.size()-1).addWorkRelation(json.getElement(i, "p2_nazov"));
-                employeeOVS.get(employeeOVS.size()-1).addPlace(json.getElement(i, "p3_nazov"));
-                employeeOVS.get(employeeOVS.size()-1).setActrelat(employeeOVS.get(employeeOVS.size()-1).getActrelat()+1);
-            }
-            prevEmployeeID = json.getElement(i,"id");
-        }
-
-        return employeeOVS;
-    }
-
-    private ArrayList<String> getPlaces() throws IOException, InterruptedException, CommunicationException {
-        ArrayList<String> places = new ArrayList<>();
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("place", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            places.add(json.getElement(i, "nazov"));
-        }
-        return places;
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void btn(ActionEvent actionEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_employee.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddEmployee.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddEmployee(this);
+            return new AddEmployee(this);
         });
         Parent root1 = null;
         try {
@@ -370,10 +390,13 @@ public class ControllerPageEmployees
             return;
         }
 
-        FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details"+".fxml"));
+        FXMLLoader l = new FXMLLoader(getClass().getResource("PageEmployeeDetails.fxml"));
         l.setControllerFactory(c -> {
-            return new ControllerPageEmployeeDetails(Integer.toString(e.getId()));
+            return new PageEmployeeDetails(Integer.toString(e.getId()));
         });
         MainPaneManager.getC().loadScrollPage(l);
     }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 }

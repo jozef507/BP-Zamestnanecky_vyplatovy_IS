@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -19,20 +19,16 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerAddRelationBox
+public class AddRelationBox
 {
-
-    public CheckBox employee;
-    public CheckBox time, emergency;
-    public ComboBox form;
-    public ComboBox way;
-    public TextField tarif;
-    public TextField label;
-    public DatePicker payDate;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ObservableList<WageFormD> wageFormDs;
 
-    public ControllerAddRelationBox()
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddRelationBox()
     {
         this.wageFormDs = FXCollections.observableArrayList();
         try {
@@ -55,8 +51,58 @@ public class ControllerAddRelationBox
         }
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+
+    public String getFormID()
+    {
+        String s = this.form.getValue().toString();
+        for(int i = 0; i<this.wageFormDs.size(); i++)
+        {
+            if(this.wageFormDs.get(i).toComboboxString().equals(s))
+                return this.wageFormDs.get(i).getId();
+        }
+        return "0";
+    }
+
+    private void getWageForms() throws InterruptedException, IOException, CommunicationException {
+        ArrayList<String> places = new ArrayList<>();
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("wage/forms", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        for(int i=0; i<json.getSize(); i++)
+        {
+            this.wageFormDs.add(
+                    new WageFormD(
+                            json.getElement(i, "id"),
+                            json.getElement(i, "nazov"),
+                            json.getElement(i, "jednotka_vykonu"),
+                            json.getElement(i, "skratka_jednotky")
+                    )
+            );
+        }
+
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public CheckBox employee;
+    public CheckBox time, emergency;
+    public ComboBox form;
+    public ComboBox way;
+    public TextField tarif;
+    public TextField label;
+    public DatePicker payDate;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize()
     {
+        this.setTextfieldLimit(label, 50);
 
         for(int i = 0; i<this.wageFormDs.size(); i++)
         {
@@ -80,63 +126,10 @@ public class ControllerAddRelationBox
 
     }
 
-    public CheckBox getEmployee() {
-        return employee;
-    }
-
-    public CheckBox getTime() {
-        return time;
-    }
-
-    public ComboBox getForm() {
-        return form;
-    }
-
-    public String getFormID()
+    private void setTextfieldLimit(TextField textArea, int limit)
     {
-        String s = this.form.getValue().toString();
-        for(int i = 0; i<this.wageFormDs.size(); i++)
-        {
-            if(this.wageFormDs.get(i).toComboboxString().equals(s))
-                return this.wageFormDs.get(i).getId();
-        }
-        return "0";
-    }
-
-    public ComboBox getWay() {
-        return way;
-    }
-
-    public TextField getTarif() {
-        return tarif;
-    }
-
-    public TextField getLabel() {
-        return label;
-    }
-
-    public DatePicker getPayDate() {
-        return payDate;
-    }
-
-    private void getWageForms() throws InterruptedException, IOException, CommunicationException {
-        ArrayList<String> places = new ArrayList<>();
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("wage/forms", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            this.wageFormDs.add(
-                    new WageFormD(
-                            json.getElement(i, "id"),
-                            json.getElement(i, "nazov"),
-                            json.getElement(i, "jednotka_vykonu"),
-                            json.getElement(i, "skratka_jednotky")
-                    )
-            );
-        }
-
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
     }
 
     private void setDatePicker()
@@ -165,4 +158,42 @@ public class ControllerAddRelationBox
         payDate.setConverter(converter);
         payDate.setPromptText("D.M.RRRR");
     }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
+    public CheckBox getEmployee() {
+        return employee;
+    }
+
+    public CheckBox getTime() {
+        return time;
+    }
+
+    public ComboBox getForm() {
+        return form;
+    }
+
+    public ComboBox getWay() {
+        return way;
+    }
+
+    public TextField getTarif() {
+        return tarif;
+    }
+
+    public TextField getLabel() {
+        return label;
+    }
+
+    public DatePicker getPayDate() {
+        return payDate;
+    }
+
+
+
 }

@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -17,8 +17,11 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class ControllerUpdateEmployeeImportant
+public class UpdateEmployeeImportant
 {
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private String id;
     private String insComp;
     private String town;
@@ -29,9 +32,119 @@ public class ControllerUpdateEmployeeImportant
     private String part;
     private String retirement;
     private String invalidity;
+    private String employeeID;
+    private PageEmployeeImportant c;
 
-    private ControllerPageEmployeeImportant c;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdateEmployeeImportant(String id, String insComp, String town, String street, String num,
+                                   String childUnder, String childOver, String part, String retirement,
+                                   String invalidity, PageEmployeeImportant c) {
+        this.id = id;
+        this.insComp = insComp;
+        this.town = town;
+        this.street = street;
+        this.num = num;
+        this.childUnder = childUnder;
+        this.childOver = childOver;
+        this.part = part;
+        this.retirement = retirement;
+        this.invalidity = invalidity;
+        this.c = c;
+        this.employeeID = c.getEmployeeID();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void updateEmployeeImp()  {
+
+        String sInsComp = insCompF.getText();
+        String sTown = townF.getText();
+        String sStreet = streetF.getText();
+        String sNum = numF.getText();
+        String sChildUnder = childUnderF.getText();
+        String sChildOver = childOverF.getText();
+        String sPart = partF.getValue().toString();
+        if(sPart.equals("áno"))
+            sPart="1";
+        else
+            sPart="0";
+        String sRetirement = retirementF.getValue().toString();
+        if(sRetirement.equals("áno"))
+            sRetirement="1";
+        else
+            sRetirement="0";
+        String sInvalidity = invalidityF.getValue().toString();
+        if(sInvalidity.equals("áno"))
+            sInvalidity="1";
+        else
+            sInvalidity="0";
+
+        String sEnd=null;
+        String sBegin=null;
+        try{
+            LocalDate db = begin.getValue();
+            LocalDate de = db.minusDays(1);
+            sEnd = de.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            sBegin = db.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (NullPointerException e){
+            sBegin="";
+        }
+
+
+        if(sInsComp.equals("") || sTown.equals("") || sStreet.equals("") || sNum.equals("")
+                || sChildUnder.equals("")|| sChildOver.equals("")|| sBegin.equals(""))
+        {
+            label.setTextFill(Color.RED);
+            label.setText("Vstupné textové polia nesmú ostať prázdne!");
+            return;
+        }
+
+        HttpClientClass ht = new HttpClientClass();
+        ht.addParam("id", this.id);
+        ht.addParam("inscomp", sInsComp);
+        ht.addParam("town", sTown);
+        ht.addParam("street", sStreet);
+        ht.addParam("num", sNum);
+        ht.addParam("childunder", sChildUnder);
+        ht.addParam("childover", sChildOver);
+        ht.addParam("part", sPart);
+        ht.addParam("retirement", sRetirement);
+        ht.addParam("invalidity", sInvalidity);
+        ht.addParam("end", sEnd);
+        ht.addParam("begin", sBegin);
+        ht.addParam("employee", this.employeeID);
+
+        try {
+            ht.sendPost("employee/update_imp", LoggedInUser.getToken(), LoggedInUser.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+
+        Stage stage = (Stage) cancel.getScene().getWindow();
+        stage.close();
+        c.updateInfo();
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public TextField insCompF, townF, streetF, numF, childUnderF,
             childOverF;
     public ComboBox partF, retirementF, invalidityF;
@@ -40,6 +153,9 @@ public class ControllerUpdateEmployeeImportant
     public Label label;
     public DatePicker begin;
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
@@ -47,6 +163,13 @@ public class ControllerUpdateEmployeeImportant
         this.setDatePicker();
         this.setComboBoxes();
         this.setInputs();
+
+        this.setTextfieldLimit(insCompF, 255);
+        this.setTextfieldLimit(townF, 255);
+        this.setTextfieldLimit(streetF, 255);
+        this.setTextfieldLimit(numF, 255);
+        this.setTextfieldLimit(childOverF, 2);
+        this.setTextfieldLimit(childUnderF, 2);
 
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -70,22 +193,6 @@ public class ControllerUpdateEmployeeImportant
                 stage.close();
             }
         });
-    }
-
-    public ControllerUpdateEmployeeImportant(String id, String insComp, String town, String street, String num,
-                                             String childUnder, String childOver, String part, String retirement,
-                                             String invalidity, ControllerPageEmployeeImportant c) {
-        this.id = id;
-        this.insComp = insComp;
-        this.town = town;
-        this.street = street;
-        this.num = num;
-        this.childUnder = childUnder;
-        this.childOver = childOver;
-        this.part = part;
-        this.retirement = retirement;
-        this.invalidity = invalidity;
-        this.c = c;
     }
 
     private void changeFocus()
@@ -125,6 +232,63 @@ public class ControllerUpdateEmployeeImportant
         begin.setConverter(converter);
         begin.setPromptText("D.M.RRRR");
     }
+
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
+    }
+
+    private void setInputs()
+    {
+        insCompF.setText(this.insComp);
+        townF.setText(this.town);
+        streetF.setText(this.street);
+        numF.setText(this.num);
+        childUnderF.setText(this.childUnder);
+        childOverF.setText(this.childOver);
+
+        if(this.part.equals("nie"))
+            partF.getSelectionModel().select(1);
+        else
+            partF.getSelectionModel().select(0);
+
+        if(this.retirement.equals("nie"))
+            retirementF.getSelectionModel().select(1);
+        else
+            retirementF.getSelectionModel().select(0);
+
+        if(this.invalidity.equals("nie"))
+            invalidityF.getSelectionModel().select(1);
+        else
+            invalidityF.getSelectionModel().select(0);
+    }
+
+    private void setComboBoxes()
+    {
+        partF.getItems().addAll(
+                "áno",
+                "nie"
+        );
+
+        retirementF.getItems().addAll(
+                "áno",
+                "nie"
+        );
+
+        invalidityF.getItems().addAll(
+                "áno",
+                "nie"
+        );
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -184,131 +348,5 @@ public class ControllerUpdateEmployeeImportant
         } catch (NumberFormatException nfe) {
             return false;
         }*/
-    }
-
-
-    private void updateEmployeeImp()  {
-
-        String sInsComp = insCompF.getText();
-        String sTown = townF.getText();
-        String sStreet = streetF.getText();
-        String sNum = numF.getText();
-        String sChildUnder = childUnderF.getText();
-        String sChildOver = childOverF.getText();
-        String sPart = partF.getValue().toString();
-        if(sPart.equals("áno"))
-            sPart="1";
-        else
-            sPart="0";
-        String sRetirement = retirementF.getValue().toString();
-        if(sRetirement.equals("áno"))
-            sRetirement="1";
-        else
-            sRetirement="0";
-        String sInvalidity = invalidityF.getValue().toString();
-        if(sInvalidity.equals("áno"))
-            sInvalidity="1";
-        else
-            sInvalidity="0";
-
-        String sEnd=null;
-        String sBegin=null;
-        try{
-            LocalDate db = begin.getValue();
-            LocalDate de = db.minusDays(1);
-            sEnd = de.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            sBegin = db.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } catch (NullPointerException e){
-            sBegin="";
-        }
-
-
-        if(sInsComp.equals("") || sTown.equals("") || sStreet.equals("") || sNum.equals("")
-                || sChildUnder.equals("")|| sChildOver.equals("")|| sBegin.equals(""))
-        {
-            label.setTextFill(Color.RED);
-            label.setText("Vstupné textové polia nesmú ostať prázdne!");
-            return;
-        }
-
-        HttpClientClass ht = new HttpClientClass();
-        ht.addParam("id", this.id);
-        ht.addParam("inscomp", sInsComp);
-        ht.addParam("town", sTown);
-        ht.addParam("street", sStreet);
-        ht.addParam("num", sNum);
-        ht.addParam("childunder", sChildUnder);
-        ht.addParam("childover", sChildOver);
-        ht.addParam("part", sPart);
-        ht.addParam("retirement", sRetirement);
-        ht.addParam("invalidity", sInvalidity);
-        ht.addParam("end", sEnd);
-        ht.addParam("begin", sBegin);
-
-        try {
-            ht.sendPost("employee/update_imp", LoggedInUser.getToken(), LoggedInUser.getId());
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-
-        Stage stage = (Stage) cancel.getScene().getWindow();
-        stage.close();
-        c.updateInfo();
-    }
-
-    private void setInputs()
-    {
-        insCompF.setText(this.insComp);
-        townF.setText(this.town);
-        streetF.setText(this.street);
-        numF.setText(this.num);
-        childUnderF.setText(this.childUnder);
-        childOverF.setText(this.childOver);
-
-        if(this.part.equals("nie"))
-            partF.getSelectionModel().select(1);
-        else
-            partF.getSelectionModel().select(0);
-
-        if(this.retirement.equals("nie"))
-            retirementF.getSelectionModel().select(1);
-        else
-            retirementF.getSelectionModel().select(0);
-
-        if(this.invalidity.equals("nie"))
-            invalidityF.getSelectionModel().select(1);
-        else
-            invalidityF.getSelectionModel().select(0);
-    }
-
-    private void setComboBoxes()
-    {
-        partF.getItems().addAll(
-                "áno",
-                "nie"
-        );
-
-        retirementF.getItems().addAll(
-                "áno",
-                "nie"
-        );
-
-        invalidityF.getItems().addAll(
-                "áno",
-                "nie"
-        );
     }
 }

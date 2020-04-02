@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -19,22 +19,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
-public class ControllerAddRelationChooseposition
+public class AddRelationChooseposition
 {
-    public TextField input;
-    public ComboBox place;
-    public TableColumn idCol;
-    public TableColumn nameCol;
-    public TableColumn placeCol;
-    public TableColumn characteristicCol;
-    public TableView<PositionD> tab;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ObservableList<PositionD> positionDs;
-    ControllerIntRelation controllerAddRelation;
+    private RelationInterface controllerAddRelation;
     private ArrayList<String> places;
 
-
-    public ControllerAddRelationChooseposition(ControllerIntRelation controllerIntRelation)
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddRelationChooseposition(RelationInterface controllerIntRelation)
     {
         this.controllerAddRelation = controllerIntRelation;
         try {
@@ -59,7 +54,59 @@ public class ControllerAddRelationChooseposition
     }
 
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private ObservableList<PositionD> positionSelect() throws IOException, InterruptedException, CommunicationException {
+        ObservableList<PositionD> positionDs = FXCollections.observableArrayList();
 
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("position", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        PositionD newPositionD = null;
+        for(int i=0; i<json.getSize(); i++)
+        {
+            newPositionD = new PositionD(
+                    (json.getElement(i, "id")),
+                    (json.getElement(i, "nazov")),
+                    (json.getElement(i, "nazov2")),
+                    (json.getElement(i, "charakteristika"))
+            );
+            positionDs.add(newPositionD);
+        }
+
+        return positionDs;
+    }
+
+    private ArrayList<String> getPlaces() throws IOException, InterruptedException, CommunicationException {
+        ArrayList<String> places = new ArrayList<>();
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("place", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        for(int i=0; i<json.getSize(); i++)
+        {
+            places.add(json.getElement(i, "nazov"));
+        }
+        return places;
+    }
+
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public TextField input;
+    public ComboBox place;
+    public TableColumn idCol;
+    public TableColumn nameCol;
+    public TableColumn placeCol;
+    public TableColumn characteristicCol;
+    public TableView<PositionD> tab;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize() {
 
         //set table columns
@@ -127,6 +174,44 @@ public class ControllerAddRelationChooseposition
         });
     }
 
+    private boolean isFiltered(PositionD positionD, String inp, String pla)
+    {
+
+        boolean flag1=false, flag2=false;
+        boolean imp1= false, imp2= false;
+        /*if(!inp.equals(""))
+        {*/
+        imp1=true;
+        String lowerCaseFilter = inp.toLowerCase();
+        if(positionD.getName().toLowerCase().contains(lowerCaseFilter)){
+            flag1 = true;
+        }else{
+            flag1=false;
+        }
+        /*}*/
+
+        if(!pla.equals("Pracovisko:"))
+        {
+            imp2=true;
+            String filter1 = pla;
+            String tmp1 = positionD.getPlace();
+
+            if (tmp1.equals(filter1))
+                flag2 = true;
+
+        }
+
+        boolean flag = true;
+        if(imp1)
+            flag&=flag1;
+        if(imp2)
+            flag&=flag2;
+
+        return flag;
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void btn1(MouseEvent mouseEvent)
     {
         Stage stage = (Stage) input.getScene().getWindow();
@@ -152,75 +237,19 @@ public class ControllerAddRelationChooseposition
         }
     }
 
-    private ObservableList<PositionD> positionSelect() throws IOException, InterruptedException, CommunicationException {
-        ObservableList<PositionD> positionDs = FXCollections.observableArrayList();
 
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("position", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        PositionD newPositionD = null;
-        for(int i=0; i<json.getSize(); i++)
-        {
-            newPositionD = new PositionD(
-                    (json.getElement(i, "id")),
-                    (json.getElement(i, "nazov")),
-                    (json.getElement(i, "nazov2")),
-                    (json.getElement(i, "charakteristika"))
-            );
-            positionDs.add(newPositionD);
-        }
-
-        return positionDs;
-    }
-
-    private ArrayList<String> getPlaces() throws IOException, InterruptedException, CommunicationException {
-        ArrayList<String> places = new ArrayList<>();
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("place", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            places.add(json.getElement(i, "nazov"));
-        }
-        return places;
-    }
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
 
-    private boolean isFiltered(PositionD positionD, String inp, String pla)
-    {
 
-        boolean flag1=false, flag2=false;
-        boolean imp1= false, imp2= false;
-        /*if(!inp.equals(""))
-        {*/
-            imp1=true;
-            String lowerCaseFilter = inp.toLowerCase();
-            if(positionD.getName().toLowerCase().contains(lowerCaseFilter)){
-                flag1 = true;
-            }else{
-                flag1=false;
-            }
-        /*}*/
 
-        if(!pla.equals("Pracovisko:"))
-        {
-            imp2=true;
-            String filter1 = pla;
-            String tmp1 = positionD.getPlace();
 
-            if (tmp1.equals(filter1))
-                flag2 = true;
 
-        }
 
-        boolean flag = true;
-        if(imp1)
-            flag&=flag1;
-        if(imp2)
-            flag&=flag2;
 
-        return flag;
-    }
+
+
+
+
 }

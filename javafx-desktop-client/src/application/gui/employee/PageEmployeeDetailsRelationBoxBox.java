@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -15,9 +15,39 @@ import javafx.scene.text.Text;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ControllerPageEmployeeDetailsRelationBoxBox
+public class PageEmployeeDetailsRelationBoxBox
 {
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private WageD wageD;
+    private ArrayList<WageFormD> wageFormDS;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageEmployeeDetailsRelationBoxBox(WageD wageD, ArrayList<WageFormD> wageFormDS) {
+        this.wageD = wageD;
+        this.wageFormDS = wageFormDS;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private String getWageForm(String id)
+    {
+        for(int i = 0; i<this.wageFormDS.size(); i++)
+        {
+            if(this.wageFormDS.get(i).getId().equals(id))
+                return this.wageFormDS.get(i).toComboboxString();
+        }
+        return this.wageFormDS.get(0).toComboboxString();
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Text form;
     public Text way;
     public Text employee;
@@ -26,13 +56,9 @@ public class ControllerPageEmployeeDetailsRelationBoxBox
     public Text date;
     public Text label, emergency;
 
-    private WageD wageD;
-    private ArrayList<WageFormD> wageFormDS;
-    public ControllerPageEmployeeDetailsRelationBoxBox(WageD wageD, ArrayList<WageFormD> wageFormDS) {
-        this.wageD = wageD;
-        this.wageFormDS = wageFormDS;
-    }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize()
     {
@@ -51,13 +77,16 @@ public class ControllerPageEmployeeDetailsRelationBoxBox
         emergency.setText(this.wageD.getEmergencyImportant());
     }
 
-    private String getWageForm(String id)
-    {
-        for(int i = 0; i<this.wageFormDS.size(); i++)
-        {
-            if(this.wageFormDS.get(i).getId().equals(id))
-                return this.wageFormDS.get(i).toComboboxString();
-        }
-        return this.wageFormDS.get(0).toComboboxString();
-    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
+
+
+
+
 }

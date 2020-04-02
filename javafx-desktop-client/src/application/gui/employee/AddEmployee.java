@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -6,29 +6,66 @@ import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.EmployeeD;
 import application.models.ImportantD;
-import com.mysql.cj.conf.BooleanProperty;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class ControllerAddEmployee
+public class AddEmployee
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageEmployee pageEmployee;
+    private EmployeeD employeeD;
+    private ImportantD importantD;
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public AddEmployee(PageEmployee pageEmployee) {
+        this.pageEmployee = pageEmployee;
+    }
+    private void createEmployee() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("name", this.employeeD.getName());
+        ht.addParam("lastname", this.employeeD.getLastname());
+        ht.addParam("phone", this.employeeD.getPhone());
+        ht.addParam("bornnum", this.employeeD.getBornNum());
+        ht.addParam("borndate", this.employeeD.getBornDate());
+
+        ht.addParam("inscomp", this.importantD.getInsComp());
+        ht.addParam("town", this.importantD.getTown());
+        ht.addParam("street", this.importantD.getStreet());
+        ht.addParam("num", this.importantD.getNum());
+        ht.addParam("childunder", this.importantD.getChildUnder());
+        ht.addParam("childover", this.importantD.getChildOver());
+        ht.addParam("part", this.importantD.getPart());
+        ht.addParam("retirement", this.importantD.getRetirement());
+        ht.addParam("invalidity", this.importantD.getInvalidity());
+        ht.addParam("begin", this.importantD.getFrom());
+        ht.addParam("end", this.importantD.getTo());
+
+
+        ht.sendPost("employee/crt_emp", LoggedInUser.getToken(), LoggedInUser.getId());
+
+
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     @FXML private TextField phone;
     @FXML private DatePicker borndate;
     @FXML private TextField bornnumber;
@@ -43,20 +80,32 @@ public class ControllerAddEmployee
     @FXML private DatePicker begin;
     @FXML private VBox vb;
 
-    private ControllerPageEmployees controllerPageEmployees;
-    private EmployeeD employeeD;
-    private ImportantD importantD;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException {
         this.setDatePicker();
         this.setComboBoxes();
         label.setVisible(false);
         this.changeFocus();
+        this.setTextfieldLimit(name, 255);
+        this.setTextfieldLimit(lastname, 255);
+        this.setTextfieldLimit(phone, 10);
+        this.setTextfieldLimit(bornnumber, 10);
+
+        this.setTextfieldLimit(insCompF, 255);
+        this.setTextfieldLimit(townF, 255);
+        this.setTextfieldLimit(streetF, 255);
+        this.setTextfieldLimit(numF, 255);
+        this.setTextfieldLimit(childOverF, 2);
+        this.setTextfieldLimit(childUnderF, 2);
     }
 
-    public ControllerAddEmployee(ControllerPageEmployees controllerPageEmployees) {
-        this.controllerPageEmployees = controllerPageEmployees;
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
     }
 
     private void setDatePicker()
@@ -117,6 +166,9 @@ public class ControllerAddEmployee
         });
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     @FXML private void cancelClick(MouseEvent mouseEvent)
     {
         Stage stage = (Stage) cancel.getScene().getWindow();
@@ -152,10 +204,14 @@ public class ControllerAddEmployee
             return;
         }
 
-        controllerPageEmployees.updateInfo();
+        pageEmployee.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -230,7 +286,6 @@ public class ControllerAddEmployee
         }*/
     }
 
-
     private void setModelsFromInputs()
     {
         EmployeeD employeeD = new EmployeeD();
@@ -269,32 +324,15 @@ public class ControllerAddEmployee
         this.importantD = importantD;
     }
 
-    private void createEmployee() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("name", this.employeeD.getName());
-        ht.addParam("lastname", this.employeeD.getLastname());
-        ht.addParam("phone", this.employeeD.getPhone());
-        ht.addParam("bornnum", this.employeeD.getBornNum());
-        ht.addParam("borndate", this.employeeD.getBornDate());
-
-        ht.addParam("inscomp", this.importantD.getInsComp());
-        ht.addParam("town", this.importantD.getTown());
-        ht.addParam("street", this.importantD.getStreet());
-        ht.addParam("num", this.importantD.getNum());
-        ht.addParam("childunder", this.importantD.getChildUnder());
-        ht.addParam("childover", this.importantD.getChildOver());
-        ht.addParam("part", this.importantD.getPart());
-        ht.addParam("retirement", this.importantD.getRetirement());
-        ht.addParam("invalidity", this.importantD.getInvalidity());
-        ht.addParam("begin", this.importantD.getFrom());
-        ht.addParam("end", this.importantD.getTo());
 
 
-        ht.sendPost("employee/crt_emp", LoggedInUser.getToken(), LoggedInUser.getId());
 
 
-    }
+
+
+
+
+
 
 
 

@@ -1,13 +1,8 @@
-package application.gui;
+package application.gui.hours;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
-import application.httpcomunication.HttpClientClass;
-import application.httpcomunication.JsonArrayClass;
-import application.httpcomunication.LoggedInUser;
 import application.models.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,16 +14,69 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerAddHours implements ControllerIntHours
+public class AddHours implements HoursInterface
 {
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageHours pageHours;
+    private RelationD choosenRelationD;
+    private WageD choosenWage;
+    private ArrayList<AddHoursBox> addHoursBoxes;
+    private ArrayList<HoursD> hoursDS;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddHours(PageHours pageHours)
+    {
+        this.pageHours = pageHours;
+        this.addHoursBoxes = new ArrayList<>();
+        this.hoursDS = new ArrayList<>();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void createHours() throws InterruptedException, IOException, CommunicationException
+    {
+        for(int i = 0; i< addHoursBoxes.size(); i++)
+        {
+            addHoursBoxes.get(i).createHours(this.choosenRelationD, this.choosenWage);
+        }
+    }
+
+    @Override
+    public void setChoosenRelation(RelationD relationD) {
+        this.choosenRelationD = relationD;
+        this.choosenWage = null;
+        this.addHoursBoxes.clear();
+    }
+
+    @Override
+    public RelationD getChoosenRelation() {
+        return this.choosenRelationD;
+    }
+
+    @Override
+    public void setChoosenWage(WageD wageD) {
+        this.choosenWage = wageD;
+        this.addHoursBoxes.clear();
+
+    }
+
+    @Override
+    public WageD getChoosenWage() {
+        return this.choosenWage;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public ScrollPane sp;
     public VBox vb;
     public HBox hb;
@@ -37,22 +85,9 @@ public class ControllerAddHours implements ControllerIntHours
     public Label label;
     public Button addWage, addHours;
 
-    private ControllerPageHours controllerPageHours;
 
-    private RelationD choosenRelationD;
-    private WageD choosenWage;
-
-    private ArrayList<ControllerAddHoursBox> controllerAddHoursBoxes;
-    private ArrayList<HoursD> hoursDS;
-
-
-    public ControllerAddHours(ControllerPageHours controllerPageHours)
-    {
-        this.controllerPageHours = controllerPageHours;
-        this.controllerAddHoursBoxes = new ArrayList<>();
-        this.hoursDS = new ArrayList<>();
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize()
     {
 
@@ -60,13 +95,13 @@ public class ControllerAddHours implements ControllerIntHours
     }
 
 
-
-
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void onAddRelationClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_hours_chooserelation.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddHoursChooserelation.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddHoursChooserelation(this);
+            return new AddHoursChooserelation(this);
         });
         Parent root1 = null;
         try {
@@ -83,9 +118,9 @@ public class ControllerAddHours implements ControllerIntHours
 
     public void onAddWageClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_hours_choosewage.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddHoursChoosewage.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddHoursChoosewage(this);
+            return new AddHoursChoosewage(this);
         });
         Parent root1 = null;
         try {
@@ -100,12 +135,11 @@ public class ControllerAddHours implements ControllerIntHours
         primaryStage.show();
     }
 
-
     public void onAddHoursClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"add_hours_box"+".fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddHoursBox.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddHoursBox(this);
+            return new AddHoursBox(this);
         });
         VBox newPane = null;
         try {
@@ -113,10 +147,9 @@ public class ControllerAddHours implements ControllerIntHours
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ControllerAddHoursBox c = loader.getController();
+        AddHoursBox c = loader.getController();
         this.addHoursBox(newPane, c);
     }
-
 
     public void cancel(MouseEvent mouseEvent)
     {
@@ -154,11 +187,14 @@ public class ControllerAddHours implements ControllerIntHours
             return;
         }
 
-        controllerPageHours.updateInfo();
+        pageHours.updateInfo();
         Stage stage = (Stage) vb.getScene().getWindow();
         stage.close();
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -170,11 +206,11 @@ public class ControllerAddHours implements ControllerIntHours
         else if(choosenWage == null)
             flag=false;
 
-        if(controllerAddHoursBoxes.size() == 0)
+        if(addHoursBoxes.size() == 0)
             flag=false;
-        for(int i = 0;i<controllerAddHoursBoxes.size();i++)
+        for(int i = 0; i< addHoursBoxes.size(); i++)
         {
-            flag=controllerAddHoursBoxes.get(i).checkFormular();
+            flag= addHoursBoxes.get(i).checkFormular();
             if(!flag)
                 break;
         }
@@ -193,9 +229,9 @@ public class ControllerAddHours implements ControllerIntHours
     {
         boolean flag = true;
 
-        for(int i = 0;i<controllerAddHoursBoxes.size();i++)
+        for(int i = 0; i< addHoursBoxes.size(); i++)
         {
-            flag=controllerAddHoursBoxes.get(i).checkFormularTypes();
+            flag= addHoursBoxes.get(i).checkFormularTypes();
             if(!flag) break;
         }
 
@@ -212,57 +248,25 @@ public class ControllerAddHours implements ControllerIntHours
 
     private void setModelsFromInputs()
     {
-        for(int i = 0;i<controllerAddHoursBoxes.size();i++)
+        for(int i = 0; i< addHoursBoxes.size(); i++)
         {
-            controllerAddHoursBoxes.get(i).setModelsFromInputs();
+            addHoursBoxes.get(i).setModelsFromInputs();
         }
     }
 
-    private void createHours() throws InterruptedException, IOException, CommunicationException
-    {
-        for(int i = 0;i<controllerAddHoursBoxes.size();i++)
-        {
-            controllerAddHoursBoxes.get(i).createHours(this.choosenRelationD, this.choosenWage);
-        }
-    }
-
-    private void addHoursBox(VBox vbox, ControllerAddHoursBox controllerAddHoursBox)
+    private void addHoursBox(VBox vbox, AddHoursBox addHoursBox)
     {
         this.fp_hours.getChildren().add(vbox);
-        this.controllerAddHoursBoxes.add(controllerAddHoursBox);
+        this.addHoursBoxes.add(addHoursBox);
     }
 
-    public void removeHoursBox(VBox vbox, ControllerAddHoursBox controllerAddHoursBox)
+    public void removeHoursBox(VBox vbox, AddHoursBox addHoursBox)
     {
         System.out.println("SP: " +sp.getVvalue());
         this.fp_hours.getChildren().remove(vbox);
-        this.controllerAddHoursBoxes.remove(controllerAddHoursBox);
+        this.addHoursBoxes.remove(addHoursBox);
         System.out.println("SP: " +sp.getVvalue());
 
-    }
-
-    @Override
-    public void setChoosenRelation(RelationD relationD) {
-        this.choosenRelationD = relationD;
-        this.choosenWage = null;
-        this.controllerAddHoursBoxes.clear();
-    }
-
-    @Override
-    public RelationD getChoosenRelation() {
-        return this.choosenRelationD;
-    }
-
-    @Override
-    public void setChoosenWage(WageD wageD) {
-        this.choosenWage = wageD;
-        this.controllerAddHoursBoxes.clear();
-
-    }
-
-    @Override
-    public WageD getChoosenWage() {
-        return this.choosenWage;
     }
 
     @Override

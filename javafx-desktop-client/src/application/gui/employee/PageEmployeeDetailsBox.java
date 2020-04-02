@@ -1,5 +1,6 @@
-package application.gui;
+package application.gui.employee;
 
+import application.gui.MainPaneManager;
 import application.models.EmployeeD;
 import application.models.RelationOV;
 import javafx.fxml.FXML;
@@ -11,9 +12,31 @@ import javafx.scene.text.Text;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class ControllerPageEmployeeDetailsBox
+public class PageEmployeeDetailsBox
 {
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private RelationOV rel;
+    private EmployeeD employeeD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageEmployeeDetailsBox(RelationOV relation, EmployeeD employeeD)
+    {
+        this.rel = relation;
+        this.employeeD = employeeD;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Text type;
     public Text origin;
     public Text expire;
@@ -22,9 +45,9 @@ public class ControllerPageEmployeeDetailsBox
     public Text place;
     public HBox hb;
 
-    private RelationOV rel;
-    private EmployeeD employeeD;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize()
     {
@@ -35,12 +58,6 @@ public class ControllerPageEmployeeDetailsBox
         position.setText(this.rel.getPosition());
         place.setText(this.rel.getPlace());
         setStyle();
-    }
-
-    public ControllerPageEmployeeDetailsBox(RelationOV relation, EmployeeD employeeD)
-    {
-        this.rel = relation;
-        this.employeeD = employeeD;
     }
 
     private void setStyle()
@@ -68,15 +85,28 @@ public class ControllerPageEmployeeDetailsBox
 
     }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void onClicked(MouseEvent mouseEvent)
     {
-        FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details_relation"+".fxml"));
+        FXMLLoader l = new FXMLLoader(getClass().getResource("PageEmployeeDetailsRelation.fxml"));
         l.setControllerFactory(c -> {
-            return new ControllerPageEmployeeDetailsRelation(this.employeeD, this.rel);
+            return new PageEmployeeDetailsRelation(this.employeeD, this.rel);
         });
         MainPaneManager.getC().loadScrollPage(l);
 
-        MainPaneManager.getC().setBackPage("page_employee_details", this.employeeD.getId());
+        MainPaneManager.getC().setBackPage("PageEmployeeDetails", this.employeeD.getId());
 
     }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
+
+
+
+
+
+
+
 }

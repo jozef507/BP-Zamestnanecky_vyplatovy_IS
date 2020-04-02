@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -17,33 +17,21 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerPageEmployeeDetailsRelationBox
+public class PageEmployeeDetailsRelationBox
 {
-
-    public VBox vb;
-    public HBox hb;
-    public Text isMain;
-    public Text isUniform;
-    public Text testTime;
-    public Text hollidayTime;
-    public Text weekTIme;
-    public Text sackTime;
-    public Text place;
-    public Text position;
-    public VBox vbWage;
-    public Text from;
-    public Text to;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ConditionsD conditionsD;
     private String Splace;
     private String Sposition;
     private NextConditionsD nextConditionsD;
-
     private ArrayList<WageD> wageDS;
     private ArrayList<WageFormD> wageFormDS;
 
 
-    public ControllerPageEmployeeDetailsRelationBox(ConditionsD conditionsD, String splace, String sposition, NextConditionsD nextConditionsD) {
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageEmployeeDetailsRelationBox(ConditionsD conditionsD, String splace, String sposition, NextConditionsD nextConditionsD) {
         this.conditionsD = conditionsD;
         this.Splace = splace;
         this.Sposition = sposition;
@@ -68,6 +56,70 @@ public class ControllerPageEmployeeDetailsRelationBox
         }
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void setWageFormDS() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("wage/forms", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        for(int i=0; i<json.getSize(); i++)
+        {
+            this.wageFormDS.add(
+                    new WageFormD(
+                            json.getElement(i, "id"),
+                            json.getElement(i, "nazov"),
+                            json.getElement(i, "jednotka_vykonu"),
+                            json.getElement(i, "skratka_jednotky")
+                    )
+            );
+        }
+    }
+
+    private void setWageDS() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("wage/wage_of_con/"+this.conditionsD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+
+        for(int i = 0; i<json.getSize(); i++)
+        {
+            WageD wageD = new WageD();
+            wageD.setId(json.getElement(i, "id"));
+            wageD.setLabel(json.getElement(i, "popis"));
+            wageD.setEmployeeEnter(json.getElement(i, "vykon_eviduje_zamestnanec"));
+            wageD.setTarif(json.getElement(i, "tarifa_za_jednotku_mzdy"));
+            wageD.setPayWay(json.getElement(i, "sposob_vyplacania"));
+            wageD.setPayDate(json.getElement(i, "datum_vyplatenia"));
+            wageD.setTimeImportant(json.getElement(i, "nutne_evidovanie_casu"));
+            wageD.setEmergencyImportant(json.getElement(i, "mozne_evidovanie_pohotovosti"));
+            wageD.setWageFormID(json.getElement(i, "forma_mzdy"));
+            wageD.setConditionsID(json.getElement(i, "podmienky_pracovneho_vztahu"));
+            this.wageDS.add(wageD);
+        }
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public VBox vb;
+    public HBox hb;
+    public Text isMain;
+    public Text isUniform;
+    public Text testTime;
+    public Text hollidayTime;
+    public Text weekTIme;
+    public Text sackTime;
+    public Text place;
+    public Text position;
+    public VBox vbWage;
+    public Text from;
+    public Text to;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize()
     {
@@ -79,10 +131,10 @@ public class ControllerPageEmployeeDetailsRelationBox
     {
         for(int i = 0; i<this.wageDS.size(); i++)
         {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details_relation_box_box"+".fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("PageEmployeeDetailsRelationBoxBox.fxml"));
             int ii = i;
             loader.setControllerFactory(c -> {
-                return new ControllerPageEmployeeDetailsRelationBoxBox(this.wageDS.get(ii), this.wageFormDS);
+                return new PageEmployeeDetailsRelationBoxBox(this.wageDS.get(ii), this.wageFormDS);
             });
             HBox newPane = null;
             try {
@@ -125,43 +177,10 @@ public class ControllerPageEmployeeDetailsRelationBox
         position.setText(Sposition);
     }
 
-    private void setWageFormDS() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("wage/forms", LoggedInUser.getToken(), LoggedInUser.getId());
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
 
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            this.wageFormDS.add(
-                    new WageFormD(
-                            json.getElement(i, "id"),
-                            json.getElement(i, "nazov"),
-                            json.getElement(i, "jednotka_vykonu"),
-                            json.getElement(i, "skratka_jednotky")
-                    )
-            );
-        }
-    }
 
-    private void setWageDS() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("wage/wage_of_con/"+this.conditionsD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-
-        for(int i = 0; i<json.getSize(); i++)
-        {
-            WageD wageD = new WageD();
-            wageD.setId(json.getElement(i, "id"));
-            wageD.setLabel(json.getElement(i, "popis"));
-            wageD.setEmployeeEnter(json.getElement(i, "vykon_eviduje_zamestnanec"));
-            wageD.setTarif(json.getElement(i, "tarifa_za_jednotku_mzdy"));
-            wageD.setPayWay(json.getElement(i, "sposob_vyplacania"));
-            wageD.setPayDate(json.getElement(i, "datum_vyplatenia"));
-            wageD.setTimeImportant(json.getElement(i, "nutne_evidovanie_casu"));
-            wageD.setEmergencyImportant(json.getElement(i, "mozne_evidovanie_pohotovosti"));
-            wageD.setWageFormID(json.getElement(i, "forma_mzdy"));
-            wageD.setConditionsID(json.getElement(i, "podmienky_pracovneho_vztahu"));
-            this.wageDS.add(wageD);
-        }
-    }
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 }

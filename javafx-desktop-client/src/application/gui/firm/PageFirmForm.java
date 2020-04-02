@@ -1,19 +1,16 @@
-package application.gui;
+package application.gui.firm;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
-import application.models.EmployeeD;
-import application.models.EmployeeOV;
-import application.models.PositionD;
 import application.models.WageFormD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -25,54 +22,18 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.function.Predicate;
 
-public class ControllerPageFirmForm
+public class PageFirmForm
 {
 
-    public TableColumn unitCol;
-    public TableColumn unitShorCol;
-    @FXML
-    private TableView<WageFormD> tab = new TableView<WageFormD>();
-    @FXML
-    public TableColumn nameCol,  idCol;
-    @FXML
-    public TextField input;
-    @FXML
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ObservableList<WageFormD> wageFormDS;
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        unitCol.setCellValueFactory(new PropertyValueFactory<>("unit"));
-        unitShorCol.setCellValueFactory(new PropertyValueFactory<>("unitShort"));
-
-        tab.setItems(wageFormDS);
-
-        FilteredList<WageFormD> filteredData = new FilteredList<>(wageFormDS, e->true);
-        input.setOnKeyPressed(e ->{
-            input.textProperty().addListener(((observable, oldValue, newValue) -> {
-                filteredData.setPredicate((Predicate<? super WageFormD>) wageFormD -> {
-                    if (newValue == null || newValue.isEmpty()) {
-                        return true;
-                    }
-                    String inp = newValue.toLowerCase();
-                    return isFiltered(wageFormD, inp);
-                });
-            }));
-            SortedList<WageFormD> sortedData = new SortedList<>(filteredData);
-            sortedData.comparatorProperty().bind(tab.comparatorProperty());
-            tab.setItems(sortedData);
-        });
-
-        MainPaneManager.getC().setBackPage("page_firm");
-    }
-
-    public ControllerPageFirmForm() {
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageFirmForm() {
         try{
             wageFormDS = wageFormSelect();
         } catch (IOException e) {
@@ -93,6 +54,9 @@ public class ControllerPageFirmForm
         }
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     public void onRemoveClick(MouseEvent mouseEvent)
     {
         WageFormD wageFormD = tab.getSelectionModel().getSelectedItem();
@@ -127,9 +91,9 @@ public class ControllerPageFirmForm
 
     public void onAddClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_wageform.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddWageform.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddWageform(this);
+            return new AddWageform(this);
         });
         Parent root1 = null;
         try {
@@ -167,30 +131,6 @@ public class ControllerPageFirmForm
         tab.setItems(wageFormDS);
     }
 
-    private boolean isFiltered(WageFormD wageFormD, String inp)
-    {
-
-        boolean flag1=false;
-        boolean imp1= false;
-        if(!inp.equals(""))
-        {
-            imp1=true;
-            String lowerCaseFilter = inp.toLowerCase();
-            if(wageFormD.getId().toLowerCase().contains(lowerCaseFilter)){
-                flag1 = true;
-            }else if(wageFormD.getName().toLowerCase().contains(lowerCaseFilter)) {
-                flag1 = true;
-            }
-        }
-
-        boolean flag = true;
-        if(imp1)
-            flag&=flag1;
-
-        return flag;
-    }
-
-
     private ObservableList<WageFormD> wageFormSelect() throws InterruptedException, IOException, CommunicationException {
         ObservableList<WageFormD> wageFormDS = FXCollections.observableArrayList();
 
@@ -218,4 +158,78 @@ public class ControllerPageFirmForm
         this.updateInfo();
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public TableColumn unitCol;
+    public TableColumn unitShorCol;
+    @FXML
+    private TableView<WageFormD> tab = new TableView<WageFormD>();
+    @FXML
+    public TableColumn nameCol,  idCol;
+    @FXML
+    public TextField input;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        unitCol.setCellValueFactory(new PropertyValueFactory<>("unit"));
+        unitShorCol.setCellValueFactory(new PropertyValueFactory<>("unitShort"));
+
+        tab.setItems(wageFormDS);
+
+        FilteredList<WageFormD> filteredData = new FilteredList<>(wageFormDS, e->true);
+        input.setOnKeyPressed(e ->{
+            input.textProperty().addListener(((observable, oldValue, newValue) -> {
+                filteredData.setPredicate((Predicate<? super WageFormD>) wageFormD -> {
+                    if (newValue == null || newValue.isEmpty()) {
+                        return true;
+                    }
+                    String inp = newValue.toLowerCase();
+                    return isFiltered(wageFormD, inp);
+                });
+            }));
+            SortedList<WageFormD> sortedData = new SortedList<>(filteredData);
+            sortedData.comparatorProperty().bind(tab.comparatorProperty());
+            tab.setItems(sortedData);
+        });
+
+        MainPaneManager.getC().setBackPage("PageFirm");
+    }
+
+    private boolean isFiltered(WageFormD wageFormD, String inp)
+    {
+
+        boolean flag1=false;
+        boolean imp1= false;
+        if(!inp.equals(""))
+        {
+            imp1=true;
+            String lowerCaseFilter = inp.toLowerCase();
+            if(wageFormD.getId().toLowerCase().contains(lowerCaseFilter)){
+                flag1 = true;
+            }else if(wageFormD.getName().toLowerCase().contains(lowerCaseFilter)) {
+                flag1 = true;
+            }
+        }
+
+        boolean flag = true;
+        if(imp1)
+            flag&=flag1;
+
+        return flag;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 }

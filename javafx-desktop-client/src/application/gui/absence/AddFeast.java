@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.absence;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -6,8 +6,6 @@ import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.AbsenceD;
 import application.models.RelationD;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +16,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -27,9 +24,37 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class ControllerAddFeast
+public class AddFeast
 {
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageAbsence pageAbsence;
+    private ObservableList<RelationD> choosenRelationDS;
+    private AbsenceD absenceD;
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddFeast(PageAbsence pageAbsence)
+    {
+        this.pageAbsence = pageAbsence;
+        this.choosenRelationDS = FXCollections.observableArrayList();
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+
+    public ObservableList<RelationD> getChoosenRelationDS() {
+        return choosenRelationDS;
+    }
+
+    public void setChoosenRelationDS(ObservableList<RelationD> choosenRelationDS) {
+        this.choosenRelationDS = choosenRelationDS;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public ScrollPane sp;
     public VBox vb;
     public HBox hb;
@@ -39,17 +64,8 @@ public class ControllerAddFeast
     public Label label;
     public DatePicker date;
 
-    private ControllerPageAbsence controllerPageAbsence;
-    private ObservableList<RelationD> choosenRelationDS;
-    private AbsenceD absenceD;
-
-
-    public ControllerAddFeast(ControllerPageAbsence controllerPageAbsence)
-    {
-        this.controllerPageAbsence = controllerPageAbsence;
-        this.choosenRelationDS = FXCollections.observableArrayList();
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize()
     {
         setDatePicker(date);
@@ -62,12 +78,40 @@ public class ControllerAddFeast
         tab.setItems(choosenRelationDS);
     }
 
+    private void setDatePicker(DatePicker datePicker)
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
 
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        datePicker.setConverter(converter);
+        datePicker.setPromptText("D.M.RRRR");
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void onAddRelationClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_feast_chooserelation.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddFeastChooserelation.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddFeastChooserelation(this);
+            return new AddFeastChooserelation(this);
         });
         Parent root1 = null;
         try {
@@ -81,8 +125,6 @@ public class ControllerAddFeast
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }
-
-
 
     public void cancel(MouseEvent mouseEvent)
     {
@@ -120,11 +162,14 @@ public class ControllerAddFeast
             return;
         }
 
-        controllerPageAbsence.updateInfo();
+        pageAbsence.updateInfo();
         Stage stage = (Stage) vb.getScene().getWindow();
         stage.close();
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -175,9 +220,6 @@ public class ControllerAddFeast
         this.absenceD = absenceD;
     }
 
-
-
-
     public void setRelationElements() {
         tab.setItems(choosenRelationDS);
     }
@@ -200,39 +242,6 @@ public class ControllerAddFeast
     }
 
 
-    private void setDatePicker(DatePicker datePicker)
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        datePicker.setConverter(converter);
-        datePicker.setPromptText("D.M.RRRR");
-    }
 
 
-    public ObservableList<RelationD> getChoosenRelationDS() {
-        return choosenRelationDS;
-    }
-
-    public void setChoosenRelationDS(ObservableList<RelationD> choosenRelationDS) {
-        this.choosenRelationDS = choosenRelationDS;
-    }
 }

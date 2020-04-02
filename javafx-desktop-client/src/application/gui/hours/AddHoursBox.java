@@ -1,18 +1,13 @@
-package application.gui;
+package application.gui.hours;
 
-import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
-import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.HoursD;
 import application.models.RelationD;
 import application.models.WageD;
-import application.models.WageFormD;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -21,11 +16,58 @@ import javafx.util.StringConverter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-public class ControllerAddHoursBox
+public class AddHoursBox
 {
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private HoursInterface hoursInterface;
+    private HoursD hoursD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddHoursBox(HoursInterface hoursInterface)
+    {
+        this.hoursInterface = hoursInterface;
+        hoursD = new HoursD();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public void createHours(RelationD relationD, WageD wageD) throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.addParam("consid", relationD.getConditionsID());
+        ht.addParam("wageid", wageD.getId());
+        ht.addParam("date", this.hoursD.getDate());
+        ht.addParam("from", this.hoursD.getFrom());
+        ht.addParam("to", this.hoursD.getTo());
+        ht.addParam("overtime", this.hoursD.getOverTime());
+        ht.addParam("units", this.hoursD.getUnitsDone());
+        ht.addParam("part", this.hoursD.getPartBase());
+        ht.addParam("emergency", this.hoursD.getEmergencyType());
+        ht.sendPost("hours/crt_hrs", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+    public void updateHours(HoursD prevHoursD) throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.addParam("omid", prevHoursD.getMonthID());
+        ht.addParam("id", prevHoursD.getId());
+        ht.addParam("from", this.hoursD.getFrom());
+        ht.addParam("to", this.hoursD.getTo());
+        ht.addParam("overtime", this.hoursD.getOverTime());
+        ht.addParam("units", this.hoursD.getUnitsDone());
+        ht.addParam("part", this.hoursD.getPartBase());
+        ht.addParam("emergency", this.hoursD.getEmergencyType());
+        ht.sendPost("hours/upd_hrs", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public CheckBox overtimeCB, partCB, timeCB, unitsCB, emergencyCB;
     public TextField from, to, units, part, overtime;
     public DatePicker date;
@@ -34,15 +76,9 @@ public class ControllerAddHoursBox
     public VBox vb;
     public Button cross;
 
-    ControllerIntHours controllerIntHours;
-    private HoursD hoursD;
 
-    public ControllerAddHoursBox(ControllerIntHours controllerIntHours)
-    {
-        this.controllerIntHours = controllerIntHours;
-        hoursD = new HoursD();
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize()
     {
         setDatePicker();
@@ -51,10 +87,154 @@ public class ControllerAddHoursBox
         setInputsDisable();
     }
 
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        date.setConverter(converter);
+        date.setPromptText("D.M.RRRR");
+    }
+
+    private void setComboBoxes()
+    {
+        emergency.getItems().addAll(
+                "aktívna",
+                "neaktívna"
+        );
+    }
+
+    private void setInputsDisable()
+    {
+        String formName = this.hoursInterface.getChoosenWage().getWageFormName();
+        String timeRequired = this.hoursInterface.getChoosenWage().getEmployeeEnter();
+        String emergencyRequired = this.hoursInterface.getChoosenWage().getEmergencyImportant();
+        if(formName.matches("^časová-?.*$"))
+        {
+            timeCB.setSelected(true);
+        }
+        else if(formName.matches("^výkonová-?.*$"))
+        {
+            unitsCB.setSelected(true);
+        }
+        else if(formName.matches("^podielová-?.*$"))
+        {
+            partCB.setSelected(true);
+        }
+
+        if(timeRequired.equals("áno"))
+        {
+            timeCB.setSelected(true);
+        }
+
+        if(emergencyRequired.equals("áno"))
+        {
+            emergencyCB.setSelected(true);
+        }
+
+    }
+
+    private void setCheckBoxes()
+    {
+        timeCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    to.setDisable(false);
+                    from.setDisable(false);
+                } else {
+                    to.clear();
+                    from.clear();
+                    to.setDisable(true);
+                    from.setDisable(true);
+                }
+            }
+        });
+
+        overtimeCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    overtime.setDisable(false);
+                } else {
+                    overtime.clear();
+                    overtime.setDisable(true);
+                }
+            }
+        });
+
+        unitsCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    units.setDisable(false);
+                } else {
+                    units.clear();
+                    units.setDisable(true);
+                }
+            }
+        });
+
+        partCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    part.setDisable(false);
+                } else {
+                    part.clear();
+                    part.setDisable(true);
+                }
+            }
+        });
+
+        emergencyCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    emergency.setDisable(false);
+                } else {
+                    emergency.getSelectionModel().clearSelection();
+                    emergency.setDisable(true);
+                }
+            }
+        });
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void onCloseClick(MouseEvent mouseEvent)
     {
-        controllerIntHours.removeHoursBox(vb, this);
+        hoursInterface.removeHoursBox(vb, this);
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     public boolean checkFormular()
     {
@@ -155,170 +335,5 @@ public class ControllerAddHoursBox
         }
 
     }
-
-    public void createHours(RelationD relationD, WageD wageD) throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-        ht.addParam("consid", relationD.getConditionsID());
-        ht.addParam("wageid", wageD.getId());
-        ht.addParam("date", this.hoursD.getDate());
-        ht.addParam("from", this.hoursD.getFrom());
-        ht.addParam("to", this.hoursD.getTo());
-        ht.addParam("overtime", this.hoursD.getOverTime());
-        ht.addParam("units", this.hoursD.getUnitsDone());
-        ht.addParam("part", this.hoursD.getPartBase());
-        ht.addParam("emergency", this.hoursD.getEmergencyType());
-        ht.sendPost("hours/crt_hrs", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    public void updateHours(HoursD prevHoursD) throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-        ht.addParam("omid", prevHoursD.getMonthID());
-        ht.addParam("id", prevHoursD.getId());
-        ht.addParam("from", this.hoursD.getFrom());
-        ht.addParam("to", this.hoursD.getTo());
-        ht.addParam("overtime", this.hoursD.getOverTime());
-        ht.addParam("units", this.hoursD.getUnitsDone());
-        ht.addParam("part", this.hoursD.getPartBase());
-        ht.addParam("emergency", this.hoursD.getEmergencyType());
-        ht.sendPost("hours/upd_hrs", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        date.setConverter(converter);
-        date.setPromptText("D.M.RRRR");
-    }
-
-    private void setComboBoxes()
-    {
-        emergency.getItems().addAll(
-                "aktívna",
-                "neaktívna"
-        );
-    }
-
-    private void setInputsDisable()
-    {
-        String formName = this.controllerIntHours.getChoosenWage().getWageFormName();
-        String timeRequired = this.controllerIntHours.getChoosenWage().getEmployeeEnter();
-        String emergencyRequired = this.controllerIntHours.getChoosenWage().getEmergencyImportant();
-        if(formName.matches("^časová-?.*$"))
-        {
-            timeCB.setSelected(true);
-        }
-        else if(formName.matches("^výkonová-?.*$"))
-        {
-            unitsCB.setSelected(true);
-        }
-        else if(formName.matches("^podielová-?.*$"))
-        {
-            partCB.setSelected(true);
-        }
-
-        if(timeRequired.equals("áno"))
-        {
-            timeCB.setSelected(true);
-        }
-
-        if(emergencyRequired.equals("áno"))
-        {
-            emergencyCB.setSelected(true);
-        }
-
-    }
-
-    private void setCheckBoxes()
-    {
-        timeCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue)
-                {
-                    to.setDisable(false);
-                    from.setDisable(false);
-                } else {
-                    to.clear();
-                    from.clear();
-                    to.setDisable(true);
-                    from.setDisable(true);
-                }
-            }
-        });
-
-         overtimeCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue)
-                {
-                    overtime.setDisable(false);
-                } else {
-                    overtime.clear();
-                    overtime.setDisable(true);
-                }
-            }
-        });
-
-         unitsCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue)
-                {
-                    units.setDisable(false);
-                } else {
-                    units.clear();
-                    units.setDisable(true);
-                }
-            }
-        });
-
-         partCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue)
-                {
-                    part.setDisable(false);
-                } else {
-                    part.clear();
-                    part.setDisable(true);
-                }
-            }
-        });
-
-         emergencyCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue)
-                {
-                    emergency.setDisable(false);
-                } else {
-                    emergency.getSelectionModel().clearSelection();
-                    emergency.setDisable(true);
-                }
-            }
-        });
-    }
-
-
 
 }

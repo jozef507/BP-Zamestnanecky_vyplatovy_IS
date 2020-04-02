@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.firm;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -6,7 +6,6 @@ import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.LevelD;
-import application.models.PlaceD;
 import application.models.PositionD;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -16,27 +15,19 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ControllerUpdatePosition
+public class UpdatePosition
 {
-    public Button cancel;
-    public Button create;
-    public Label label;
-    public ComboBox level;
-
-
-    private ControllerPageFirmPosition controllerPageFirmPosition;
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageFirmPosition pageFirmPosition;
     private PositionD positionD;
-
     private ArrayList<LevelD> levelDS;
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        setComboboxes();
-    }
 
-    public ControllerUpdatePosition(ControllerPageFirmPosition controllerPageFirmPosition, PositionD positionD) {
-        this.controllerPageFirmPosition = controllerPageFirmPosition;
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdatePosition(PageFirmPosition pageFirmPosition, PositionD positionD) {
+        this.pageFirmPosition = pageFirmPosition;
         this.positionD = new PositionD();
         this.positionD.setId(positionD.getId());
         try {
@@ -59,6 +50,65 @@ public class ControllerUpdatePosition
         }
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void updatePosition() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("positionid", this.positionD.getLevelID());
+        ht.addParam("levelid", this.positionD.getId());
+
+        ht.sendPost("position/upd_pos", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+    private ArrayList<LevelD> getLevels() throws IOException, InterruptedException, CommunicationException {
+        ArrayList<LevelD> levels = new ArrayList<>();
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("position/lvls", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        for(int i=0; i<json.getSize(); i++)
+        {
+            LevelD levelD = new LevelD();
+            levelD.setId(json.getElement(i, "id"));
+            levelD.setNumber(json.getElement(i, "cislo_stupna"));
+            levelD.setCaracteristic(json.getElement(i, "charakteristika"));
+            levelD.setFrom(json.getElement(i, "platnost_od"));
+            levelD.setTo(json.getElement(i, "platnost_do"));
+            levels.add(levelD);
+        }
+        return levels;
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public Button cancel;
+    public Button create;
+    public Label label;
+    public ComboBox level;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        setComboboxes();
+    }
+
+    private void setComboboxes()
+    {
+        for (LevelD l:this.levelDS)
+        {
+            level.getItems().add(l.getComboboxString());
+        }
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -91,10 +141,14 @@ public class ControllerUpdatePosition
             return;
         }
 
-        this.controllerPageFirmPosition.updateInfo();
+        this.pageFirmPosition.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -123,41 +177,7 @@ public class ControllerUpdatePosition
         }
     }
 
-    private void updatePosition() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
 
-        ht.addParam("positionid", this.positionD.getLevelID());
-        ht.addParam("levelid", this.positionD.getId());
-
-        ht.sendPost("position/upd_pos", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private ArrayList<LevelD> getLevels() throws IOException, InterruptedException, CommunicationException {
-        ArrayList<LevelD> levels = new ArrayList<>();
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("position/lvls", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            LevelD levelD = new LevelD();
-            levelD.setId(json.getElement(i, "id"));
-            levelD.setNumber(json.getElement(i, "cislo_stupna"));
-            levelD.setCaracteristic(json.getElement(i, "charakteristika"));
-            levelD.setFrom(json.getElement(i, "platnost_od"));
-            levelD.setTo(json.getElement(i, "platnost_do"));
-            levels.add(levelD);
-        }
-        return levels;
-    }
-
-    private void setComboboxes()
-    {
-        for (LevelD l:this.levelDS)
-        {
-            level.getItems().add(l.getComboboxString());
-        }
-    }
 
 
 

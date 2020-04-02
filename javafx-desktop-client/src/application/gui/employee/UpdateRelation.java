@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -7,8 +7,6 @@ import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.*;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -26,9 +24,98 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerUpdateRelation implements ControllerRelation
+public class UpdateRelation implements RelationInterface
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private ArrayList<AddRelationBox> wagesControllers;
+    private PageEmployeeDetailsRelation pageEmployeeDetailsRelation;
+    private PositionD choosenPosition;
+    private RelationD relationD;
+    private ConditionsD conditionsD;
+    private NextConditionsD nextConditionsD;
+    private ArrayList<WageD> wageDs;
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdateRelation(PageEmployeeDetailsRelation pageEmployeeDetailsRelation)
+    {
+        this.wagesControllers = new ArrayList<>();
+        this.wageDs = new ArrayList<>();
+        this.pageEmployeeDetailsRelation = pageEmployeeDetailsRelation;
+        this.relationD = this.pageEmployeeDetailsRelation.getRelationD();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public void setChoosenPosition(PositionD choosenPosition) {
+        this.choosenPosition = choosenPosition;
+    }
+
+    public void setPositionElements()
+    {
+        place.setText(this.choosenPosition.getPlace());
+        position.setText(this.choosenPosition.getName());
+    }
+
+    private void updateRelation() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.addParam("relid", this.relationD.getId());
+        ht.addParam("prevconds", this.pageEmployeeDetailsRelation.getConditionsDs().get(this.pageEmployeeDetailsRelation.getConditionsDs().size()-1).getId());
+
+        if(this.nextConditionsD!=null)
+        {
+            ht.addParam("nextconditions", "true");
+            ht.addParam("main", this.nextConditionsD.getIsMain());
+            ht.addParam("holliday", this.nextConditionsD.getHollidayTime());
+            ht.addParam("weektime", this.nextConditionsD.getWeekTime());
+            ht.addParam("uniform", this.nextConditionsD.getIsWeekTimeUniform());
+            ht.addParam("testtime", this.nextConditionsD.getTestTime());
+            ht.addParam("sacktime", this.nextConditionsD.getSackTime());
+        }
+        else
+        {
+            ht.addParam("nextconditions", "false");
+        }
+
+        ht.addParam("from", this.conditionsD.getFrom());
+        ht.addParam("to", this.conditionsD.getTo());
+        ht.addParam("positionid", this.conditionsD.getPositionID());
+
+        ht.sendPost("relation/upd_rel", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        String nextConID = json.getElement(0, "nextcon_id");
+        String conID = json.getElement(0, "con_id");
+
+        for(int i = 0; i<this.wageDs.size();i++)
+        {
+            ht.addParam("label", this.wageDs.get(i).getLabel());
+            ht.addParam("employee",  this.wageDs.get(i).getEmployeeEnter());
+            ht.addParam("time",  this.wageDs.get(i).getTimeImportant());
+            ht.addParam("emergency",  this.wageDs.get(i).getEmergencyImportant());
+            ht.addParam("tarif",  this.wageDs.get(i).getTarif());
+            ht.addParam("way",  this.wageDs.get(i).getPayWay());
+            ht.addParam("paydate", this.wageDs.get(i).getPayDate());
+            ht.addParam("formid",  this.wageDs.get(i).getWageFormID());
+            ht.addParam("conid",  conID);
+
+            ht.addParam("relid", "NULL");
+            ht.addParam("conid", conID);
+            ht.addParam("nextconid", nextConID);
+            ht.addParam("prevconds", this.pageEmployeeDetailsRelation.getConditionsDs().get(this.pageEmployeeDetailsRelation.getConditionsDs().size()-1).getId());
+
+            ht.sendPost("wage/crt_wage", LoggedInUser.getToken(), LoggedInUser.getId());
+        }
+
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public VBox vb;
     public HBox hb;
     public Text name;
@@ -45,38 +132,23 @@ public class ControllerUpdateRelation implements ControllerRelation
     public VBox vb_wage;
     public Label infoLabel;
 
-    private ArrayList<ControllerAddRelationBox> wagesControllers;
-    private ControllerPageEmployeeDetailsRelation controllerPageEmployeeDetailsRelation;
-    private PositionD choosenPosition;
-    private RelationD relationD;
-    private ConditionsD conditionsD;
-    private NextConditionsD nextConditionsD;
-    private ArrayList<WageD> wageDs;
 
-
-    public ControllerUpdateRelation(ControllerPageEmployeeDetailsRelation controllerPageEmployeeDetailsRelation)
-    {
-        this.wagesControllers = new ArrayList<>();
-        this.wageDs = new ArrayList<>();
-        this.controllerPageEmployeeDetailsRelation = controllerPageEmployeeDetailsRelation;
-        this.relationD = this.controllerPageEmployeeDetailsRelation.getRelationD();
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize()
     {
 
         setDatePicker();
         changeFocus();
 
-        if(controllerPageEmployeeDetailsRelation.getRelationD().getType().equals("D: o vykonaní práce")
-            || controllerPageEmployeeDetailsRelation.getRelationD().getType().equals("D: o pracovnej činnosti")
-            || controllerPageEmployeeDetailsRelation.getRelationD().getType().equals("D: o brig. práci študentov"))
+        if(pageEmployeeDetailsRelation.getRelationD().getType().equals("D: o vykonaní práce")
+                || pageEmployeeDetailsRelation.getRelationD().getType().equals("D: o pracovnej činnosti")
+                || pageEmployeeDetailsRelation.getRelationD().getType().equals("D: o brig. práci študentov"))
         {
             hb.setDisable(true);
         }
 
     }
-
 
     private void setDatePicker()
     {
@@ -105,16 +177,28 @@ public class ControllerUpdateRelation implements ControllerRelation
         from.setPromptText("D.M.RRRR");
     }
 
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        from.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                from.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void addWage(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"add_relation_box"+".fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddRelationBox.fxml"));
         HBox newPane = null;
         try {
             newPane = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ControllerAddRelationBox c = loader.getController();
+        AddRelationBox c = loader.getController();
         wagesControllers.add(c);
         vb_wage.getChildren().addAll(newPane);
     }
@@ -127,9 +211,9 @@ public class ControllerUpdateRelation implements ControllerRelation
 
     public void addPosition(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_relation_choose_position.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddRelationChooseposition.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddRelationChoosePosition(this);
+            return new AddRelationChooseposition(this);
         });
         Parent root1 = null;
         try {
@@ -142,16 +226,6 @@ public class ControllerUpdateRelation implements ControllerRelation
         primaryStage.setScene(new Scene(root1, 810, 570));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
-    }
-
-    public void setChoosenPosition(PositionD choosenPosition) {
-        this.choosenPosition = choosenPosition;
-    }
-
-    public void setPositionElements()
-    {
-        place.setText(this.choosenPosition.getPlace());
-        position.setText(this.choosenPosition.getName());
     }
 
     public void cancel(MouseEvent mouseEvent)
@@ -190,13 +264,13 @@ public class ControllerUpdateRelation implements ControllerRelation
             return;
         }
 
-        controllerPageEmployeeDetailsRelation.updateInfo();
+        pageEmployeeDetailsRelation.updateInfo();
         Stage stage = (Stage) vb.getScene().getWindow();
         stage.close();
     }
 
-
-
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
     private boolean checkFormular()
     {
         boolean flag = true;
@@ -248,9 +322,9 @@ public class ControllerUpdateRelation implements ControllerRelation
     {
         boolean flag = true;
 
-        if(testTime.getText().matches("^\\+?-?\\d+$")) flag=false;
-        else if(sackTime.getText().matches("^\\+?-?\\d+$")) flag=false;
-        else if(hollidayTime.getText().matches("^\\+?-?\\d+(\\.\\d+)?$")) flag=false;
+        if(!testTime.getText().matches("^\\+?-?\\d+$")) flag=false;
+        else if(!sackTime.getText().matches("^\\+?-?\\d+$")) flag=false;
+        else if(!hollidayTime.getText().matches("^\\+?-?\\d+(\\.\\d+)?$")) flag=false;
         try {
             double d = Double.parseDouble(weekTime.getText());
             if(d>40) flag=false;
@@ -278,7 +352,6 @@ public class ControllerUpdateRelation implements ControllerRelation
             return false;
         }*/
     }
-
 
     private void setModelsFromInputs()
     {
@@ -320,6 +393,10 @@ public class ControllerUpdateRelation implements ControllerRelation
                 wageD.setTimeImportant("1");
             else
                 wageD.setTimeImportant("0");
+            if(this.wagesControllers.get(i).emergency.isSelected())
+                wageD.setEmergencyImportant("1");
+            else
+                wageD.setEmergencyImportant("0");
             wageD.setTarif(this.wagesControllers.get(i).tarif.getText());
             wageD.setPayWay(this.wagesControllers.get(i).way.getValue().toString());
             if(this.wagesControllers.get(i).payDate.isDisable())
@@ -332,64 +409,4 @@ public class ControllerUpdateRelation implements ControllerRelation
         }
     }
 
-    private void updateRelation() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-        ht.addParam("relid", this.relationD.getId());
-        ht.addParam("prevconds", this.controllerPageEmployeeDetailsRelation.getConditionsDs().get(this.controllerPageEmployeeDetailsRelation.getConditionsDs().size()-1).getId());
-
-        if(this.nextConditionsD!=null)
-        {
-            ht.addParam("nextconditions", "true");
-            ht.addParam("main", this.nextConditionsD.getIsMain());
-            ht.addParam("holliday", this.nextConditionsD.getHollidayTime());
-            ht.addParam("weektime", this.nextConditionsD.getWeekTime());
-            ht.addParam("uniform", this.nextConditionsD.getIsWeekTimeUniform());
-            ht.addParam("testtime", this.nextConditionsD.getTestTime());
-            ht.addParam("sacktime", this.nextConditionsD.getSackTime());
-        }
-        else
-        {
-            ht.addParam("nextconditions", "false");
-        }
-
-        ht.addParam("from", this.conditionsD.getFrom());
-        ht.addParam("to", this.conditionsD.getTo());
-        ht.addParam("positionid", this.conditionsD.getPositionID());
-
-        ht.sendPost("relation/upd_rel", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        String nextConID = json.getElement(0, "nextcon_id");
-        String conID = json.getElement(0, "con_id");
-
-        for(int i = 0; i<this.wageDs.size();i++)
-        {
-            ht.addParam("label", this.wageDs.get(i).getLabel());
-            ht.addParam("employee",  this.wageDs.get(i).getEmployeeEnter());
-            ht.addParam("time",  this.wageDs.get(i).getTimeImportant());
-            ht.addParam("tarif",  this.wageDs.get(i).getTarif());
-            ht.addParam("way",  this.wageDs.get(i).getPayWay());
-            ht.addParam("paydate", this.wageDs.get(i).getPayDate());
-            ht.addParam("formid",  this.wageDs.get(i).getWageFormID());
-            ht.addParam("conid",  conID);
-
-            ht.addParam("relid", "NULL");
-            ht.addParam("conid", conID);
-            ht.addParam("nextconid", nextConID);
-
-            ht.sendPost("wage/crt_wage", LoggedInUser.getToken(), LoggedInUser.getId());
-        }
-
-    }
-
-    private void changeFocus()
-    {
-        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        from.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && firstTime.get()) {
-                from.getParent().requestFocus();
-                firstTime.setValue(false);
-            }
-        });
-    }
 }

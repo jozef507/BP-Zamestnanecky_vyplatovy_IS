@@ -1,10 +1,9 @@
-package application.gui;
+package application.gui.firm;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
-import application.models.EmployeeD;
 import application.models.WageFormD;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
@@ -13,32 +12,78 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
-public class ControllerAddWageform
+public class AddWageform
 {
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageFirmForm pageFirmForm;
+    private WageFormD wageFormD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddWageform(PageFirmForm pageFirmForm) {
+        this.pageFirmForm = pageFirmForm;
+        this.wageFormD = new WageFormD();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void createWageForm() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("name", this.wageFormD.getName());
+        ht.addParam("unit", this.wageFormD.getUnit());
+        ht.addParam("unitshort", this.wageFormD.getUnitShort());
+
+        ht.sendPost("wage/crt_form", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public Label label;
     public TextField name, unit, unitShort;
 
 
-    private ControllerPageFirmForm controllerPageFirmForm;
-    private WageFormD wageFormD;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         changeFocus();
+        this.setTextfieldLimit(name, 50);
+        this.setTextfieldLimit(unit, 10);
+        this.setTextfieldLimit(unitShort, 5);
     }
 
-    public ControllerAddWageform(ControllerPageFirmForm controllerPageFirmForm) {
-        this.controllerPageFirmForm = controllerPageFirmForm;
-        this.wageFormD = new WageFormD();
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
     }
 
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                name.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -71,10 +116,14 @@ public class ControllerAddWageform
             return;
         }
 
-        this.controllerPageFirmForm.updateInfo();
+        this.pageFirmForm.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -104,25 +153,6 @@ public class ControllerAddWageform
         this.wageFormD.setUnitShort(unitShort.getText());
     }
 
-    private void createWageForm() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
 
-        ht.addParam("name", this.wageFormD.getName());
-        ht.addParam("unit", this.wageFormD.getUnit());
-        ht.addParam("unitshort", this.wageFormD.getUnitShort());
-
-        ht.sendPost("wage/crt_form", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private void changeFocus()
-    {
-        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && firstTime.get()) {
-                name.getParent().requestFocus();
-                firstTime.setValue(false);
-            }
-        });
-    }
 
 }

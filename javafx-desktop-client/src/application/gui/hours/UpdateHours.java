@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.hours;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -9,9 +9,6 @@ import application.models.HoursD;
 import application.models.RelationD;
 import application.models.WageD;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
@@ -19,37 +16,29 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-public class ControllerUpdateHours implements ControllerIntHours
+public class UpdateHours implements HoursInterface
 {
 
-    public ScrollPane sp;
-    public VBox vb;
-    public HBox hb;
-    public Text name, relEmp, relFrom, relTo, relId, relPlace, relPos, wageForm, wageId, wageLabel, wageUnit ;
-    public FlowPane fp_hours;
-    public Label label;
-
-    private ControllerPageHours controllerPageHours;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageHours pageHours;
     private RelationD choosenRelationD;
     private WageD choosenWage;
-
-    private ControllerAddHoursBox controllerAddHoursBox;
+    private AddHoursBox addHoursBox;
     private HoursD hoursD;
 
 
-    public ControllerUpdateHours(ControllerPageHours controllerPageHours, HoursD hoursD)
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdateHours(PageHours pageHours, HoursD hoursD)
     {
-        this.controllerPageHours = controllerPageHours;
+        this.pageHours = pageHours;
         this.hoursD=hoursD;
         try {
             setRelation();
@@ -74,13 +63,9 @@ public class ControllerUpdateHours implements ControllerIntHours
 
     }
 
-    public void initialize()
-    {
-        setRelationElements();
-        setWageElements();
-        addAddHoursBox();
-    }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     private void setRelation() throws InterruptedException, IOException, CommunicationException {
         HttpClientClass ht = new HttpClientClass();
         ht.sendGet("relation/rel_by_cons/"+hoursD.getConsID(), LoggedInUser.getToken(), LoggedInUser.getId());
@@ -133,72 +118,98 @@ public class ControllerUpdateHours implements ControllerIntHours
         choosenWage = wageD;
     }
 
-    private void addAddHoursBox()
+    private void updateHours() throws InterruptedException, IOException, CommunicationException
     {
-        loadBox();
-        setBoxItems();
+        addHoursBox.updateHours(this.hoursD);
+    }
+
+    @Override
+    public void setChoosenRelation(RelationD relationD) {
+        this.choosenRelationD = relationD;
+        this.choosenWage = null;
+    }
+
+    @Override
+    public RelationD getChoosenRelation() {
+        return this.choosenRelationD;
+    }
+
+    @Override
+    public void setChoosenWage(WageD wageD) {
+        this.choosenWage = wageD;
 
     }
 
-    private void loadBox()
+    @Override
+    public WageD getChoosenWage() {
+        return this.choosenWage;
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+
+    public ScrollPane sp;
+    public VBox vb;
+    public HBox hb;
+    public Text name, relEmp, relFrom, relTo, relId, relPlace, relPos, wageForm, wageId, wageLabel, wageUnit ;
+    public FlowPane fp_hours;
+    public Label label;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    public void initialize()
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/"+"add_hours_box"+".fxml"));
-        loader.setControllerFactory(c -> {
-            return new ControllerAddHoursBox(this);
-        });
-        VBox newPane = null;
-        try {
-            newPane = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ControllerAddHoursBox c = loader.getController();
-        this.controllerAddHoursBox = c;
-        this.fp_hours.getChildren().add(newPane);
+        setRelationElements();
+        setWageElements();
+        addAddHoursBox();
     }
 
     private void setBoxItems()
     {
-        controllerAddHoursBox.cross.setVisible(false);
+        addHoursBox.cross.setVisible(false);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy");
         String date = hoursD.getDate();
         LocalDate localDate = LocalDate.parse(date, formatter);
 
-        controllerAddHoursBox.date.setValue(localDate);
-        controllerAddHoursBox.date.setDisable(true);
+        addHoursBox.date.setValue(localDate);
+        addHoursBox.date.setDisable(true);
 
         if(hoursD.getFrom()!=null)
         {
-            controllerAddHoursBox.timeCB.setSelected(true);
-            controllerAddHoursBox.from.setText(hoursD.getFrom());
-            controllerAddHoursBox.to.setText(hoursD.getTo());
+            addHoursBox.timeCB.setSelected(true);
+            addHoursBox.from.setText(hoursD.getFrom());
+            addHoursBox.to.setText(hoursD.getTo());
         }
         if(hoursD.getEmergencyType()!=null)
         {
-            controllerAddHoursBox.emergencyCB.setSelected(true);
+            addHoursBox.emergencyCB.setSelected(true);
             if(hoursD.getEmergencyType().equals("aktívna"))
-                controllerAddHoursBox.emergency.getSelectionModel().selectFirst();
+                addHoursBox.emergency.getSelectionModel().selectFirst();
             else
-                controllerAddHoursBox.emergency.getSelectionModel().select(1);
+                addHoursBox.emergency.getSelectionModel().select(1);
         }
         if(hoursD.getOverTime()!=null)
         {
-            controllerAddHoursBox.overtimeCB.setSelected(true);
-            controllerAddHoursBox.overtime.setText(hoursD.getOverTime());
+            addHoursBox.overtimeCB.setSelected(true);
+            addHoursBox.overtime.setText(hoursD.getOverTime());
         }
         if(hoursD.getUnitsDone()!=null)
         {
-            controllerAddHoursBox.unitsCB.setSelected(true);
-            controllerAddHoursBox.units.setText(hoursD.getUnitsDone());
+            addHoursBox.unitsCB.setSelected(true);
+            addHoursBox.units.setText(hoursD.getUnitsDone());
         }
         if(hoursD.getPartBase()!=null)
         {
-            controllerAddHoursBox.partCB.setSelected(true);
-            controllerAddHoursBox.part.setText(hoursD.getPartBase());
+            addHoursBox.partCB.setSelected(true);
+            addHoursBox.part.setText(hoursD.getPartBase());
         }
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancel(MouseEvent mouseEvent)
     {
         Stage stage = (Stage) vb.getScene().getWindow();
@@ -235,11 +246,38 @@ public class ControllerUpdateHours implements ControllerIntHours
             return;
         }
 
-        controllerPageHours.updateInfo();
+        pageHours.updateInfo();
         Stage stage = (Stage) vb.getScene().getWindow();
         stage.close();
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
+    private void addAddHoursBox()
+    {
+        loadBox();
+        setBoxItems();
+
+    }
+
+    private void loadBox()
+    {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddHoursBox.fxml"));
+        loader.setControllerFactory(c -> {
+            return new AddHoursBox(this);
+        });
+        VBox newPane = null;
+        try {
+            newPane = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        AddHoursBox c = loader.getController();
+        this.addHoursBox = c;
+        this.fp_hours.getChildren().add(newPane);
+    }
 
     private boolean checkFormular()
     {
@@ -251,7 +289,7 @@ public class ControllerUpdateHours implements ControllerIntHours
         else if(choosenWage == null)
             flag=false;
 
-        flag=controllerAddHoursBox.checkFormular();
+        flag= addHoursBox.checkFormular();
 
         if(!flag)
         {
@@ -267,7 +305,7 @@ public class ControllerUpdateHours implements ControllerIntHours
     {
         boolean flag = true;
 
-        flag=controllerAddHoursBox.checkFormularTypes();
+        flag= addHoursBox.checkFormularTypes();
 
         if(!flag)
         {
@@ -282,39 +320,11 @@ public class ControllerUpdateHours implements ControllerIntHours
 
     private void setModelsFromInputs()
     {
-        controllerAddHoursBox.setModelsFromInputs();
+        addHoursBox.setModelsFromInputs();
     }
 
-    private void updateHours() throws InterruptedException, IOException, CommunicationException
+    public void removeHoursBox(VBox vbox, AddHoursBox addHoursBox)
     {
-        controllerAddHoursBox.updateHours(this.hoursD);
-    }
-
-
-    public void removeHoursBox(VBox vbox, ControllerAddHoursBox controllerAddHoursBox)
-    {
-    }
-
-    @Override
-    public void setChoosenRelation(RelationD relationD) {
-        this.choosenRelationD = relationD;
-        this.choosenWage = null;
-    }
-
-    @Override
-    public RelationD getChoosenRelation() {
-        return this.choosenRelationD;
-    }
-
-    @Override
-    public void setChoosenWage(WageD wageD) {
-        this.choosenWage = wageD;
-
-    }
-
-    @Override
-    public WageD getChoosenWage() {
-        return this.choosenWage;
     }
 
     @Override

@@ -1,13 +1,12 @@
-package application.gui;
+package application.gui.employee;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
-import application.models.EmployeeD;
 import application.models.ImportantD;
-import application.models.RelationOV;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -24,17 +23,114 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ControllerPageEmployeeImportant
+public class PageEmployeeImportant
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private String employeeID;
+    private String employeeName;
+    private ArrayList<ImportantD> importants;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageEmployeeImportant(String name, String id){
+        this.employeeID = id;
+        this.employeeName = name;
+        this.importants = new ArrayList<>();
+        MainPaneManager.getC().setBackPage("PageEmployeeDetails", this.employeeID);
+        try {
+            setImportants();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+        }
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void setImportants() throws InterruptedException, IOException, CommunicationException
+    {
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("employee/all_imp/"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+
+        for (int i = 0; i < json.getSize(); i++) {
+            this.importants.add(new ImportantD(
+                    json.getElement(i, "id"),
+                    json.getElement(i, "zdravotna_poistovna"),
+                    json.getElement(i, "mesto"),
+                    json.getElement(i, "ulica"),
+                    json.getElement(i, "cislo"),
+                    json.getElement(i, "pocet_deti_do_6_rokov"),
+                    json.getElement(i, "pocet_deti_nad_6_rokov"),
+                    json.getElement(i, "uplatnenie_nedzanitelnej_casti"),
+                    json.getElement(i, "poberatel_starobneho_dochodku"),
+                    json.getElement(i, "poberatel_invalidneho_dochodku"),
+                    json.getElement(i, "nice_date1"),
+                    json.getElement(i, "nice_date2")
+            ));
+        }
+    }
+
+    public void updateInfo()
+    {
+        this.clear();
+        try {
+            setImportants();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+
+        try {
+            setPage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void clear()
+    {
+        this.importants.clear();
+        this.vb.getChildren().clear();
+    }
+
+    public String getEmployeeID() {
+        return employeeID;
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public VBox vb;
     public Text name;
     public Button add, delete;
 
-    private String employeeID;
-    private String employeeName;
 
-    private ArrayList<ImportantD> importants;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
@@ -60,70 +156,23 @@ public class ControllerPageEmployeeImportant
         }
     }
 
-    public ControllerPageEmployeeImportant(String name, String id){
-        this.employeeID = id;
-        this.employeeName = name;
-        this.importants = new ArrayList<>();
-        MainPaneManager.getC().setBackPage("page_employee_details", this.employeeID);
-        try {
-            setImportants();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-        }
-    }
-
-    private void setImportants() throws InterruptedException, IOException, CommunicationException
-    {
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("employee/all_imp/"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-
-        for (int i = 0; i < json.getSize(); i++) {
-            this.importants.add(new ImportantD(
-                json.getElement(i, "id"),
-                json.getElement(i, "zdravotna_poistovna"),
-                json.getElement(i, "mesto"),
-                json.getElement(i, "ulica"),
-                json.getElement(i, "cislo"),
-                json.getElement(i, "pocet_deti_do_6_rokov"),
-                json.getElement(i, "pocet_deti_nad_6_rokov"),
-                json.getElement(i, "uplatnenie_nedzanitelnej_casti"),
-                json.getElement(i, "poberatel_starobneho_dochodku"),
-                json.getElement(i, "poberatel_invalidneho_dochodku"),
-                json.getElement(i, "nice_date1"),
-                json.getElement(i, "nice_date2")
-            ));
-        }
-    }
-
-
     private void setPage() throws IOException {
         for (int finalI = 0; finalI < this.importants.size();finalI++) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/" + "page_employee_important_box" + ".fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource( "PageEmployeeImportantBox.fxml"));
             int a = finalI;
             loader.setControllerFactory(c -> {
-                return new ControllerPageEmployeeImportantBox(
-                    this.importants.get(a).getInsComp(),
-                    this.importants.get(a).getTown(),
-                    this.importants.get(a).getStreet(),
-                    this.importants.get(a).getNum(),
-                    this.importants.get(a).getChildUnder(),
-                    this.importants.get(a).getChildOver(),
-                    this.importants.get(a).getPart(),
-                    this.importants.get(a).getRetirement(),
-                    this.importants.get(a).getInvalidity(),
-                    this.importants.get(a).getFrom(),
-                    this.importants.get(a).getTo()
+                return new PageEmployeeImportantBox(
+                        this.importants.get(a).getInsComp(),
+                        this.importants.get(a).getTown(),
+                        this.importants.get(a).getStreet(),
+                        this.importants.get(a).getNum(),
+                        this.importants.get(a).getChildUnder(),
+                        this.importants.get(a).getChildOver(),
+                        this.importants.get(a).getPart(),
+                        this.importants.get(a).getRetirement(),
+                        this.importants.get(a).getInvalidity(),
+                        this.importants.get(a).getFrom(),
+                        this.importants.get(a).getTo()
                 );
             });
             HBox newPane = loader.load();
@@ -131,22 +180,50 @@ public class ControllerPageEmployeeImportant
         }
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
+
+
     private void openUpdateEmployeeImportantScene(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_employee_important.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdateEmployeeImportant.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerUpdateEmployeeImportant(
-                    this.importants.get((this.importants.size())-1).getId(),
-                    this.importants.get((this.importants.size())-1).getInsComp(),
-                    this.importants.get((this.importants.size())-1).getTown(),
-                    this.importants.get((this.importants.size())-1).getStreet(),
-                    this.importants.get((this.importants.size())-1).getNum(),
-                    this.importants.get((this.importants.size())-1).getChildUnder(),
-                    this.importants.get((this.importants.size())-1).getChildOver(),
-                    this.importants.get((this.importants.size())-1).getPart(),
-                    this.importants.get((this.importants.size())-1).getRetirement(),
-                    this.importants.get((this.importants.size())-1).getInvalidity(),
-                    this
-            );
+
+            try {
+                return new UpdateEmployeeImportant(
+                        this.importants.get((this.importants.size()) - 1).getId(),
+                        this.importants.get((this.importants.size()) - 1).getInsComp(),
+                        this.importants.get((this.importants.size()) - 1).getTown(),
+                        this.importants.get((this.importants.size()) - 1).getStreet(),
+                        this.importants.get((this.importants.size()) - 1).getNum(),
+                        this.importants.get((this.importants.size()) - 1).getChildUnder(),
+                        this.importants.get((this.importants.size()) - 1).getChildOver(),
+                        this.importants.get((this.importants.size()) - 1).getPart(),
+                        this.importants.get((this.importants.size()) - 1).getRetirement(),
+                        this.importants.get((this.importants.size()) - 1).getInvalidity(),
+                        this
+                );
+            }catch (IndexOutOfBoundsException e){
+                return new UpdateEmployeeImportant(
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        this
+                );
+            }
+
         });
         Parent root1 = null;
         try {
@@ -190,38 +267,5 @@ public class ControllerPageEmployeeImportant
     }
 
 
-    public void updateInfo()
-    {
-        this.clear();
-        try {
-            setImportants();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
 
-        try {
-            setPage();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void clear()
-    {
-        this.importants.clear();
-        this.vb.getChildren().clear();
-    }
 }

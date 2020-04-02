@@ -1,13 +1,11 @@
-package application.gui;
+package application.gui.absence;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.AbsenceD;
-import application.models.HoursD;
 import application.models.RelationD;
-import application.models.WageD;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +13,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -26,10 +23,36 @@ import javafx.util.StringConverter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-public class ControllerAddAbsence
+public class AddAbsence
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+
+    private PageAbsence pageAbsence;
+    private RelationD choosenRelationD;
+    private AbsenceD absenceD;
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+
+    public AddAbsence(PageAbsence pageAbsence)
+    {
+        this.pageAbsence = pageAbsence;
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+
+    public void setChoosenRelation(RelationD relationD)
+    {
+        this.choosenRelationD = relationD;
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
 
     public ScrollPane sp;
     public VBox vb;
@@ -41,15 +64,8 @@ public class ControllerAddAbsence
     public ComboBox<String> reason;
     public CheckBox one, range, half;
 
-    private ControllerPageAbsence controllerPageAbsence;
-    private RelationD choosenRelationD;
-    private AbsenceD absenceD;
-
-
-    public ControllerAddAbsence(ControllerPageAbsence controllerPageAbsence)
-    {
-        this.controllerPageAbsence = controllerPageAbsence;
-    }
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
 
     public void initialize()
     {
@@ -61,13 +77,98 @@ public class ControllerAddAbsence
         setCheckBoxes();
     }
 
+    private void setTextareaLimit(TextArea textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
+    }
 
+    private void setDatePicker(DatePicker datePicker)
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        datePicker.setConverter(converter);
+        datePicker.setPromptText("D.M.RRRR");
+    }
+
+    private void setCommboBoxes()
+    {
+        reason.getItems().addAll(
+                "PN",
+                "OČR",
+                "dovolenka",
+                "náhradné voľno",
+                "prekážka z dôvodu všeobecného záujmu",
+                "dôležitá osovná prekážka",
+                "prekážka na strane zamestnávateľa",
+                "iný"
+        );
+    }
+
+    private void setCheckBoxes()
+    {
+        one.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    date.setDisable(false);
+                    half.setDisable(false);
+                    range.setSelected(false);
+                } else {
+                    date.getEditor().clear();
+                    half.setSelected(false);
+                    date.setDisable(true);
+                    half.setDisable(true);
+                }
+            }
+        });
+
+        range.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    from.setDisable(false);
+                    to.setDisable(false);
+                    one.setSelected(false);
+                } else {
+                    from.getEditor().clear();
+                    to.getEditor().clear();
+                    from.setDisable(true);
+                    to.setDisable(true);
+                }
+            }
+        });
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
 
     public void onAddRelationClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_absence_chooserelation.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("absence/AddAbsenceChooserelation.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddAbsenceChooserelation(this);
+            return new AddAbsenceChooserelation(this);
         });
         Parent root1 = null;
         try {
@@ -81,8 +182,6 @@ public class ControllerAddAbsence
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }
-
-
 
     public void cancel(MouseEvent mouseEvent)
     {
@@ -120,11 +219,13 @@ public class ControllerAddAbsence
             return;
         }
 
-        controllerPageAbsence.updateInfo();
+        pageAbsence.updateInfo();
         Stage stage = (Stage) vb.getScene().getWindow();
         stage.close();
     }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -173,7 +274,8 @@ public class ControllerAddAbsence
 
     }
 
-    private void setModelsFromInputs() {
+    private void setModelsFromInputs()
+    {
         AbsenceD absenceD = new AbsenceD();
         absenceD.setReason(reason.getSelectionModel().getSelectedItem());
         absenceD.setCharacteristic(characteristic.getText());
@@ -193,13 +295,8 @@ public class ControllerAddAbsence
         this.absenceD = absenceD;
     }
 
-
-    public void setChoosenRelation(RelationD relationD) {
-        this.choosenRelationD = relationD;
-
-    }
-
-    public void setRelationElements() {
+    public void setRelationElements()
+    {
         relId.setText(this.choosenRelationD.getId());
         relPlace.setText(this.choosenRelationD.getPlaceName());
         relFrom.setText(this.choosenRelationD.getFrom());
@@ -221,89 +318,33 @@ public class ControllerAddAbsence
     }
 
 
-    private void setTextareaLimit(TextArea textArea, int limit)
-    {
-        textArea.setTextFormatter(new TextFormatter<String>(change ->
-                change.getControlNewText().length() <= limit ? change : null));
-    }
-
-    private void setDatePicker(DatePicker datePicker)
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        datePicker.setConverter(converter);
-        datePicker.setPromptText("D.M.RRRR");
-    }
-
-    private void setCommboBoxes()
-    {
-        reason.getItems().addAll(
-            "PN",
-            "OČR",
-            "dovolenka",
-            "náhradné voľno",
-            "prekážka z dôvodu všeobecného záujmu",
-            "dôležitá osovná prekážka",
-            "prekážka na strane zamestnávateľa",
-            "iný"
-        );
-    }
-
-    private void setCheckBoxes()
-    {
-        one.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue)
-                {
-                    date.setDisable(false);
-                    half.setDisable(false);
-                    range.setSelected(false);
-                } else {
-                    date.getEditor().clear();
-                    half.setSelected(false);
-                    date.setDisable(true);
-                    half.setDisable(true);
-                }
-            }
-        });
-
-        range.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue)
-                {
-                    from.setDisable(false);
-                    to.setDisable(false);
-                    one.setSelected(false);
-                } else {
-                    from.getEditor().clear();
-                    to.getEditor().clear();
-                    from.setDisable(true);
-                    to.setDisable(true);
-                }
-            }
-        });
-    }
-
-
 }
+
+/*---------------------------------------------------------------------------------------*/
+/*----------------------------------------FIELDS-----------------------------------------*/
+
+
+/*---------------------------------------------------------------------------------------*/
+/*-------------------------------------CONSTRUCTORS--------------------------------------*/
+
+
+/*---------------------------------------------------------------------------------------*/
+/*----------------------------------------METHODS----------------------------------------*/
+
+
+
+/*---------------------------------------------------------------------------------------*/
+/*--------------------------------------GUI FIELDS---------------------------------------*/
+
+
+/*---------------------------------------------------------------------------------------*/
+/*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+
+
+/*---------------------------------------------------------------------------------------*/
+/*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+/*---------------------------------------------------------------------------------------*/
+/*--------------------------------------GUI HELPERS--------------------------------------*/
+

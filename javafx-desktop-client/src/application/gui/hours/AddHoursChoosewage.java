@@ -1,41 +1,36 @@
-package application.gui;
+package application.gui.hours;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
-import application.models.PositionD;
 import application.models.RelationD;
 import application.models.WageD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.function.Predicate;
 
-public class ControllerAddHoursChoosewage
+public class AddHoursChoosewage
 {
-    public TableColumn idCol, formCol, labelCol, unitCol, tarifCol, empCol, timeCol, dateCol;
-
-    public TableView<WageD> tab;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ObservableList<WageD> wageDS;
-    ControllerIntHours controllerIntHours;
-    RelationD relationD;
+    private HoursInterface hoursInterface;
+    private RelationD relationD;
 
 
-    public ControllerAddHoursChoosewage(ControllerIntHours controllerIntHours)
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddHoursChoosewage(HoursInterface hoursInterface)
     {
-        this.controllerIntHours = controllerIntHours;
-        this.relationD = controllerIntHours.getChoosenRelation();
+        this.hoursInterface = hoursInterface;
+        this.relationD = hoursInterface.getChoosenRelation();
         try {
             this.wageDS = wageSelect();
         } catch (IOException e) {
@@ -57,60 +52,8 @@ public class ControllerAddHoursChoosewage
     }
 
 
-
-    public void initialize() {
-
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        formCol.setCellValueFactory(new PropertyValueFactory<>("wageFormName"));
-        labelCol.setCellValueFactory(new PropertyValueFactory<>("label"));
-        unitCol.setCellValueFactory(new PropertyValueFactory<>("wageFormUnit"));
-        tarifCol.setCellValueFactory(new PropertyValueFactory<>("tarif"));
-        empCol.setCellValueFactory(new PropertyValueFactory<>("employeeEnter"));
-        timeCol.setCellValueFactory(new PropertyValueFactory<>("timeImportant"));
-        dateCol.setCellValueFactory(new PropertyValueFactory<>("payDate"));
-        tab.setItems(wageDS);
-
-        tab.setRowFactory(tv -> {
-            TableRow<WageD> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
-                    WageD p = row.getItem();
-                    System.out.println(p.toString());
-                    controllerIntHours.setChoosenWage(p);
-                    controllerIntHours.setWageElements();
-                    Stage stage = (Stage) tab.getScene().getWindow();
-                    stage.close();
-                }
-            });
-            return row ;
-        });
-    }
-
-    public void btn1(MouseEvent mouseEvent)
-    {
-        Stage stage = (Stage) tab.getScene().getWindow();
-        stage.close();
-    }
-
-    public void btn2(MouseEvent mouseEvent)
-    {
-        try {
-            WageD p = tab.getSelectionModel().getSelectedItem();
-            if(p==null)
-            {
-                CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
-                return;
-            }
-            controllerIntHours.setChoosenWage(p);
-            controllerIntHours.setWageElements();
-            System.out.println(p.toString());
-            Stage stage = (Stage) tab.getScene().getWindow();
-            stage.close();
-        } catch (Exception e) {
-            System.out.println("Nevybraný žiadny element!");
-        }
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     private ObservableList<WageD> wageSelect() throws IOException, InterruptedException, CommunicationException {
         ObservableList<WageD> wageDS = FXCollections.observableArrayList();
 
@@ -139,4 +82,73 @@ public class ControllerAddHoursChoosewage
         return wageDS;
     }
 
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public TableColumn idCol, formCol, labelCol, unitCol, tarifCol, empCol, timeCol, dateCol;
+    public TableView<WageD> tab;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    public void initialize() {
+
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        formCol.setCellValueFactory(new PropertyValueFactory<>("wageFormName"));
+        labelCol.setCellValueFactory(new PropertyValueFactory<>("label"));
+        unitCol.setCellValueFactory(new PropertyValueFactory<>("wageFormUnit"));
+        tarifCol.setCellValueFactory(new PropertyValueFactory<>("tarif"));
+        empCol.setCellValueFactory(new PropertyValueFactory<>("employeeEnter"));
+        timeCol.setCellValueFactory(new PropertyValueFactory<>("timeImportant"));
+        dateCol.setCellValueFactory(new PropertyValueFactory<>("payDate"));
+        tab.setItems(wageDS);
+
+        tab.setRowFactory(tv -> {
+            TableRow<WageD> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+                    WageD p = row.getItem();
+                    System.out.println(p.toString());
+                    hoursInterface.setChoosenWage(p);
+                    hoursInterface.setWageElements();
+                    Stage stage = (Stage) tab.getScene().getWindow();
+                    stage.close();
+                }
+            });
+            return row ;
+        });
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+    public void btn1(MouseEvent mouseEvent)
+    {
+        Stage stage = (Stage) tab.getScene().getWindow();
+        stage.close();
+    }
+
+    public void btn2(MouseEvent mouseEvent)
+    {
+        try {
+            WageD p = tab.getSelectionModel().getSelectedItem();
+            if(p==null)
+            {
+                CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
+                return;
+            }
+            hoursInterface.setChoosenWage(p);
+            hoursInterface.setWageElements();
+            System.out.println(p.toString());
+            Stage stage = (Stage) tab.getScene().getWindow();
+            stage.close();
+        } catch (Exception e) {
+            System.out.println("Nevybraný žiadny element!");
+        }
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 }

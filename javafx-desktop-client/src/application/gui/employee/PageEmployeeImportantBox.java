@@ -1,23 +1,13 @@
-package application.gui;
+package application.gui.employee;
 
 import application.models.RelationOV;
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
 
-public class ControllerPageEmployeeImportantBox {
+public class PageEmployeeImportantBox {
 
-    public Text town;
-    public Text street;
-    public Text num;
-    public Text from;
-    public Text insComp;
-    public Text to;
-    public Text children_under;
-    public Text children_over;
-    public Text retirement;
-    public Text invalidity;
-    public Text part;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private String sinsComp;
     private String stown;
     private String sstreet;
@@ -31,7 +21,45 @@ public class ControllerPageEmployeeImportantBox {
     private String sto;
 
 
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageEmployeeImportantBox(String sinsComp, String stown, String sstreet, String snum, String schildren_under, String schildren_over, String spart, String sretirement, String sinvalidity, String sfrom, String sto) {
+        this.sinsComp = sinsComp;
+        this.stown = stown;
+        this.sstreet = sstreet;
+        this.snum = snum;
+        this.schildren_under = schildren_under;
+        this.schildren_over = schildren_over;
+        this.spart = spart;
+        this.sretirement = sretirement;
+        this.sinvalidity = sinvalidity;
+        this.sfrom = sfrom;
+        this.sto = sto;
+    }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public Text town;
+    public Text street;
+    public Text num;
+    public Text from;
+    public Text insComp;
+    public Text to;
+    public Text children_under;
+    public Text children_over;
+    public Text retirement;
+    public Text invalidity;
+    public Text part;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize()
     {
@@ -58,17 +86,18 @@ public class ControllerPageEmployeeImportantBox {
 
     }
 
-    public ControllerPageEmployeeImportantBox(String sinsComp, String stown, String sstreet, String snum, String schildren_under, String schildren_over, String spart, String sretirement, String sinvalidity, String sfrom, String sto) {
-        this.sinsComp = sinsComp;
-        this.stown = stown;
-        this.sstreet = sstreet;
-        this.snum = snum;
-        this.schildren_under = schildren_under;
-        this.schildren_over = schildren_over;
-        this.spart = spart;
-        this.sretirement = sretirement;
-        this.sinvalidity = sinvalidity;
-        this.sfrom = sfrom;
-        this.sto = sto;
-    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
+
+
+
+
+
+
 }
