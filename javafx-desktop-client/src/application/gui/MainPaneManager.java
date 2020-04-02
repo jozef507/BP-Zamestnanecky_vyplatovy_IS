@@ -2,14 +2,14 @@ package application.gui;
 
 public class MainPaneManager
 {
-    private static ControllerMainPain c;
+    private static MainPain c;
 
-    public static void setC(ControllerMainPain cc)
+    public static void setC(MainPain cc)
     {
         c = cc;
     }
 
-    public static ControllerMainPain getC()
+    public static MainPain getC()
     {
         return c;
     }

@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.user;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -15,26 +15,76 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class ControllerUpdateAccountPassword
+public class UpdateAccountPassword
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageUsersDetails pageUsersDetails;
+    private EmployeeD employeeD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdateAccountPassword(PageUsersDetails pageUsersDetails, EmployeeD employeeD) {
+        this.pageUsersDetails = pageUsersDetails;
+        this.employeeD = employeeD;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void createAccount() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("userid", this.employeeD.getPkID());
+        ht.addParam("password", this.employeeD.getPassword());
+
+        ht.sendPost("employee/upd_usr_pas", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+    private String getMd5(String input)
+    { //geeksforgeeks
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            BigInteger no = new BigInteger(1, messageDigest);
+            String hashtext = no.toString(16);
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            return hashtext;
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public Label label;
     public PasswordField password1, password2;
 
-    private ControllerPageUsersDetails controllerPageUsersDetails;
-    private EmployeeD employeeD;
 
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
-    {    }
-
-    public ControllerUpdateAccountPassword(ControllerPageUsersDetails controllerPageUsersDetails, EmployeeD employeeD) {
-        this.controllerPageUsersDetails = controllerPageUsersDetails;
-        this.employeeD = employeeD;
+    {
+        this.setTextfieldLimit(password1, 255);
+        this.setTextfieldLimit(password2, 255);
     }
 
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
+    }
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -67,10 +117,15 @@ public class ControllerUpdateAccountPassword
             return;
         }
 
-        this.controllerPageUsersDetails.updateInfo();
+        this.pageUsersDetails.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
 
     private boolean checkFormular()
     {
@@ -99,32 +154,6 @@ public class ControllerUpdateAccountPassword
         this.employeeD.setPassword(getMd5(password1.getText()));
     }
 
-    private void createAccount() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("userid", this.employeeD.getPkID());
-        ht.addParam("password", this.employeeD.getPassword());
-
-        ht.sendPost("employee/upd_usr_pas", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-
-    private String getMd5(String input)
-    { //geeksforgeeks
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(input.getBytes());
-            BigInteger no = new BigInteger(1, messageDigest);
-            String hashtext = no.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-            return hashtext;
-        }
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 
 }

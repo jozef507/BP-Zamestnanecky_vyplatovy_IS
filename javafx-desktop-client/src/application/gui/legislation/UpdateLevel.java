@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -18,32 +18,87 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerUpdateLevel
+public class UpdateLevel
 {
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageLegislationLevel pageLegislationLevel;
+    private LevelD levelD;
+
+    private ArrayList<PlaceD> placeDS;
+    private ArrayList<LevelD> levelDS;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    private void createPosition() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("id", this.levelD.getId());
+        ht.addParam("to", this.levelD.getTo());
+
+        ht.sendPost("level/upd_lev", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public UpdateLevel(PageLegislationLevel pageLegislationLevel, LevelD levelD) {
+        this.pageLegislationLevel = pageLegislationLevel;
+        this.levelD = new LevelD();
+        this.levelD.setId(levelD.getId());
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public DatePicker to;
     public Label label;
 
 
-    private ControllerPageLegislationLevel controllerPageLegislationLevel;
-    private LevelD levelD;
-
-    private ArrayList<PlaceD> placeDS;
-    private ArrayList<LevelD> levelDS;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         setDatePicker();
     }
 
-    public ControllerUpdateLevel(ControllerPageLegislationLevel controllerPageLegislationLevel, LevelD levelD) {
-        this.controllerPageLegislationLevel = controllerPageLegislationLevel;
-        this.levelD = new LevelD();
-        this.levelD.setId(levelD.getId());
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        to.setConverter(converter);
+        to.setPromptText("D.M.RRRR");
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -77,10 +132,14 @@ public class ControllerUpdateLevel
             return;
         }
 
-        this.controllerPageLegislationLevel.updateInfo();
+        this.pageLegislationLevel.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -121,60 +180,5 @@ public class ControllerUpdateLevel
     {
         this.levelD.setTo(to.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
-
-    private void createPosition() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("id", this.levelD.getId());
-        ht.addParam("to", this.levelD.getTo());
-
-        ht.sendPost("level/upd_lev", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private ArrayList<PlaceD> getPlaces() throws IOException, InterruptedException, CommunicationException {
-        ArrayList<PlaceD> places = new ArrayList<>();
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("place", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            PlaceD placeD = new PlaceD();
-            placeD.setId(json.getElement(i, "id"));
-            placeD.setName(json.getElement(i, "nazov"));
-            places.add(placeD);
-        }
-        return places;
-    }
-
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        to.setConverter(converter);
-        to.setPromptText("D.M.RRRR");
-    }
-
-
-
 
 }

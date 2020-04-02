@@ -1,13 +1,11 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
-import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.LevelD;
 import application.models.PlaceD;
-import application.models.PositionD;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -20,8 +18,38 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerAddLevel
+public class AddLevel
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageLegislationLevel pageLegislationLevel;
+    private LevelD levelD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddLevel(PageLegislationLevel pageLegislationLevel) {
+        this.pageLegislationLevel = pageLegislationLevel;
+        this.levelD = new LevelD();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void createLevel() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("num", this.levelD.getNumber());
+        ht.addParam("caracteristic", this.levelD.getCaracteristic());
+        ht.addParam("from", this.levelD.getFrom());
+
+        ht.sendPost("level/crt_lev", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public DatePicker from;
@@ -30,24 +58,70 @@ public class ControllerAddLevel
     public Label label;
 
 
-    private ControllerPageLegislationLevel controllerPageLegislationLevel;
-    private LevelD levelD;
-
-    private ArrayList<PlaceD> placeDS;
-    private ArrayList<LevelD> levelDS;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         setDatePicker();
         this.changeFocus();
+        this.setTextfieldLimit(number, 1);
+        this.setTextfieldLimit(car, 1024);
+
     }
 
-    public ControllerAddLevel(ControllerPageLegislationLevel controllerPageLegislationLevel) {
-        this.controllerPageLegislationLevel = controllerPageLegislationLevel;
-        this.levelD = new LevelD();
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
     }
 
+    private void setTextfieldLimit(TextArea textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
+    }
+
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        from.setConverter(converter);
+        from.setPromptText("D.M.RRRR");
+    }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        number.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                number.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -81,10 +155,14 @@ public class ControllerAddLevel
             return;
         }
 
-        this.controllerPageLegislationLevel.updateInfo();
+        this.pageLegislationLevel.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -135,55 +213,4 @@ public class ControllerAddLevel
         this.levelD.setCaracteristic(car.getText());
         this.levelD.setFrom(from.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
-
-    private void createLevel() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("num", this.levelD.getNumber());
-        ht.addParam("caracteristic", this.levelD.getCaracteristic());
-        ht.addParam("from", this.levelD.getFrom());
-
-        ht.sendPost("level/crt_lev", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        from.setConverter(converter);
-        from.setPromptText("D.M.RRRR");
-    }
-
-
-    private void changeFocus()
-    {
-        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        number.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && firstTime.get()) {
-                number.getParent().requestFocus();
-                firstTime.setValue(false);
-            }
-        });
-    }
-
 }

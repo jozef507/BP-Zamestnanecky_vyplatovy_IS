@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="ap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="294.0" prefWidth="464.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerLogin">
+<AnchorPane fx:id="ap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="294.0" prefWidth="464.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.Login">
    <children>
       <TextField fx:id="usernameT" alignment="CENTER" layoutX="67.0" layoutY="56.0" prefHeight="35.0" prefWidth="332.0" promptText="Email">
          <font>
@@ -19,7 +19,7 @@
             <Font size="14.0" />
          </font>
       </PasswordField>
-      <Button fx:id="btn" layoutX="182.0" layoutY="189.0" mnemonicParsing="false" onMouseClicked="#loginButton" prefHeight="35.0" prefWidth="101.0" styleClass="button3" stylesheets="@../../../css/fullpackstyling.css" text="Prihásiť">
+      <Button fx:id="btn" layoutX="182.0" layoutY="189.0" mnemonicParsing="false" onMouseClicked="#loginButton" prefHeight="35.0" prefWidth="101.0" styleClass="button3" stylesheets="@../../css/fullpackstyling.css" text="Prihásiť">
          <font>
             <Font size="16.0" />
          </font>

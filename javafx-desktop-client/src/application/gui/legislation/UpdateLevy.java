@@ -1,11 +1,10 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.LevyD;
-import application.models.SurchargeTypeD;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
@@ -18,28 +17,83 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class ControllerUpdateLevy
+public class UpdateLevy
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageLegislationLevy pageLegislationLevy;
+    private LevyD levyD;
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdateLevy(PageLegislationLevy pageLegislationLevy, LevyD levyD) {
+        this.pageLegislationLevy = pageLegislationLevy;
+        this.levyD = new LevyD();
+        this.levyD.setId(levyD.getId());
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+
+    private void updateLevy() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("id", this.levyD.getId());
+        ht.addParam("to", this.levyD.getTo());
+
+        ht.sendPost("levy/upd_levy", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public DatePicker to;
     public Label label;
 
-    private ControllerPageLegislationLevy controllerPageLegislationLevy;
-    private LevyD levyD;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         setDatePicker();
     }
 
-    public ControllerUpdateLevy(ControllerPageLegislationLevy controllerPageLegislationLevy, LevyD levyD) {
-        this.controllerPageLegislationLevy = controllerPageLegislationLevy;
-        this.levyD = new LevyD();
-        this.levyD.setId(levyD.getId());
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        to.setConverter(converter);
+        to.setPromptText("D.M.RRRR");
     }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -73,10 +127,14 @@ public class ControllerUpdateLevy
             return;
         }
 
-        this.controllerPageLegislationLevy.updateInfo();
+        this.pageLegislationLevy.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -117,44 +175,5 @@ public class ControllerUpdateLevy
     {
         this.levyD.setTo(to.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
-
-    private void updateLevy() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("id", this.levyD.getId());
-        ht.addParam("to", this.levyD.getTo());
-
-        ht.sendPost("levy/upd_levy", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        to.setConverter(converter);
-        to.setPromptText("D.M.RRRR");
-    }
-
-
-
 
 }

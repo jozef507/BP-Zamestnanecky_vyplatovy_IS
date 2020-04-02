@@ -1,12 +1,12 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.LevyD;
-import application.models.SurchargeTypeD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -26,20 +26,103 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.function.Predicate;
 
-public class ControllerPageLegislationLevy
+public class PageLegislationLevy
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private ObservableList<LevyD> levyDS;
 
 
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageLegislationLevy() {
+        try{
+            levyDS = levySelect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public void updateInfo()
+    {
+        try {
+            levyDS = levySelect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+        tab.setItems(levyDS);
+    }
+
+    private ObservableList<LevyD> levySelect() throws InterruptedException, IOException, CommunicationException {
+        ObservableList<LevyD> levyDS = FXCollections.observableArrayList();
+
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("levy", LoggedInUser.getToken(), LoggedInUser.getId());
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+
+        for(int i=0; i<json.getSize(); i++)
+        {
+            LevyD levyD = new LevyD();
+            levyD.setId(json.getElement(i, "id"));
+            levyD.setName(json.getElement(i, "nazov"));
+            levyD.setPartEe(json.getElement(i, "percentualna_cast_zamestnanec"));
+            levyD.setPartEr(json.getElement(i, "percentualna_cast_zamestnavatel"));
+            levyD.setFrom(json.getElement(i, "nice_date1"));
+            levyD.setTo(json.getElement(i, "nice_date2"));
+            levyDS.add(levyD);
+        }
+        return levyDS;
+    }
+
+    private void removeLevy(LevyD levyD) throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendDelete("levy/del_levy/"+levyD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
+        this.updateInfo();
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     @FXML
     private TableView<LevyD> tab = new TableView<LevyD>();
     @FXML
     public TableColumn idCol, nameCol, partEeCol, partErCol, fromCol, toCol;
     @FXML
     public TextField input;
-    @FXML
 
-    private ObservableList<LevyD> levyDS;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
@@ -67,30 +150,33 @@ public class ControllerPageLegislationLevy
             tab.setItems(sortedData);
         });
 
-        MainPaneManager.getC().setBackPage("page_legislation");
+        MainPaneManager.getC().setBackPage("PageLegislation");
     }
 
-    public ControllerPageLegislationLevy() {
-        try{
-            levyDS = levySelect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
+    private boolean isFiltered(LevyD levyD, String inp)
+    {
+
+        boolean flag1=false;
+        boolean imp1= false;
+        if(!inp.equals(""))
+        {
+            imp1=true;
+            String lowerCaseFilter = inp.toLowerCase();
+            if(levyD.getId().toLowerCase().contains(lowerCaseFilter)){
+                flag1 = true;
+            }else if(levyD.getName().toLowerCase().contains(lowerCaseFilter)) {
+                flag1 = true;
+            }
         }
-    }
 
+        boolean flag = true;
+        if(imp1)
+            flag&=flag1;
+
+        return flag;
+    }
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void onUpdateClick(MouseEvent mouseEvent)
     {
         LevyD levyD = tab.getSelectionModel().getSelectedItem();
@@ -100,9 +186,9 @@ public class ControllerPageLegislationLevy
             return;
         }
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_levy.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdateLevy.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerUpdateLevy(this, levyD);
+            return new UpdateLevy(this, levyD);
         });
         Parent root1 = null;
         try {
@@ -153,9 +239,9 @@ public class ControllerPageLegislationLevy
 
     public void onAddClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_levy.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddLevy.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddLevy(this);
+            return new AddLevy(this);
         });
         Parent root1 = null;
         try {
@@ -171,81 +257,8 @@ public class ControllerPageLegislationLevy
     }
 
 
-
-    public void updateInfo()
-    {
-        try {
-            levyDS = levySelect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-        tab.setItems(levyDS);
-    }
-
-    private boolean isFiltered(LevyD levyD, String inp)
-    {
-
-        boolean flag1=false;
-        boolean imp1= false;
-        if(!inp.equals(""))
-        {
-            imp1=true;
-            String lowerCaseFilter = inp.toLowerCase();
-            if(levyD.getId().toLowerCase().contains(lowerCaseFilter)){
-                flag1 = true;
-            }else if(levyD.getName().toLowerCase().contains(lowerCaseFilter)) {
-                flag1 = true;
-            }
-        }
-
-        boolean flag = true;
-        if(imp1)
-            flag&=flag1;
-
-        return flag;
-    }
-
-
-    private ObservableList<LevyD> levySelect() throws InterruptedException, IOException, CommunicationException {
-        ObservableList<LevyD> levyDS = FXCollections.observableArrayList();
-
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("levy", LoggedInUser.getToken(), LoggedInUser.getId());
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-
-        for(int i=0; i<json.getSize(); i++)
-        {
-            LevyD levyD = new LevyD();
-            levyD.setId(json.getElement(i, "id"));
-            levyD.setName(json.getElement(i, "nazov"));
-            levyD.setPartEe(json.getElement(i, "percentualna_cast_zamestnanec"));
-            levyD.setPartEr(json.getElement(i, "percentualna_cast_zamestnavatel"));
-            levyD.setFrom(json.getElement(i, "nice_date1"));
-            levyD.setTo(json.getElement(i, "nice_date2"));
-            levyDS.add(levyD);
-        }
-        return levyDS;
-    }
-
-
-    private void removeLevy(LevyD levyD) throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendDelete("levy/del_levy/"+levyD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
-        this.updateInfo();
-    }
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
 
 }

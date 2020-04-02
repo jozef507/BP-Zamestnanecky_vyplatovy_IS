@@ -11,11 +11,11 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="bp" prefHeight="602.0" prefWidth="856.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerMainPain">
+<BorderPane fx:id="bp" prefHeight="602.0" prefWidth="856.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.MainPain">
    <left>
-      <VBox prefHeight="600.0" prefWidth="170.0" style="-fx-background-color: #ebebeb;" styleClass="panel2" stylesheets="@../../../css/fullpackstyling.css" BorderPane.alignment="CENTER">
+      <VBox prefHeight="600.0" prefWidth="170.0" style="-fx-background-color: #ebebeb;" styleClass="panel2" stylesheets="@../../css/fullpackstyling.css" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="button1" alignment="BASELINE_LEFT" defaultButton="true" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn1" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Zamestnanci">
+            <Button fx:id="button1" alignment="BASELINE_LEFT" defaultButton="true" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn1" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../css/fullpackstyling.css" text="Zamestnanci">
                <font>
                   <Font size="15.0" />
                </font>
@@ -32,7 +32,7 @@
                   <Insets right="1.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="button2" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn2" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Výkon">
+            <Button fx:id="button2" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn2" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../css/fullpackstyling.css" text="Výkon">
                <font>
                   <Font size="15.0" />
                </font>
@@ -46,7 +46,7 @@
                   <Insets right="1.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="button3" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn3" prefHeight="70.0" prefWidth="170.0" styleClass="soft-border" stylesheets="@../../../css/fullpackstyling.css" text="Neprítomnosť">
+            <Button fx:id="button3" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn3" prefHeight="70.0" prefWidth="170.0" styleClass="soft-border" stylesheets="@../../css/fullpackstyling.css" text="Neprítomnosť">
                <font>
                   <Font size="15.0" />
                </font>
@@ -60,7 +60,7 @@
                   <Insets right="1.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="button4" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn4" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Výplaty">
+            <Button fx:id="button4" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn4" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../css/fullpackstyling.css" text="Výplaty">
                <font>
                   <Font size="15.0" />
                </font>
@@ -74,7 +74,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Button fx:id="button5" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn5" prefHeight="70.0" prefWidth="170.0" styleClass="soft-border" stylesheets="@../../../css/fullpackstyling.css" text="Prehľady">
+            <Button fx:id="button5" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn5" prefHeight="70.0" prefWidth="170.0" styleClass="soft-border" stylesheets="@../../css/fullpackstyling.css" text="Prehľady">
                <font>
                   <Font size="15.0" />
                </font>
@@ -88,7 +88,7 @@
                   <Insets right="1.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="button6" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn6" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Firma">
+            <Button fx:id="button6" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn6" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../css/fullpackstyling.css" text="Firma">
                <font>
                   <Font size="15.0" />
                </font>
@@ -102,7 +102,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Button fx:id="button7" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn7" prefHeight="70.0" prefWidth="170.0" styleClass="soft-border" stylesheets="@../../../css/fullpackstyling.css" text="Legislatíva">
+            <Button fx:id="button7" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn7" prefHeight="70.0" prefWidth="170.0" styleClass="soft-border" stylesheets="@../../css/fullpackstyling.css" text="Legislatíva">
                <font>
                   <Font size="15.0" />
                </font>
@@ -116,7 +116,7 @@
                   <Insets right="1.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="button8" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn8" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../../css/fullpackstyling.css" text="Užívatelia">
+            <Button fx:id="button8" alignment="BASELINE_LEFT" focusTraversable="false" graphicTextGap="15.0" mnemonicParsing="false" onMouseClicked="#btn8" prefHeight="70.0" prefWidth="170.0" stylesheets="@../../css/fullpackstyling.css" text="Užívatelia">
                <font>
                   <Font size="15.0" />
                </font>
@@ -142,12 +142,12 @@
    <top>
       <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" BorderPane.alignment="CENTER">
          <children>
-            <Pane layoutX="-15.0" layoutY="-80.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="169.1" style="-fx-background-color: #ebebeb;" styleClass="panel3" stylesheets="@../../../css/fullpackstyling.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="panel" stylesheets="@../../../css/fullpackstyling.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="169.5" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <Pane layoutX="-15.0" layoutY="-80.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="169.1" style="-fx-background-color: #ebebeb;" styleClass="panel3" stylesheets="@../../css/fullpackstyling.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="panel" stylesheets="@../../css/fullpackstyling.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="169.5" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <HBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="39.0" prefWidth="89.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Button fx:id="back" focusTraversable="false" mnemonicParsing="false" onMouseClicked="#backClick" prefHeight="51.0" prefWidth="89.0" styleClass="button2" stylesheets="@../../../css/fullpackstyling.css" text="Späť">
+                        <Button fx:id="back" focusTraversable="false" mnemonicParsing="false" onMouseClicked="#backClick" prefHeight="51.0" prefWidth="89.0" styleClass="button2" stylesheets="@../../css/fullpackstyling.css" text="Späť">
                            <HBox.margin>
                               <Insets bottom="1.0" left="1.0" />
                            </HBox.margin>
@@ -164,7 +164,7 @@
                               <Font size="11.0" />
                            </font>
                         </Text>
-                        <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#logout" prefHeight="50.0" prefWidth="70.0" styleClass="button2" stylesheets="@../../../css/fullpackstyling.css" text="Odhlásiť">
+                        <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#logout" prefHeight="50.0" prefWidth="70.0" styleClass="button2" stylesheets="@../../css/fullpackstyling.css" text="Odhlásiť">
                            <HBox.margin>
                               <Insets bottom="1.0" left="15.0" />
                            </HBox.margin>

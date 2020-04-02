@@ -1,14 +1,11 @@
 package application.gui;
 
+import application.gui.employee.PageEmployeeDetails;
+import application.gui.employee.PageEmployeeImportant;
 import application.httpcomunication.LoggedInUser;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -16,22 +13,39 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ControllerMainPain implements Initializable {
+public class MainPain implements Initializable {
 
-    private FXMLLoader pageLoader;
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private String backPage;
     private String arg1, arg2, arg3;
-    private Button logoutB;
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public MainPain()
+    {
+        MainPaneManager.setC(this);
+        pageLoader = null;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    private FXMLLoader pageLoader;
+    private Button logoutB;
     @FXML
     private AnchorPane ap;
     @FXML
@@ -42,6 +56,8 @@ public class ControllerMainPain implements Initializable {
     private Text user;
 
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.disableButtonsByRole();
@@ -50,28 +66,25 @@ public class ControllerMainPain implements Initializable {
 
     }
 
-    public ControllerMainPain()
-    {
-        MainPaneManager.setC(this);
-        pageLoader = null;
-    }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void btn1(MouseEvent mouseEvent)
     {
-        loadAnchorPage("page_employees");
+        loadAnchorPage("employee/PageEmployee");
         menuButtonClicked("b1");
     }
 
     public void btn2(MouseEvent mouseEvent)
     {
 
-        loadAnchorPage("page_hours");
+        loadAnchorPage("hours/PageHours");
         menuButtonClicked("b2");
     }
 
     public void btn3(MouseEvent mouseEvent)
     {
-        loadAnchorPage("page_absence");
+        loadAnchorPage("absence/PageAbsence");
         menuButtonClicked("b3");
     }
 
@@ -87,66 +100,71 @@ public class ControllerMainPain implements Initializable {
 
     public void btn6(MouseEvent mouseEvent)
     {
-        loadScrollPage("page_firm");
+        loadScrollPage("firm/PageFirm");
         menuButtonClicked("b6");
     }
 
     public void btn7(MouseEvent mouseEvent)
     {
-        loadScrollPage("page_legislation");
+        loadScrollPage("legislation/PageLegislation");
         menuButtonClicked("b7");
     }
 
     public void btn8(MouseEvent mouseEvent)
     {
         menuButtonClicked("b8");
-        loadAnchorPage("page_users");
+        loadAnchorPage("user/PageUsers");
 
     }
 
     public void backClick(MouseEvent mouseEvent)
     {
-        if(this.backPage.equals("page_employees"))
+        if(this.backPage.equals("PageEmployee"))
         {
-            loadAnchorPage("page_employees");
+            loadAnchorPage("employee/PageEmployee");
         }
-        else if(this.backPage.equals("page_users"))
+        else if(this.backPage.equals("PageUsers"))
         {
-            loadAnchorPage("page_users");
+            loadAnchorPage("user/PageUsers");
         }
-        else if(this.backPage.equals("page_firm"))
+        else if(this.backPage.equals("PageFirm"))
         {
-            loadScrollPage("page_firm");
+            loadScrollPage("firm/PageFirm");
         }
-        else if(this.backPage.equals("page_legislation"))
+        else if(this.backPage.equals("PageLegislation"))
         {
-            loadScrollPage("page_legislation");
+            loadScrollPage("legislation/PageLegislation");
         }
-        else if(this.backPage.equals("page_employee_details"))
+        else if(this.backPage.equals("PageEmployeeDetails"))
         {
-            FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_details"+".fxml"));
+            FXMLLoader l = new FXMLLoader(getClass().getResource("employee/PageEmployeeDetails.fxml"));
             l.setControllerFactory(c -> {
-                return new ControllerPageEmployeeDetails(this.arg1);
+                return new PageEmployeeDetails(this.arg1);
             });
             loadScrollPage(l);
         }
-        else if(this.backPage.equals("page_users_details"))
+        else if(this.backPage.equals("PageUsersDetails"))
         {
-            FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_users_details"+".fxml"));
+            FXMLLoader l = new FXMLLoader(getClass().getResource("user/PageUsersDetails.fxml"));
             l.setControllerFactory(c -> {
-                return new ControllerPageEmployeeDetails(this.arg1);
+                return new PageEmployeeDetails(this.arg1);
             });
             loadScrollPage(l);
         }
-        else if(this.backPage.equals("page_employee_important"))
+        else if(this.backPage.equals("PageEmployeeImportant"))
         {
-            FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_employee_important"+".fxml"));
+            FXMLLoader l = new FXMLLoader(getClass().getResource("employee/PageEmployeeImportant.fxml"));
             l.setControllerFactory(c -> {
-                return new ControllerPageEmployeeImportant(this.arg1, this.arg2);
+                return new PageEmployeeImportant(this.arg1, this.arg2);
             });
             MainPaneManager.getC().loadScrollPage(l);
         }
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
 
     private void menuButtonClicked(String button)
     {
@@ -202,7 +220,7 @@ public class ControllerMainPain implements Initializable {
     public void loadScrollPage(String page)
     {
          try {
-            this.pageLoader = new FXMLLoader(getClass().getResource("fxml/"+page+".fxml"));
+            this.pageLoader = new FXMLLoader(getClass().getResource(page+".fxml"));
             ScrollPane newPane = this.pageLoader.load();
 
             ap.getChildren().removeAll();
@@ -238,7 +256,7 @@ public class ControllerMainPain implements Initializable {
     public void loadAnchorPage(String page)
     {
          try {
-             this.pageLoader = new FXMLLoader(getClass().getResource("fxml/"+page+".fxml"));
+             this.pageLoader = new FXMLLoader(getClass().getResource(page+".fxml"));
              AnchorPane newPane = this.pageLoader.load();
 
              ap.getChildren().removeAll();
@@ -301,13 +319,11 @@ public class ControllerMainPain implements Initializable {
         this.arg2 = arg2;
     }
 
-
     public void desibleBackPage()
     {
         this.back.setDisable(true);
         this.backPage = null;
     }
-
 
     public void logout(MouseEvent mouseEvent) {
         LoggedInUser.logout();
@@ -316,7 +332,7 @@ public class ControllerMainPain implements Initializable {
 
         Parent root = null;
         try {
-            root = FXMLLoader.load(getClass().getResource("fxml/login.fxml"));
+            root = FXMLLoader.load(getClass().getResource("Login.fxml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -331,7 +347,7 @@ public class ControllerMainPain implements Initializable {
     {
         if(LoggedInUser.getRole().equals("admin"))
         {
-            loadAnchorPage("page_users");
+            loadAnchorPage("user/PageUsers");
             menuButtonClicked("b8");
             button1.setDisable(true);
             button2.setDisable(true);
@@ -343,7 +359,7 @@ public class ControllerMainPain implements Initializable {
         }
         else
         {
-            loadAnchorPage("page_employees");
+            loadAnchorPage("employee/PageEmployee");
             menuButtonClicked("b1");
             button8.setDisable(true);
         }

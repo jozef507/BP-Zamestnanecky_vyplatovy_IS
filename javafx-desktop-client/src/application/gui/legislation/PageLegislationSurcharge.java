@@ -1,11 +1,11 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
-import application.models.LevelD;
 import application.models.SurchargeTypeD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,7 +15,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -25,23 +24,105 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.function.Predicate;
 
-public class ControllerPageLegislationSurcharge
+public class PageLegislationSurcharge
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private ObservableList<SurchargeTypeD> surchargeTypeDS;
 
 
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageLegislationSurcharge() {
+        try{
+            surchargeTypeDS = surchargeTypeSelect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public void updateInfo()
+    {
+        try {
+            surchargeTypeDS = surchargeTypeSelect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+        tab.setItems(surchargeTypeDS);
+    }
+
+    private ObservableList<SurchargeTypeD> surchargeTypeSelect() throws InterruptedException, IOException, CommunicationException {
+        ObservableList<SurchargeTypeD> surchargeTypeDS = FXCollections.observableArrayList();
+
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("surcharge", LoggedInUser.getToken(), LoggedInUser.getId());
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+
+        for(int i=0; i<json.getSize(); i++)
+        {
+            SurchargeTypeD surchargeTypeD = new SurchargeTypeD();
+            surchargeTypeD.setId(json.getElement(i, "id"));
+            surchargeTypeD.setName(json.getElement(i, "nazov"));
+            surchargeTypeD.setPart(json.getElement(i, "percentualna_cast"));
+            surchargeTypeD.setBase(json.getElement(i, "pocitany_zo"));
+            surchargeTypeD.setFrom(json.getElement(i, "nice_date1"));
+            surchargeTypeD.setTo(json.getElement(i, "nice_date2"));
+            surchargeTypeDS.add(surchargeTypeD);
+        }
+        return surchargeTypeDS;
+    }
+
+    private void removeSurcharge(SurchargeTypeD surchargeTypeD) throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendDelete("surcharge/del_sur/"+surchargeTypeD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
+        this.updateInfo();
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     @FXML
     private TableView<SurchargeTypeD> tab = new TableView<SurchargeTypeD>();
     @FXML
     public TableColumn idCol, nameCol, partCol, baseCol, fromCol, toCol;
     @FXML
     public TextField input;
-    @FXML
 
-    private ObservableList<SurchargeTypeD> surchargeTypeDS;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
@@ -69,30 +150,34 @@ public class ControllerPageLegislationSurcharge
             tab.setItems(sortedData);
         });
 
-        MainPaneManager.getC().setBackPage("page_legislation");
+        MainPaneManager.getC().setBackPage("PageLegislation");
     }
 
-    public ControllerPageLegislationSurcharge() {
-        try{
-            surchargeTypeDS = surchargeTypeSelect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
+    private boolean isFiltered(SurchargeTypeD surchargeTypeD, String inp)
+    {
+
+        boolean flag1=false;
+        boolean imp1= false;
+        if(!inp.equals(""))
+        {
+            imp1=true;
+            String lowerCaseFilter = inp.toLowerCase();
+            if(surchargeTypeD.getId().toLowerCase().contains(lowerCaseFilter)){
+                flag1 = true;
+            }else if(surchargeTypeD.getName().toLowerCase().contains(lowerCaseFilter)) {
+                flag1 = true;
+            }
         }
+
+        boolean flag = true;
+        if(imp1)
+            flag&=flag1;
+
+        return flag;
     }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void onUpdateClick(MouseEvent mouseEvent)
     {
         SurchargeTypeD surchargeTypeD = tab.getSelectionModel().getSelectedItem();
@@ -102,9 +187,9 @@ public class ControllerPageLegislationSurcharge
             return;
         }
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_surcharge.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdateSurcharge.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerUpdateSurcharge(this, surchargeTypeD);
+            return new UpdateSurcharge(this, surchargeTypeD);
         });
         Parent root1 = null;
         try {
@@ -155,9 +240,9 @@ public class ControllerPageLegislationSurcharge
 
     public void onAddClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_surcharge.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddSurcharge.fxml"));
         loader.setControllerFactory(c -> {
-            return new ControllerAddSurcharge(this);
+            return new AddSurcharge(this);
         });
         Parent root1 = null;
         try {
@@ -173,81 +258,7 @@ public class ControllerPageLegislationSurcharge
     }
 
 
-
-    public void updateInfo()
-    {
-        try {
-            surchargeTypeDS = surchargeTypeSelect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-        tab.setItems(surchargeTypeDS);
-    }
-
-    private boolean isFiltered(SurchargeTypeD surchargeTypeD, String inp)
-    {
-
-        boolean flag1=false;
-        boolean imp1= false;
-        if(!inp.equals(""))
-        {
-            imp1=true;
-            String lowerCaseFilter = inp.toLowerCase();
-            if(surchargeTypeD.getId().toLowerCase().contains(lowerCaseFilter)){
-                flag1 = true;
-            }else if(surchargeTypeD.getName().toLowerCase().contains(lowerCaseFilter)) {
-                flag1 = true;
-            }
-        }
-
-        boolean flag = true;
-        if(imp1)
-            flag&=flag1;
-
-        return flag;
-    }
-
-
-    private ObservableList<SurchargeTypeD> surchargeTypeSelect() throws InterruptedException, IOException, CommunicationException {
-        ObservableList<SurchargeTypeD> surchargeTypeDS = FXCollections.observableArrayList();
-
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("surcharge", LoggedInUser.getToken(), LoggedInUser.getId());
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-
-        for(int i=0; i<json.getSize(); i++)
-        {
-            SurchargeTypeD surchargeTypeD = new SurchargeTypeD();
-            surchargeTypeD.setId(json.getElement(i, "id"));
-            surchargeTypeD.setName(json.getElement(i, "nazov"));
-            surchargeTypeD.setPart(json.getElement(i, "percentualna_cast"));
-            surchargeTypeD.setBase(json.getElement(i, "pocitany_zo"));
-            surchargeTypeD.setFrom(json.getElement(i, "nice_date1"));
-            surchargeTypeD.setTo(json.getElement(i, "nice_date2"));
-            surchargeTypeDS.add(surchargeTypeD);
-        }
-        return surchargeTypeDS;
-    }
-
-
-    private void removeSurcharge(SurchargeTypeD surchargeTypeD) throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendDelete("surcharge/del_sur/"+surchargeTypeD.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
-        this.updateInfo();
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
 }

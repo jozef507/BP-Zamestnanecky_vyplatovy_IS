@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -7,7 +7,6 @@ import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.LevelD;
 import application.models.MinimumWageD;
-import application.models.PlaceD;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -20,31 +19,19 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerAddMinimumwage
+public class AddMinimumwage
 {
-    public Button cancel;
-    public Button create;
-    public DatePicker from;
-    public TextField hour, month;
-    public ComboBox<String> level;
-    public Label label;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ArrayList<LevelD> levelDS;
-
-    private ControllerPageLegislationMinimum controllerPageLegislationMinimum;
+    private PageLegislationMinimum pageLegislationMinimum;
     private MinimumWageD minimumWageD;
 
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        setDatePicker();
-        setComboboxes();
-        this.changeFocus();
-    }
-
-    public ControllerAddMinimumwage(ControllerPageLegislationMinimum controllerPageLegislationMinimum) {
-        this.controllerPageLegislationMinimum = controllerPageLegislationMinimum;
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddMinimumwage(PageLegislationMinimum pageLegislationMinimum) {
+        this.pageLegislationMinimum = pageLegislationMinimum;
         this.minimumWageD = new MinimumWageD();
         try {
             this.levelDS = getLevels();
@@ -66,6 +53,108 @@ public class ControllerAddMinimumwage
         }
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void createMinimumwage() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("hourvalue", this.minimumWageD.getHourValue());
+        ht.addParam("monthvalue", this.minimumWageD.getMonthValue());
+        ht.addParam("from", this.minimumWageD.getFrom());
+        ht.addParam("levelid", this.minimumWageD.getLevelID());
+
+        ht.sendPost("minwage/crt_minwg", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+    private ArrayList<LevelD> getLevels() throws IOException, InterruptedException, CommunicationException {
+        ArrayList<LevelD> levels = new ArrayList<>();
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("position/lvls", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        for(int i=0; i<json.getSize(); i++)
+        {
+            LevelD levelD = new LevelD();
+            levelD.setId(json.getElement(i, "id"));
+            levelD.setNumber(json.getElement(i, "cislo_stupna"));
+            levelD.setCaracteristic(json.getElement(i, "charakteristika"));
+            levelD.setFrom(json.getElement(i, "platnost_od"));
+            levelD.setTo(json.getElement(i, "platnost_do"));
+            levels.add(levelD);
+        }
+        return levels;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public Button cancel;
+    public Button create;
+    public DatePicker from;
+    public TextField hour, month;
+    public ComboBox<String> level;
+    public Label label;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        setDatePicker();
+        setComboboxes();
+        this.changeFocus();
+    }
+
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        from.setConverter(converter);
+        from.setPromptText("D.M.RRRR");
+    }
+
+    private void setComboboxes()
+    {
+        for (LevelD l:this.levelDS)
+        {
+            level.getItems().add(l.getComboboxString());
+        }
+    }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        hour.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                hour.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -99,10 +188,14 @@ public class ControllerAddMinimumwage
             return;
         }
 
-        this.controllerPageLegislationMinimum.updateInfo();
+        this.pageLegislationMinimum.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -163,83 +256,5 @@ public class ControllerAddMinimumwage
             if(choosenLevel.equals(l.getComboboxString()))
                 this.minimumWageD.setLevelID(l.getId());
         }
-    }
-
-    private void createMinimumwage() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("hourvalue", this.minimumWageD.getHourValue());
-        ht.addParam("monthvalue", this.minimumWageD.getMonthValue());
-        ht.addParam("from", this.minimumWageD.getFrom());
-        ht.addParam("levelid", this.minimumWageD.getLevelID());
-
-        ht.sendPost("minwage/crt_minwg", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        from.setConverter(converter);
-        from.setPromptText("D.M.RRRR");
-    }
-
-
-    private void setComboboxes()
-    {
-        for (LevelD l:this.levelDS)
-        {
-            level.getItems().add(l.getComboboxString());
-        }
-    }
-
-
-    private ArrayList<LevelD> getLevels() throws IOException, InterruptedException, CommunicationException {
-        ArrayList<LevelD> levels = new ArrayList<>();
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("position/lvls", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            LevelD levelD = new LevelD();
-            levelD.setId(json.getElement(i, "id"));
-            levelD.setNumber(json.getElement(i, "cislo_stupna"));
-            levelD.setCaracteristic(json.getElement(i, "charakteristika"));
-            levelD.setFrom(json.getElement(i, "platnost_od"));
-            levelD.setTo(json.getElement(i, "platnost_do"));
-            levels.add(levelD);
-        }
-        return levels;
-    }
-
-    private void changeFocus()
-    {
-        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        hour.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && firstTime.get()) {
-                hour.getParent().requestFocus();
-                firstTime.setValue(false);
-            }
-        });
     }
 }

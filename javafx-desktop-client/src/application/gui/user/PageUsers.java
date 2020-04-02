@@ -1,13 +1,12 @@
-package application.gui;
+package application.gui.user;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.EmployeeD;
-import application.models.EmployeeOV;
-import application.models.PositionD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -15,20 +14,101 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
-public class ControllerPageUsers
+public class PageUsers
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private ObservableList<EmployeeD> employeeDS;
+    private ArrayList<String> places;
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageUsers() {
+        try{
+            employeeDS = employeeSelect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    public void updateInfo()
+    {
+        try {
+            employeeDS = employeeSelect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+        tab.setItems(employeeDS);
+    }
+
+    private ObservableList<EmployeeD> employeeSelect() throws IOException, InterruptedException, CommunicationException {
+        ObservableList<EmployeeD> employeeDS = FXCollections.observableArrayList();
+
+        HttpClientClass ht = new HttpClientClass();
+        ht.sendGet("employee/emps_usrs", LoggedInUser.getToken(), LoggedInUser.getId());
+
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        for(int i=0; i<json.getSize(); i++)
+        {
+            EmployeeD employeeD = new EmployeeD();
+            employeeD.setId(json.getElement(i, "p_id"));
+            employeeD.setName(json.getElement(i, "meno"));
+            employeeD.setLastname(json.getElement(i, "priezvisko"));
+            employeeD.setPhone(json.getElement(i, "telefon"));
+            employeeD.setBornNum(json.getElement(i, "rodne_cislo"));
+            employeeD.setBornDate(json.getElement(i, "datum_narodenia"));
+            employeeD.setPkID(json.getElement(i, "pk_id"));
+            employeeD.setEmail(json.getElement(i, "email"));
+            employeeD.setUserType(json.getElement(i, "typ_prav"));
+            employeeD.setIsCurrent(json.getElement(i, "aktualne"));
+            employeeD.setLastLogIn(json.getElement(i, "posledne_prihlasenie"));
+            employeeD.setCreated(json.getElement(i, "vytvorene_v"));
+            employeeDS.add(employeeD);
+        }
+
+        return employeeDS;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     @FXML
     private TableView<EmployeeD> tab = new TableView<EmployeeD>();
     @FXML
@@ -40,9 +120,9 @@ public class ControllerPageUsers
     @FXML
     public ComboBox relat = new ComboBox();
 
-    private ObservableList<EmployeeD> employeeDS;
-    private ArrayList<String> places;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
@@ -79,9 +159,9 @@ public class ControllerPageUsers
                     EmployeeD e = row.getItem();
                     System.out.println(e.toString());
 
-                    FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_users_details"+".fxml"));
+                    FXMLLoader l = new FXMLLoader(getClass().getResource("PageUsersDetails.fxml"));
                     l.setControllerFactory(c -> {
-                        return new ControllerPageUsersDetails(e.getId());
+                        return new PageUsersDetails(e.getId());
                     });
                     MainPaneManager.getC().loadScrollPage(l);
                 }
@@ -90,50 +170,6 @@ public class ControllerPageUsers
         });
 
         MainPaneManager.getC().desibleBackPage();
-    }
-
-    public ControllerPageUsers() {
-        try{
-            employeeDS = employeeSelect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-    }
-
-    public void updateInfo()
-    {
-        try {
-            employeeDS = employeeSelect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-        tab.setItems(employeeDS);
     }
 
     private boolean isFiltered(EmployeeD employeeD, String inp)
@@ -165,35 +201,9 @@ public class ControllerPageUsers
         return flag;
     }
 
-    private ObservableList<EmployeeD> employeeSelect() throws IOException, InterruptedException, CommunicationException {
-        ObservableList<EmployeeD> employeeDS = FXCollections.observableArrayList();
 
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("employee/emps_usrs", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            EmployeeD employeeD = new EmployeeD();
-            employeeD.setId(json.getElement(i, "p_id"));
-            employeeD.setName(json.getElement(i, "meno"));
-            employeeD.setLastname(json.getElement(i, "priezvisko"));
-            employeeD.setPhone(json.getElement(i, "telefon"));
-            employeeD.setBornNum(json.getElement(i, "rodne_cislo"));
-            employeeD.setBornDate(json.getElement(i, "datum_narodenia"));
-            employeeD.setPkID(json.getElement(i, "pk_id"));
-            employeeD.setEmail(json.getElement(i, "email"));
-            employeeD.setUserType(json.getElement(i, "typ_prav"));
-            employeeD.setIsCurrent(json.getElement(i, "aktualne"));
-            employeeD.setLastLogIn(json.getElement(i, "posledne_prihlasenie"));
-            employeeD.setCreated(json.getElement(i, "vytvorene_v"));
-            employeeDS.add(employeeD);
-        }
-
-        return employeeDS;
-    }
-
-
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void btn(ActionEvent actionEvent)
     {
         EmployeeD employeeD = tab.getSelectionModel().getSelectedItem();
@@ -204,8 +214,13 @@ public class ControllerPageUsers
         }
         FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_users_details"+".fxml"));
         l.setControllerFactory(c -> {
-            return new ControllerPageUsersDetails(employeeD.getId());
+            return new PageUsersDetails(employeeD.getId());
         });
         MainPaneManager.getC().loadScrollPage(l);
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
 }

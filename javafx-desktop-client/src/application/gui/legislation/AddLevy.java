@@ -1,11 +1,10 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.LevyD;
-import application.models.SurchargeTypeD;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -16,33 +15,25 @@ import javafx.util.StringConverter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-public class ControllerAddLevy
+public class AddLevy
 {
-    public Button cancel;
-    public Button create;
-    public DatePicker from;
-    public TextField name, partEe, partEr;
-    public Label label;
-
-
-    private ControllerPageLegislationLevy controllerPageLegislationLevy;
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageLegislationLevy pageLegislationLevy;
     private LevyD levyD;
 
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        setDatePicker();
-        this.changeFocus();
-    }
-
-    public ControllerAddLevy(ControllerPageLegislationLevy controllerPageLegislationLevy) {
-        this.controllerPageLegislationLevy = controllerPageLegislationLevy;
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddLevy(PageLegislationLevy pageLegislationLevy) {
+        this.pageLegislationLevy = pageLegislationLevy;
         this.levyD = new LevyD();
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -76,10 +67,94 @@ public class ControllerAddLevy
             return;
         }
 
-        this.controllerPageLegislationLevy.updateInfo();
+        this.pageLegislationLevy.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+    private void createLevy() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("name", this.levyD.getName());
+        ht.addParam("part_employee", this.levyD.getPartEe());
+        ht.addParam("part_employer", this.levyD.getPartEr());
+        ht.addParam("from", this.levyD.getFrom());
+
+        ht.sendPost("levy/crt_levy", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public Button cancel;
+    public Button create;
+    public DatePicker from;
+    public TextField name, partEe, partEr;
+    public Label label;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        setDatePicker();
+        this.changeFocus();
+        this.setTextfieldLimit(name, 50);
+
+    }
+
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
+    }
+
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        from.setConverter(converter);
+        from.setPromptText("D.M.RRRR");
+    }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                name.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -135,56 +210,6 @@ public class ControllerAddLevy
         this.levyD.setPartEe(partEe.getText());
         this.levyD.setPartEr(partEr.getText());
         this.levyD.setFrom(from.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-    }
-
-    private void createLevy() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("name", this.levyD.getName());
-        ht.addParam("part_employee", this.levyD.getPartEe());
-        ht.addParam("part_employer", this.levyD.getPartEr());
-        ht.addParam("from", this.levyD.getFrom());
-
-        ht.sendPost("levy/crt_levy", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        from.setConverter(converter);
-        from.setPromptText("D.M.RRRR");
-    }
-
-    private void changeFocus()
-    {
-        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && firstTime.get()) {
-                name.getParent().requestFocus();
-                firstTime.setValue(false);
-            }
-        });
     }
 
 }

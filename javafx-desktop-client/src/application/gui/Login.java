@@ -9,7 +9,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -23,15 +22,44 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
 
-public class ControllerLogin /*implements Initializable*/
+public class Login /*implements Initializable*/
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private String getMd5(String input)
+    { //geeksforgeeks
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            BigInteger no = new BigInteger(1, messageDigest);
+            String hashtext = no.toString(16);
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            return hashtext;
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     @FXML
     public PasswordField passwordT;
     @FXML
@@ -43,17 +71,14 @@ public class ControllerLogin /*implements Initializable*/
     @FXML
     private AnchorPane ap;
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() {
         this.changeFocus();
         this.onEnterClick(usernameT);
         this.onEnterClick(passwordT);
-    }
-
-    @FXML
-    public void loginButton(MouseEvent actionEvent)
-    {
-        login();
     }
 
     private void changeFocus()
@@ -67,6 +92,47 @@ public class ControllerLogin /*implements Initializable*/
         });
     }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+    @FXML
+    public void loginButton(MouseEvent actionEvent)
+    {
+        login();
+    }
+
+    private void onEnterClick(TextField textField)
+    {
+        textField.setOnKeyPressed(new EventHandler<KeyEvent>()
+        {
+            @Override
+            public void handle(KeyEvent ke)
+            {
+                if (ke.getCode().equals(KeyCode.ENTER))
+                {
+                    login();
+                }
+            }
+        });
+    }
+
+    private void onEnterClick(PasswordField textField)
+    {
+        textField.setOnKeyPressed(new EventHandler<KeyEvent>()
+        {
+            @Override
+            public void handle(KeyEvent ke)
+            {
+                if (ke.getCode().equals(KeyCode.ENTER))
+                {
+                    login();
+                }
+            }
+        });
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
     private void login()
     {
         setLabel(Color.BLACK,"Prihlasujem...");
@@ -77,7 +143,7 @@ public class ControllerLogin /*implements Initializable*/
 
                 Stage primaryStage = new Stage();
 
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/main_pane.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("MainPane.fxml"));
                 Parent root1 = loader.load();
 
                 primaryStage.setTitle("Hlavné okno");
@@ -151,22 +217,6 @@ public class ControllerLogin /*implements Initializable*/
         return status;
     }
 
-    private String getMd5(String input)
-    { //geeksforgeeks
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(input.getBytes());
-            BigInteger no = new BigInteger(1, messageDigest);
-            String hashtext = no.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-            return hashtext;
-        }
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void setLabel(Color color, String message)
     {
@@ -175,33 +225,5 @@ public class ControllerLogin /*implements Initializable*/
         System.out.println(message);
     }
 
-    private void onEnterClick(TextField textField)
-    {
-        textField.setOnKeyPressed(new EventHandler<KeyEvent>()
-        {
-            @Override
-            public void handle(KeyEvent ke)
-            {
-                if (ke.getCode().equals(KeyCode.ENTER))
-                {
-                    login();
-                }
-            }
-        });
-    }
 
-    private void onEnterClick(PasswordField textField)
-    {
-        textField.setOnKeyPressed(new EventHandler<KeyEvent>()
-        {
-            @Override
-            public void handle(KeyEvent ke)
-            {
-                if (ke.getCode().equals(KeyCode.ENTER))
-                {
-                    login();
-                }
-            }
-        });
-    }
 }

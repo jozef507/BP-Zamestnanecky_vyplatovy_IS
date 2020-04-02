@@ -1,12 +1,9 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
-import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
-import application.models.LevelD;
-import application.models.PlaceD;
 import application.models.SurchargeTypeD;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -19,30 +16,82 @@ import javafx.util.StringConverter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-public class ControllerUpdateSurcharge
+public class UpdateSurcharge
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageLegislationSurcharge pageLegislationSurcharge;
+    private SurchargeTypeD surchargeTypeD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdateSurcharge(PageLegislationSurcharge pageLegislationSurcharge, SurchargeTypeD surchargeTypeD) {
+        this.pageLegislationSurcharge = pageLegislationSurcharge;
+        this.surchargeTypeD = new SurchargeTypeD();
+        this.surchargeTypeD.setId(surchargeTypeD.getId());
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void updateSurcharge() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("id", this.surchargeTypeD.getId());
+        ht.addParam("to", this.surchargeTypeD.getTo());
+
+        ht.sendPost("surcharge/upd_sur", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public DatePicker to;
     public Label label;
 
-    private ControllerPageLegislationSurcharge controllerPageLegislationSurcharge;
-    private SurchargeTypeD surchargeTypeD;
 
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         setDatePicker();
     }
 
-    public ControllerUpdateSurcharge(ControllerPageLegislationSurcharge controllerPageLegislationSurcharge, SurchargeTypeD surchargeTypeD) {
-        this.controllerPageLegislationSurcharge = controllerPageLegislationSurcharge;
-        this.surchargeTypeD = new SurchargeTypeD();
-        this.surchargeTypeD.setId(surchargeTypeD.getId());
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        to.setConverter(converter);
+        to.setPromptText("D.M.RRRR");
     }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -76,10 +125,14 @@ public class ControllerUpdateSurcharge
             return;
         }
 
-        this.controllerPageLegislationSurcharge.updateInfo();
+        this.pageLegislationSurcharge.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -120,44 +173,5 @@ public class ControllerUpdateSurcharge
     {
         this.surchargeTypeD.setTo(to.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
-
-    private void updateSurcharge() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("id", this.surchargeTypeD.getId());
-        ht.addParam("to", this.surchargeTypeD.getTo());
-
-        ht.sendPost("surcharge/upd_sur", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        to.setConverter(converter);
-        to.setPromptText("D.M.RRRR");
-    }
-
-
-
 
 }

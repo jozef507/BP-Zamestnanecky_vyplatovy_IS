@@ -1,7 +1,9 @@
-package application.gui;
+package application.gui.user;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
+import application.gui.MainPaneManager;
+import application.gui.employee.PageEmployeeDetailsBox;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
@@ -21,32 +23,18 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ControllerPageUsersDetails
+public class PageUsersDetails
 {
-    public Button create;
-    public Button update;
-    public Button change;
-    public Text id;
-    public Text created;
-    public Text lastlogin;
-    public Text current;
-    @FXML
-    private Text name, phone, email, born_num, born_date, username, role;
-    @FXML
-    private VBox vb;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private String employeeID;
     private EmployeeD employeeD;
-    private ArrayList<ControllerPageEmployeeDetailsBox> cBox;
+    private ArrayList<PageEmployeeDetailsBox> cBox;
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        setTextFields();
-        setButtons();
-    }
 
-    public ControllerPageUsersDetails(String employeeID){
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public PageUsersDetails(String employeeID){
 
         this.employeeID = employeeID;
         try {
@@ -67,104 +55,13 @@ public class ControllerPageUsersDetails
                     "\nKontaktujte administrátora systému!", e.toString());
             return;
         }
-        MainPaneManager.getC().setBackPage("page_users");
+        MainPaneManager.getC().setBackPage("PageUsers");
 
     }
 
-    public void createClick(MouseEvent mouseEvent)
-    {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/add_account.fxml"));
-        loader.setControllerFactory(c -> {
-            return new ControllerAddAccount(this, this.employeeD);
-        });
-        Parent root1 = null;
-        try {
-            root1 = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Stage primaryStage = new Stage();
-        primaryStage.setTitle("Pridanie prihlasovacieho konta");
-        primaryStage.setScene(new Scene(root1, 505, 279));
-        primaryStage.initModality(Modality.APPLICATION_MODAL);
-        primaryStage.show();
-    }
 
-    public void updateClick(MouseEvent mouseEvent) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_account.fxml"));
-        loader.setControllerFactory(c -> {
-            return new ControllerUpdateAccount(this, this.employeeD);
-        });
-        Parent root1 = null;
-        try {
-            root1 = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Stage primaryStage = new Stage();
-        primaryStage.setTitle("Zmena údajov prihlasovacieho konta");
-        primaryStage.setScene(new Scene(root1, 505, 279));
-        primaryStage.initModality(Modality.APPLICATION_MODAL);
-        primaryStage.show();
-    }
-
-    public void changeClick(MouseEvent mouseEvent) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/update_account_password.fxml"));
-        loader.setControllerFactory(c -> {
-            return new ControllerUpdateAccountPassword(this, this.employeeD);
-        });
-        Parent root1 = null;
-        try {
-            root1 = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Stage primaryStage = new Stage();
-        primaryStage.setTitle("Zmena hesla prihlasovacieho konta");
-        primaryStage.setScene(new Scene(root1, 505, 279));
-        primaryStage.initModality(Modality.APPLICATION_MODAL);
-        primaryStage.show();
-    }
-
-    private void setTextFields()
-    {
-        name.setText(this.employeeD.getName()+" "+ this.employeeD.getLastname());
-        phone.setText(this.employeeD.getPhone());
-        email.setText(this.employeeD.getEmail());
-        born_num.setText(this.employeeD.getBornNum());
-        born_date.setText(this.employeeD.getBornDate());
-
-        id.setText(this.employeeD.getPkID());
-        username.setText(this.employeeD.getEmail());
-        role.setText(this.employeeD.getUserType());
-        lastlogin.setText(this.employeeD.getLastLogIn());
-        created.setText(this.employeeD.getCreated());
-        if(this.employeeD.getIsCurrent()!=null)
-        {
-            if(this.employeeD.getIsCurrent().equals("1"))
-                current.setText("áno");
-            else
-                current.setText("nie");
-        }
-    }
-
-    private void setButtons()
-    {
-        if(employeeD.getPkID()==null)
-        {
-            create.setDisable(false);
-            update.setDisable(true);
-            change.setDisable(true);
-        }
-        else
-        {
-            update.setDisable(false);
-            change.setDisable(false);
-            create.setDisable(true);
-        }
-    }
-
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     public void updateInfo()
     {
         try {
@@ -216,5 +113,130 @@ public class ControllerPageUsersDetails
         return this.employeeD;
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public Button create;
+    public Button update;
+    public Button change;
+    public Text id;
+    public Text created;
+    public Text lastlogin;
+    public Text current;
+    @FXML
+    private Text name, phone, email, born_num, born_date, username, role;
+    @FXML
+    private VBox vb;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        setTextFields();
+        setButtons();
+    }
+
+    private void setTextFields()
+    {
+        name.setText(this.employeeD.getName()+" "+ this.employeeD.getLastname());
+        phone.setText(this.employeeD.getPhone());
+        email.setText(this.employeeD.getEmail());
+        born_num.setText(this.employeeD.getBornNum());
+        born_date.setText(this.employeeD.getBornDate());
+
+        id.setText(this.employeeD.getPkID());
+        username.setText(this.employeeD.getEmail());
+        role.setText(this.employeeD.getUserType());
+        lastlogin.setText(this.employeeD.getLastLogIn());
+        created.setText(this.employeeD.getCreated());
+        if(this.employeeD.getIsCurrent()!=null)
+        {
+            if(this.employeeD.getIsCurrent().equals("1"))
+                current.setText("áno");
+            else
+                current.setText("nie");
+        }
+    }
+
+    private void setButtons()
+    {
+        if(employeeD.getPkID()==null)
+        {
+            create.setDisable(false);
+            update.setDisable(true);
+            change.setDisable(true);
+        }
+        else
+        {
+            update.setDisable(false);
+            change.setDisable(false);
+            create.setDisable(true);
+        }
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+    public void createClick(MouseEvent mouseEvent)
+    {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddAccount.fxml"));
+        loader.setControllerFactory(c -> {
+            return new AddAccount(this, this.employeeD);
+        });
+        Parent root1 = null;
+        try {
+            root1 = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Pridanie prihlasovacieho konta");
+        primaryStage.setScene(new Scene(root1, 505, 279));
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.show();
+    }
+
+    public void updateClick(MouseEvent mouseEvent) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdateAccount.fxml"));
+        loader.setControllerFactory(c -> {
+            return new UpdateAccount(this, this.employeeD);
+        });
+        Parent root1 = null;
+        try {
+            root1 = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Zmena údajov prihlasovacieho konta");
+        primaryStage.setScene(new Scene(root1, 505, 279));
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.show();
+    }
+
+    public void changeClick(MouseEvent mouseEvent) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdateAccountPassword.fxml"));
+        loader.setControllerFactory(c -> {
+            return new UpdateAccountPassword(this, this.employeeD);
+        });
+        Parent root1 = null;
+        try {
+            root1 = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Zmena hesla prihlasovacieho konta");
+        primaryStage.setScene(new Scene(root1, 505, 279));
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.show();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
 }

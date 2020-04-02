@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.user;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -6,24 +6,64 @@ import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.EmployeeD;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
-public class ControllerAddAccount
+public class AddAccount
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageUsersDetails pageUsersDetails;
+    private EmployeeD employeeD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddAccount(PageUsersDetails pageUsersDetails, EmployeeD employeeD) {
+        this.pageUsersDetails = pageUsersDetails;
+        this.employeeD = employeeD;
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private String getMd5(String input)
+    { //geeksforgeeks
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            BigInteger no = new BigInteger(1, messageDigest);
+            String hashtext = no.toString(16);
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            return hashtext;
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void createAccount() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("employeeid", this.employeeD.getId());
+        ht.addParam("email", this.employeeD.getEmail());
+        ht.addParam("password", this.employeeD.getPassword());
+        ht.addParam("role", this.employeeD.getUserType());
+
+        ht.sendPost("employee/crt_usr", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public Label label;
@@ -31,22 +71,49 @@ public class ControllerAddAccount
     public PasswordField password1, password2;
     public ComboBox role;
 
-    private ControllerPageUsersDetails controllerPageUsersDetails;
-    private EmployeeD employeeD;
 
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         this.setComboBoxes();
         this.changeFocus();
+        this.setTextfieldLimit(email, 255);
+        this.setTextfieldLimit(password1, 255);
+        this.setTextfieldLimit(password2, 255);
+
     }
 
-    public ControllerAddAccount(ControllerPageUsersDetails controllerPageUsersDetails, EmployeeD employeeD) {
-        this.controllerPageUsersDetails = controllerPageUsersDetails;
-        this.employeeD = employeeD;
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
     }
 
+    private void setComboBoxes()
+    {
+        role.getItems().addAll(
+                "admin",
+                "riaditeľ",
+                "účtovník",
+                "zamestnanec"
+        );
+    }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        email.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                email.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -80,10 +147,14 @@ public class ControllerAddAccount
             return;
         }
 
-        this.controllerPageUsersDetails.updateInfo();
+        this.pageUsersDetails.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -129,7 +200,6 @@ public class ControllerAddAccount
         return flag;
     }
 
-
     private void setModelsFromInputs()
     {
         this.employeeD.setPkID(null);
@@ -137,55 +207,5 @@ public class ControllerAddAccount
         this.employeeD.setPassword(getMd5(password1.getText()));
         this.employeeD.setUserType(role.getValue().toString());
     }
-
-    private void createAccount() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("employeeid", this.employeeD.getId());
-        ht.addParam("email", this.employeeD.getEmail());
-        ht.addParam("password", this.employeeD.getPassword());
-        ht.addParam("role", this.employeeD.getUserType());
-
-        ht.sendPost("employee/crt_usr", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private void setComboBoxes()
-    {
-        role.getItems().addAll(
-                "admin",
-                "riaditeľ",
-                "účtovník",
-                "zamestnanec"
-        );
-    }
-
-    private String getMd5(String input)
-    { //geeksforgeeks
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(input.getBytes());
-            BigInteger no = new BigInteger(1, messageDigest);
-            String hashtext = no.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-            return hashtext;
-        }
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void changeFocus()
-    {
-        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        email.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && firstTime.get()) {
-                email.getParent().requestFocus();
-                firstTime.setValue(false);
-            }
-        });
-    }
-
 
 }

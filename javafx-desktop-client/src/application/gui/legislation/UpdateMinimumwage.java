@@ -1,11 +1,10 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
-import application.models.LevelD;
 import application.models.MinimumWageD;
 import application.models.PlaceD;
 import javafx.fxml.FXML;
@@ -21,29 +20,82 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerUpdateMinimumwage
+public class UpdateMinimumwage
 {
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageLegislationMinimum pageLegislationMinimum;
+    private MinimumWageD minimumWageD;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdateMinimumwage(PageLegislationMinimum pageLegislationMinimum, MinimumWageD minimumWageD) {
+        this.pageLegislationMinimum = pageLegislationMinimum;
+        this.minimumWageD = new MinimumWageD();
+        this.minimumWageD.setId(minimumWageD.getId());
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void createPosition() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("id", this.minimumWageD.getId());
+        ht.addParam("to", this.minimumWageD.getTo());
+
+        ht.sendPost("level/upd_lev", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        to.setConverter(converter);
+        to.setPromptText("D.M.RRRR");
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
     public Button cancel;
     public Button create;
     public DatePicker to;
     public Label label;
 
 
-    private ControllerPageLegislationMinimum controllerPageLegislationMinimum;
-    private MinimumWageD minimumWageD;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     @FXML
     public void initialize() throws IOException, InterruptedException
     {
         setDatePicker();
     }
 
-    public ControllerUpdateMinimumwage(ControllerPageLegislationMinimum controllerPageLegislationMinimum, MinimumWageD minimumWageD) {
-        this.controllerPageLegislationMinimum = controllerPageLegislationMinimum;
-        this.minimumWageD = new MinimumWageD();
-        this.minimumWageD.setId(minimumWageD.getId());
-    }
 
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -77,10 +129,14 @@ public class ControllerUpdateMinimumwage
             return;
         }
 
-        this.controllerPageLegislationMinimum.updateInfo();
+        this.pageLegislationMinimum.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -121,60 +177,6 @@ public class ControllerUpdateMinimumwage
     {
         this.minimumWageD.setTo(to.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     }
-
-    private void createPosition() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("id", this.minimumWageD.getId());
-        ht.addParam("to", this.minimumWageD.getTo());
-
-        ht.sendPost("level/upd_lev", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
-
-    private ArrayList<PlaceD> getPlaces() throws IOException, InterruptedException, CommunicationException {
-        ArrayList<PlaceD> places = new ArrayList<>();
-        HttpClientClass ht = new HttpClientClass();
-        ht.sendGet("place", LoggedInUser.getToken(), LoggedInUser.getId());
-
-        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
-        for(int i=0; i<json.getSize(); i++)
-        {
-            PlaceD placeD = new PlaceD();
-            placeD.setId(json.getElement(i, "id"));
-            placeD.setName(json.getElement(i, "nazov"));
-            places.add(placeD);
-        }
-        return places;
-    }
-
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        to.setConverter(converter);
-        to.setPromptText("D.M.RRRR");
-    }
-
-
 
 
 }

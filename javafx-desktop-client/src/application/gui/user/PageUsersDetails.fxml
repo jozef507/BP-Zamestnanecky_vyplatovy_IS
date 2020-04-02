@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<ScrollPane fx:id="sp" fitToWidth="true" prefHeight="570.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.ControllerPageUsersDetails">
+<ScrollPane fx:id="sp" fitToWidth="true" prefHeight="570.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.user.PageUsersDetails">
    <content>
       <AnchorPane minWidth="650.0" prefHeight="568.0" prefWidth="808.0">
          <children>

@@ -1,4 +1,4 @@
-package application.gui;
+package application.gui.user;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
@@ -12,102 +12,25 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
-public class ControllerUpdateAccount
+public class UpdateAccount
 {
-    public Button cancel;
-    public Button create;
-    public Label label;
-    public TextField email;
-    public PasswordField password1, password2;
-    public ComboBox role;
-    public ComboBox current;
-
-    private ControllerPageUsersDetails controllerPageUsersDetails;
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
+    private PageUsersDetails pageUsersDetails;
     private EmployeeD employeeD;
 
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        this.setComboBoxes();
-        this.setInputs();
-        this.changeFocus();
-    }
-
-    public ControllerUpdateAccount(ControllerPageUsersDetails controllerPageUsersDetails, EmployeeD employeeD) {
-        this.controllerPageUsersDetails = controllerPageUsersDetails;
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public UpdateAccount(PageUsersDetails pageUsersDetails, EmployeeD employeeD) {
+        this.pageUsersDetails = pageUsersDetails;
         this.employeeD = employeeD;
     }
 
-    public void cancelClick(MouseEvent mouseEvent) {
-        Stage stage = (Stage) cancel.getScene().getWindow();
-        stage.close();
-    }
 
-    public void createClick(MouseEvent mouseEvent)
-    {
-        if(!this.checkFormular()) return;
-
-        CustomAlert al = new CustomAlert("Zmena informácii užívateľského konta", "Ste si istý že chcete zmeniť informácie užívateľského konta?", "", "Áno", "Nie");
-        if(!al.showWait()) return;
-
-        this.setModelsFromInputs();
-        try {
-            this.createAccount();
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-
-        this.controllerPageUsersDetails.updateInfo();
-        Stage stage = (Stage) cancel.getScene().getWindow();
-        stage.close();
-    }
-
-    private boolean checkFormular()
-    {
-        boolean flag = true;
-        label.setVisible(false);
-
-        if(role.getSelectionModel().isEmpty())
-            flag=false;
-        else if(current.getSelectionModel().isEmpty())
-            flag=false;
-
-        if(!flag)
-        {
-            System.out.println("Nevyplené alebo nesprávne vyplnené údaje.");
-            label.setVisible(true);
-            return false;
-        }
-        return flag;
-    }
-
-    private void setModelsFromInputs()
-    {
-        this.employeeD.setUserType(role.getValue().toString());
-        if(current.getValue().toString().equals("áno"))
-            this.employeeD.setIsCurrent("1");
-        else
-            this.employeeD.setIsCurrent("0");
-    }
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
     private void createAccount() throws InterruptedException, IOException, CommunicationException {
         HttpClientClass ht = new HttpClientClass();
 
@@ -116,6 +39,28 @@ public class ControllerUpdateAccount
         ht.addParam("current", this.employeeD.getIsCurrent());
 
         ht.sendPost("employee/upd_usr", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public Button cancel;
+    public Button create;
+    public Label label;
+    public TextField email;
+    public PasswordField password1, password2;
+    public ComboBox role;
+    public ComboBox current;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        this.setComboBoxes();
+        this.setInputs();
+        this.changeFocus();
     }
 
     private void setComboBoxes()
@@ -161,4 +106,77 @@ public class ControllerUpdateAccount
             }
         });
     }
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
+    public void cancelClick(MouseEvent mouseEvent) {
+        Stage stage = (Stage) cancel.getScene().getWindow();
+        stage.close();
+    }
+
+    public void createClick(MouseEvent mouseEvent)
+    {
+        if(!this.checkFormular()) return;
+
+        CustomAlert al = new CustomAlert("Zmena informácii užívateľského konta", "Ste si istý že chcete zmeniť informácie užívateľského konta?", "", "Áno", "Nie");
+        if(!al.showWait()) return;
+
+        this.setModelsFromInputs();
+        try {
+            this.createAccount();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+
+        this.pageUsersDetails.updateInfo();
+        Stage stage = (Stage) cancel.getScene().getWindow();
+        stage.close();
+    }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
+
+    private boolean checkFormular()
+    {
+        boolean flag = true;
+        label.setVisible(false);
+
+        if(role.getSelectionModel().isEmpty())
+            flag=false;
+        else if(current.getSelectionModel().isEmpty())
+            flag=false;
+
+        if(!flag)
+        {
+            System.out.println("Nevyplené alebo nesprávne vyplnené údaje.");
+            label.setVisible(true);
+            return false;
+        }
+        return flag;
+    }
+
+    private void setModelsFromInputs()
+    {
+        this.employeeD.setUserType(role.getValue().toString());
+        if(current.getValue().toString().equals("áno"))
+            this.employeeD.setIsCurrent("1");
+        else
+            this.employeeD.setIsCurrent("0");
+    }
+
+
+
 }

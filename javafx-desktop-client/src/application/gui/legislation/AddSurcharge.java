@@ -1,11 +1,9 @@
-package application.gui;
+package application.gui.legislation;
 
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.LoggedInUser;
-import application.models.LevelD;
-import application.models.PlaceD;
 import application.models.SurchargeTypeD;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
@@ -19,31 +17,19 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ControllerAddSurcharge
+public class AddSurcharge
 {
-    public Button cancel;
-    public Button create;
-    public DatePicker from;
-    public TextField name, part;
-    public ComboBox<String> base;
-    public Label label;
-
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------FIELDS-----------------------------------------*/
     private ArrayList<String> bases;
-
-    private ControllerPageLegislationSurcharge controllerPageLegislationSurcharge;
+    private PageLegislationSurcharge pageLegislationSurcharge;
     private SurchargeTypeD surchargeTypeD;
 
 
-    @FXML
-    public void initialize() throws IOException, InterruptedException
-    {
-        setDatePicker();
-        setComboboxes();
-        changeFocus();
-    }
-
-    public ControllerAddSurcharge(ControllerPageLegislationSurcharge controllerPageLegislationSurcharge) {
-        this.controllerPageLegislationSurcharge = controllerPageLegislationSurcharge;
+    /*---------------------------------------------------------------------------------------*/
+    /*-------------------------------------CONSTRUCTORS--------------------------------------*/
+    public AddSurcharge(PageLegislationSurcharge pageLegislationSurcharge) {
+        this.pageLegislationSurcharge = pageLegislationSurcharge;
         this.surchargeTypeD = new SurchargeTypeD();
         this.bases = new ArrayList<>();
         this.bases.add("minimálna mzda");
@@ -51,6 +37,99 @@ public class ControllerAddSurcharge
         this.bases.add("základná mzda");
     }
 
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------------METHODS----------------------------------------*/
+    private void createSurcharge() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+
+        ht.addParam("name", this.surchargeTypeD.getName());
+        ht.addParam("part", this.surchargeTypeD.getPart());
+        ht.addParam("base", this.surchargeTypeD.getBase());
+        ht.addParam("from", this.surchargeTypeD.getFrom());
+
+        ht.sendPost("surcharge/crt_sur", LoggedInUser.getToken(), LoggedInUser.getId());
+    }
+
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI FIELDS---------------------------------------*/
+    public Button cancel;
+    public Button create;
+    public DatePicker from;
+    public TextField name, part;
+    public ComboBox<String> base;
+    public Label label;
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
+    @FXML
+    public void initialize() throws IOException, InterruptedException
+    {
+        setDatePicker();
+        setComboboxes();
+        changeFocus();
+        this.setTextfieldLimit(name, 50);
+
+    }
+
+    private void setTextfieldLimit(TextField textArea, int limit)
+    {
+        textArea.setTextFormatter(new TextFormatter<String>(change ->
+                change.getControlNewText().length() <= limit ? change : null));
+    }
+
+    private void setDatePicker()
+    {
+        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("d.M.yyyy");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        from.setConverter(converter);
+        from.setPromptText("D.M.RRRR");
+    }
+
+    private void setComboboxes()
+    {
+        for (String p:this.bases)
+        {
+            base.getItems().add(p);
+        }
+
+    }
+
+    private void changeFocus()
+    {
+        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
+        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && firstTime.get()) {
+                name.getParent().requestFocus();
+                firstTime.setValue(false);
+            }
+        });
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI METHODS--------------------------------------*/
     public void cancelClick(MouseEvent mouseEvent) {
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
@@ -84,10 +163,14 @@ public class ControllerAddSurcharge
             return;
         }
 
-        this.controllerPageLegislationSurcharge.updateInfo();
+        this.pageLegislationSurcharge.updateInfo();
         Stage stage = (Stage) cancel.getScene().getWindow();
         stage.close();
     }
+
+
+    /*---------------------------------------------------------------------------------------*/
+    /*--------------------------------------GUI HELPERS--------------------------------------*/
 
     private boolean checkFormular()
     {
@@ -145,64 +228,8 @@ public class ControllerAddSurcharge
         this.surchargeTypeD.setBase(base.getValue());
     }
 
-    private void createSurcharge() throws InterruptedException, IOException, CommunicationException {
-        HttpClientClass ht = new HttpClientClass();
-
-        ht.addParam("name", this.surchargeTypeD.getName());
-        ht.addParam("part", this.surchargeTypeD.getPart());
-        ht.addParam("base", this.surchargeTypeD.getBase());
-        ht.addParam("from", this.surchargeTypeD.getFrom());
-
-        ht.sendPost("surcharge/crt_sur", LoggedInUser.getToken(), LoggedInUser.getId());
-    }
 
 
-    private void setDatePicker()
-    {
-        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-            DateTimeFormatter dateFormatter =
-                    DateTimeFormatter.ofPattern("d.M.yyyy");
-
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateFormatter.format(date);
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateFormatter);
-                } else {
-                    return null;
-                }
-            }
-        };
-        from.setConverter(converter);
-        from.setPromptText("D.M.RRRR");
-    }
-
-    private void setComboboxes()
-    {
-        for (String p:this.bases)
-        {
-            base.getItems().add(p);
-        }
-
-    }
-
-    private void changeFocus()
-    {
-        final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        name.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && firstTime.get()) {
-                name.getParent().requestFocus();
-                firstTime.setValue(false);
-            }
-        });
-    }
 
 
 }
