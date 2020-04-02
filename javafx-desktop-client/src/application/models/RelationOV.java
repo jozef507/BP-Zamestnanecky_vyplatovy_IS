@@ -10,8 +10,10 @@ import java.util.ArrayList;
 
 public class RelationOV
 {
-    private String id, type, origin, expiration, nextDemandsID, main, position, place;
+    private String id, type, origin, expiration, nextDemandsID, main, position, place, from, to;
 
+    public RelationOV() {
+    }
 
     public RelationOV(String id, String type, String origin, String expiration, String nextdemands, String position, String place) {
         this.id = id;
@@ -64,7 +66,10 @@ public class RelationOV
     }
 
     public void setExpiration(String expiration) {
-        this.expiration = expiration;
+        if(expiration==null)
+            this.expiration = "";
+        else
+            this.expiration = expiration;
     }
 
     public String getMain() {
@@ -103,5 +108,28 @@ public class RelationOV
 
     public void setPlace(String place) {
         this.place = place;
+    }
+
+    public void setMain(String main) {
+        this.main = main;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        if(to==null)
+            this.to = "";
+        else
+            this.to = to;
     }
 }
