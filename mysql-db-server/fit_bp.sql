@@ -174,7 +174,7 @@ create table minimalna_mzda
 create table pozicia
 (
     id int not null auto_increment,
-	nazov varchar(50) not null,
+	nazov varchar(255) not null,
     charakteristika varchar(1024) not null,
     pracovisko int not null,
    /* stupen_narocnosti int not null,*/
@@ -1720,3 +1720,16 @@ where oh.aktualizovane <= now() and oh.aktualizovane >= DATE_SUB(now(), INTERVAL
 
 select n.*, n.id as n_id,  DATE_FORMAT(n.od,'%d.%m.%Y') as nice_date1, DATE_FORMAT(n.do,'%d.%m.%Y') as nice_date2,  om.id as om_id, om.poradie_mesiaca, orr.id as orr_id, orr.rok, ppv.id as ppv_id, pv.id as pv_id, pv.typ as pv_typ, p.id as p_id, p.meno, p.priezvisko, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov from nepritomnost n join odpracovany_mesiac_nepritomnost omn on n.id=omn.nepritomnost join odpracovany_mesiac om on omn.odpracovany_mesiac = om.id join odpracovany_rok orr on om.odpracovany_rok = orr.id join podmienky_pracovneho_vztahu ppv on orr.podmienky_pracovneho_vztahu = ppv.id join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pracujuci p on pv.pracujuci = p.id join pozicia po on ppv.pozicia = po.id join pracovisko pr on po.pracovisko = pr.id where n.aktualizovane <= now() and n.aktualizovane >= DATE_SUB(now(), INTERVAL 3 DAY)  group by n.id order by n.aktualizovane desc;
 select n.*, n.id as n_id,  DATE_FORMAT(n.od,'%d.%m.%Y') as nice_date1, DATE_FORMAT(n.do,'%d.%m.%Y') as nice_date2, ppv.id as ppv_id, pv.id as pv_id, pv.typ as pv_typ, p.id as p_id, p.meno, p.priezvisko, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov from nepritomnost n join odpracovany_mesiac_nepritomnost omn on n.id=omn.nepritomnost join odpracovany_mesiac om on omn.odpracovany_mesiac = om.id join odpracovany_rok orr on om.odpracovany_rok = orr.id join podmienky_pracovneho_vztahu ppv on orr.podmienky_pracovneho_vztahu = ppv.id join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pracujuci p on pv.pracujuci = p.id join pozicia po on ppv.pozicia = po.id join pracovisko pr on po.pracovisko = pr.id where n.aktualizovane <= now() and n.aktualizovane >= DATE_SUB(now(), INTERVAL 3 DAY)  group by n.id order by n.aktualizovane desc;
+
+select p.id as p_id, v.*, v.id as v_id, ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(v.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(v.datum_vyprsania,'%d.%m.%Y') as nice_date2 from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on p.id = v.pracujuci and v.id=ppv.pracovny_vztah and ppv.pozicia=poz.id and poz.pracovisko=pr.id where  p.id = 13 order by v.datum_vzniku desc;
+
+/*vypise vztahy*/
+select p.id as p_id, v.*, v.id as v_id,  DATE_FORMAT(v.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(v.datum_vyprsania,'%d.%m.%Y') as nice_date2 from pracujuci p join pracovny_vztah v on v.pracujuci=p.id where  p.id = 13 order by v.datum_vzniku desc;
+/*pre aktualny vztah*/
+select  ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y') as nice_date_platnost_od,  DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as nice_date_platnost_do from podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on ppv.pozicia=poz.id and poz.pracovisko=pr.id where  ppv.pracovny_vztah = 13 and ((now() between ppv.platnost_od and ppv.platnost_do) or (now()>=ppv.platnost_od and ppv.platnost_do is NULL));
+/*pre buduci vztah*/
+select  ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y') as nice_date_platnost_od,  DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as nice_date_platnost_do from podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on ppv.pozicia=poz.id and poz.pracovisko=pr.id where  ppv.pracovny_vztah = 13 order by ppv.platnost_od asc limit 1;
+/*pre minuly vztah*/
+select  ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y') as nice_date_platnost_od,  DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as nice_date_platnost_do from podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on ppv.pozicia=poz.id and poz.pracovisko=pr.id where  ppv.pracovny_vztah = 13 order by ppv.platnost_od desc limit 1;
+
+
