@@ -68,8 +68,9 @@ class WageMod extends CI_Model
 		$rel_id = $params['relid'];
 		$con_id = $params['conid'];
 		$nextcon_id = $params['nextconid'];
+		$prev_con_id = $params['prevconds'];
 
-		$this->db->trans_start();
+		$this->db->trans_begin();
 
 			$data = array(
 				'popis' => $wage_label,
@@ -99,7 +100,13 @@ class WageMod extends CI_Model
 				$this->db->where('id',$nextcon_id)->delete('dalsie_podmienky');
 			if($rel_id!="NULL")
 				$this->db->where('id',$rel_id)->delete('pracovny_vztah');
-
+			if($prev_con_id!="NULL")
+			{
+				$data = array(
+					'platnost_do' => null
+				);
+				$this->db->where('id', $prev_con_id)->update('podmienky_pracovneho_vztahu', $data);
+			}
 			return array('status' => 500,'message' => 'Internal server error.');
 		} else {
 			$this->db->trans_commit();

@@ -45,8 +45,40 @@ class EmployeeMod extends CI_Model
 
 	public function get_emp_rel_ov($id)
 	{
-		$query = $this->db->query("select p.id as p_id, v.*, v.id as v_id, ppv.id as ppv_id, ppv.dalsie_podmienky, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(v.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(v.datum_vyprsania,'%d.%m.%Y') as nice_date2 from pracujuci p join pracovny_vztah v join podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on p.id = v.pracujuci and v.id=ppv.pracovny_vztah and ppv.pozicia=poz.id and poz.pracovisko=pr.id where  p.id = ". $id." order by v.datum_vzniku desc");
-		return $query->result();
+		$query = $this->db->query("select p.id as p_id, v.*, v.id as v_id,  DATE_FORMAT(v.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(v.datum_vyprsania,'%d.%m.%Y') as nice_date2 from pracujuci p join pracovny_vztah v on v.pracujuci=p.id where  p.id = ". $id."  order by v.datum_vzniku desc");
+		$relations = $query->result_array();
+
+		$current_date = $date = date("Y-m-d");
+		//print_r($relations);
+		//return;
+
+		$result = array();
+		foreach ($relations as $row)
+		{
+			$rel_id = $row['v_id'];
+			$from = $row['datum_vzniku'];
+			$to = $row['datum_vyprsania'];
+			if(($current_date>=$from && $current_date<=$to) || ($current_date>=$from && $to==null)) //current
+			{
+				$query = $this->db->query("select  ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y') as nice_date_platnost_od,  DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as nice_date_platnost_do from podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on ppv.pozicia=poz.id and poz.pracovisko=pr.id where  ppv.pracovny_vztah = ".$rel_id."  and ((now() between ppv.platnost_od and ppv.platnost_do) or (now()>=ppv.platnost_od and ppv.platnost_do is NULL))");
+				$conditions = $query->result_array();
+			}
+			elseif ( $current_date>$to ) //past
+			{
+				$query = $this->db->query("select  ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y') as nice_date_platnost_od,  DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as nice_date_platnost_do from podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on ppv.pozicia=poz.id and poz.pracovisko=pr.id where  ppv.pracovny_vztah = ".$rel_id." order by ppv.platnost_od desc limit 1");
+				$conditions = $query->result_array();
+			}
+			elseif ($current_date<$from) //future
+			{
+				$query = $this->db->query("select  ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y') as nice_date_platnost_od,  DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as nice_date_platnost_do from podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on ppv.pozicia=poz.id and poz.pracovisko=pr.id where  ppv.pracovny_vztah = ".$rel_id." order by ppv.platnost_od asc limit 1");
+				$conditions = $query->result_array();
+			}
+
+			$arr = array_merge($row, $conditions[0]);
+			array_push($result, $arr);
+		}
+
+		return $result;
 	}
 
 	public function get_count_imp_pay($id)
@@ -272,7 +304,7 @@ class EmployeeMod extends CI_Model
 		$query = $this->db->get();
 		$row = $query->row_array();
 		$p_od = $row['platnost_od'];
-		$id_pracujuci = $row['pracujuci'];
+		$id_pracujuci =  $params['employee'];
 
 		$int = date('Y-m-d', strtotime('-2 months'));
 		if(!($begin>$int && $begin>$p_od))

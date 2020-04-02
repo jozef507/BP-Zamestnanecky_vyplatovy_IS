@@ -5,7 +5,7 @@ class RelationMod extends CI_Model
 {
 	public function get_relation($id)
 	{
-		$query = $this->db->query("select * from pracovny_vztah v where v.id=".$id);
+		$query = $this->db->query("select *,  DATE_FORMAT(v.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(v.datum_vyprsania,'%d.%m.%Y') as nice_date2 from pracovny_vztah v where v.id=".$id);
 		return $query->result();
 	}
 
@@ -164,6 +164,11 @@ class RelationMod extends CI_Model
 		$con_nextcon_id = null;
 
 		$prevcon_id = $params['prevconds'];
+		$query = $this->db->query("select platnost_od from podmienky_pracovneho_vztahu where id = ".$prevcon_id);
+		$prevcon_end = $query->row()->platnost_od;
+		if(!($prevcon_end<$con_from))
+			return array('status' => 403,'message' => 'Nie je mozne pridat podmientky starsie ako aktualne.');
+
 		$prevcon_end = date_create($con_from)->modify('-1 days')->format('Y-m-d');
 
 
