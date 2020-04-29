@@ -19,6 +19,12 @@ class HoursMod extends CI_Model
 		return $query->result();
 	}
 
+	public function get_employee_hours_of_month($month_id)
+	{
+		$query = $this->db->query("select om.id as om_id, oh.id as oh_id, oh.*, TIME_FORMAT(oh.od, '%H:%i') as od, TIME_FORMAT(oh.do, '%H:%i') as do,zm.id as zm_id from odpracovany_mesiac om join odpracovane_hodiny oh on om.id = oh.odpracovany_mesiac join zakladna_mzda zm on oh.zakladna_mzda = zm.id join forma_mzdy fm on zm.forma_mzdy = fm.id where om.id = ".$month_id." order by zm.id, oh.datum, oh.od");
+		return $query->result();
+	}
+
 
 	public function create_hours()
 	{

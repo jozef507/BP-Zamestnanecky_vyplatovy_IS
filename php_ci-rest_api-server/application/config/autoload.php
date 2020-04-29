@@ -132,4 +132,4 @@ $autoload['language'] = array();
 |
 |	$autoload['model'] = array('first_model' => 'first');
 */
-$autoload['model'] = array('AuthMod', 'EmployeeMod', 'PlaceMod', 'RelationMod', 'PositionMod', 'HoursMod', 'WageMod', 'MinWageMod', 'LevelMod', 'SurchargeMod', 'LevyMod', 'AbsenceMod');
+$autoload['model'] = array('AuthMod', 'EmployeeMod', 'PlaceMod', 'RelationMod', 'PositionMod', 'YearMod', 'HoursMod', 'WageMod', 'MinWageMod', 'PaymentMod', 'LevelMod', 'SurchargeTypeMod', 'LevyMod', 'AbsenceMod');

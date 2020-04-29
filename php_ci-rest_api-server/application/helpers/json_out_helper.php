@@ -15,3 +15,16 @@ function json_output1($message)
 	$ci->output->set_content_type('application/json');
 	$ci->output->set_output(json_encode($message));
 }
+
+function assign_value($var)
+{
+	$var=trim($var);
+	if($var === '')
+	{
+		return null;
+	}
+	else
+	{
+		return $var;
+	}
+}

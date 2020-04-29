@@ -5,7 +5,7 @@ class EmployeeMod extends CI_Model
 {
 	public function get_all_employees()
 	{
-		$query = $this->db->query("select p.*,  v.typ as p2_nazov, p3.nazov as p3_nazov from pracovisko p3 join pozicia p2 on p2.pracovisko = p3.id join podmienky_pracovneho_vztahu ppv on ppv.pozicia = p2.id join pracovny_vztah v on v.id = ppv.pracovny_vztah right join pracujuci p on  p.id = v.pracujuci order by p.id");
+		$query = $this->db->query("select p.*, v.id as v_id, v.typ as p2_nazov, p3.nazov as p3_nazov, ppv.platnost_od, ppv.platnost_do from pracovisko p3 join pozicia p2 on p2.pracovisko = p3.id join podmienky_pracovneho_vztahu ppv on ppv.pozicia = p2.id join pracovny_vztah v on v.id = ppv.pracovny_vztah right join pracujuci p on  p.id = v.pracujuci order by p.id, platnost_od");
 		return $query->result();
 	}
 
@@ -109,9 +109,6 @@ class EmployeeMod extends CI_Model
 		$num = $params['num'];
 		$childunder = $params['childunder'];
 		$childover = $params['childover'];
-		$part = $params['part'];
-		$retirement = $params['retirement'];
-		$invalidity = $params['invalidity'];
 		$begin = $params['begin'];
 		if($params['end']=='NULL')
 			$end = null;
@@ -137,9 +134,6 @@ class EmployeeMod extends CI_Model
 				'cislo' => $num,
 				'pocet_deti_do_6_rokov' => $childunder,
 				'pocet_deti_nad_6_rokov' => $childover,
-				'uplatnenie_nedzanitelnej_casti' => $part,
-				'poberatel_starobneho_dochodku' => $retirement,
-				'poberatel_invalidneho_dochodku' => $invalidity,
 				'platnost_od' => $begin,
 				'platnost_do' => $end,
 				'pracujuci' => $emp_id
@@ -290,51 +284,45 @@ class EmployeeMod extends CI_Model
 		$num = $params['num'];
 		$childunder = $params['childunder'];
 		$childover = $params['childover'];
-		$part = $params['part'];
-		$retirement = $params['retirement'];
-		$invalidity = $params['invalidity'];
 		$end = $params['end'];
 		$begin = $params['begin'];
 
 		$this->db->trans_start();
 
-		$this->db->select('platnost_od, pracujuci');
-		$this->db->from('dolezite_udaje_pracujuceho');
-		$this->db->where('id', $id );
-		$query = $this->db->get();
-		$row = $query->row_array();
-		$p_od = $row['platnost_od'];
-		$id_pracujuci =  $params['employee'];
+			$this->db->select('platnost_od, pracujuci');
+			$this->db->from('dolezite_udaje_pracujuceho');
+			$this->db->where('id', $id );
+			$query = $this->db->get();
+			$row = $query->row_array();
+			$p_od = $row['platnost_od'];
+			$id_pracujuci =  $params['employee'];
 
-		$int = date('Y-m-d', strtotime('-2 months'));
-		if(!($begin>$int && $begin>$p_od))
-		{
-			$this->db->trans_rollback();
-			return array('status' => 403,'message' => 'Zadany nespravny datum!');
-		}
+			$int = date('Y-m-d', strtotime('-2 months'));
+			if(!($begin>$int && $begin>$p_od))
+			{
+				$this->db->trans_rollback();
+				return array('status' => 403,'message' => 'Zadany nespravny datum!');
+			}
 
-		$data = array(
-			'platnost_do' => $end
-		);
-		$this->db->where('id', $id);
-		$this->db->update('dolezite_udaje_pracujuceho', $data);
+			$data = array(
+				'platnost_do' => $end
+			);
+			$this->db->where('id', $id);
+			$this->db->update('dolezite_udaje_pracujuceho', $data);
 
-		$data = array(
-			'zdravotna_poistovna' => $inscomp,
-			'mesto' => $town,
-			'ulica' => $street,
-			'cislo' => $num,
-			'pocet_deti_do_6_rokov' => $childunder,
-			'pocet_deti_nad_6_rokov' => $childover,
-			'uplatnenie_nedzanitelnej_casti' => $part,
-			'poberatel_starobneho_dochodku' => $retirement,
-			'poberatel_invalidneho_dochodku' => $invalidity,
-			'platnost_od' => $begin,
-			'platnost_do' => null,
-			'pracujuci' => $id_pracujuci
-		);
-		$this->db->insert('dolezite_udaje_pracujuceho', $data);
-		$new_id = $this->db->insert_id();
+			$data = array(
+				'zdravotna_poistovna' => $inscomp,
+				'mesto' => $town,
+				'ulica' => $street,
+				'cislo' => $num,
+				'pocet_deti_do_6_rokov' => $childunder,
+				'pocet_deti_nad_6_rokov' => $childover,
+				'platnost_od' => $begin,
+				'platnost_do' => null,
+				'pracujuci' => $id_pracujuci
+			);
+			$this->db->insert('dolezite_udaje_pracujuceho', $data);
+			$new_id = $this->db->insert_id();
 
 
 		if ($this->db->trans_status() === FALSE){

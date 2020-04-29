@@ -19,6 +19,15 @@ class AbsenceMod extends CI_Model
 		return $query->result();
 	}
 
+	public function get_absences_by_monthid($month_id)
+	{
+
+		$command = "select * from odpracovany_mesiac_nepritomnost omn join nepritomnost n on omn.nepritomnost = n.id where omn.odpracovany_mesiac=".$month_id;
+		$query = $this->db->query($command);
+
+		return $query->result();
+	}
+
 
 	public function create_absence()
 	{

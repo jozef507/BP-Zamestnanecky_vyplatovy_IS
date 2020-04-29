@@ -43,13 +43,11 @@ class RelationMod extends CI_Model
 	public function create_relation()
 	{
 		$params = $_REQUEST;
+
 		$rel_id = null;
 		$rel_type = $params['type'];
 		$rel_begin = $params['begin'];
-		if($params['end']=='NULL')
-			$rel_end = null;
-		else
-			$rel_end = $params['end'];
+		$rel_end = assign_value($params['end']);
 		$rel_employee_id = $params['employeeid'];
 
 		$nextcon_id = null;
@@ -61,6 +59,10 @@ class RelationMod extends CI_Model
 		$nextcon_testtime = null;
 		$nextcon_sacktime = null;
 
+		$nextcon_daytime = null;
+		$nextcon_apweektime = null;
+		$nextcon_deductableitem = null;
+
 		if($nextcon_bool=="true")
 		{
 			$nextcon_main = $params['main'];
@@ -69,18 +71,30 @@ class RelationMod extends CI_Model
 			$nextcon_uniform = $params['uniform'];
 			$nextcon_testtime = $params['testtime'];
 			$nextcon_sacktime = $params['sacktime'];
-		}
 
+			$nextcon_daytime = assign_value($params['daytime']);
+			$nextcon_apweektime = assign_value($params['apweektime']);
+			$nextcon_deductableitem = assign_value($params['deductableitem']);
+		}
 
 		$con_id = null;
 		$con_from = $params['from'];
-		if($params['to']=='NULL')
-			$con_to = null;
-		else
-			$con_to = $params['to'];
+		$con_to = assign_value($params['to']);
 		$con_rel_id = null;
 		$con_position_id = $params['positionid'];
 		$con_nextcon_id = null;
+
+		$con_nextcon_taxfree = assign_value($params['taxfree']);
+		$con_nextcon_taxbonus = assign_value($params['taxbonus']);
+		$con_nextcon_disabled = assign_value($params['disabled']);
+		$con_nextcon_retirement = assign_value($params['retirement']);
+		$con_nextcon_invalidity40 = assign_value($params['invalidity40']);
+		$con_nextcon_invalidity70 = assign_value($params['invalidity70']);
+		$con_nextcon_premature = assign_value($params['premature']);
+		$con_nextcon_exemption = assign_value($params['exemption']);
+		$con_nextcon_bank = assign_value($params['bank']);
+		$con_nextcon_bankpart = assign_value($params['bankpart']);
+		$con_nextcon_iban = assign_value($params['iban']);
 
 
 		$this->db->trans_start();
@@ -100,10 +114,14 @@ class RelationMod extends CI_Model
 				$data = array(
 					'je_hlavny_pp' => $nextcon_main,
 					'vymera_dovolenky' => $nextcon_holliday,
-					'tyzdenny_pracovny_cas' => $nextcon_weektime,
+					'dohodnuty_tyzdenny_pracovny_cas' => $nextcon_weektime,
 					'je_pracovny_cas_rovnomerny' => $nextcon_uniform,
 					'skusobvna_doba' => $nextcon_testtime,
-					'vypovedna_doba' => $nextcon_sacktime
+					'vypovedna_doba' => $nextcon_sacktime,
+
+					'ustanoveny_tyzdenny_pracovny_cas' => $nextcon_apweektime,
+					'dohodnuty_denny_pracovny_cas' => $nextcon_daytime,
+					'uplatnenie_odpocitatelnej_polozky' => $nextcon_deductableitem
 				);
 				$this->db->insert('dalsie_podmienky', $data);
 				$nextcon_id = $this->db->insert_id();
@@ -119,7 +137,19 @@ class RelationMod extends CI_Model
 				'platnost_do' => $con_to,
 				'pracovny_vztah' => $con_rel_id,
 				'pozicia' => $con_position_id,
-				'dalsie_podmienky' =>$con_nextcon_id
+				'dalsie_podmienky' =>$con_nextcon_id,
+
+				'uplatnenie_nezdanitelnej_casti' =>$con_nextcon_taxfree,
+				'uplatnenie_danoveho_bonusu' =>$con_nextcon_taxbonus,
+				'drzitel_tzp_preukazu' =>$con_nextcon_disabled,
+				'poberatel_starobneho_vysluhoveho_dochodku' =>$con_nextcon_retirement,
+				'poberatel_invalidneho_vysluhoveho_dochodku_nad_40' =>$con_nextcon_invalidity40,
+				'poberatel_invalidneho_vysluhoveho_dochodku_nad_70' =>$con_nextcon_invalidity70,
+				'poberatel_predcasneho_dochodku' =>$con_nextcon_premature,
+				'uplatnenie_odvodovej_vynimky' =>$con_nextcon_exemption,
+				'posielanie_vyplaty_na_ucet' =>$con_nextcon_bank,
+				'cast_z_vyplaty_na_ucet' =>$con_nextcon_bankpart,
+				'iban_uctu_pre_vyplatu' =>$con_nextcon_iban
 			);
 			$this->db->insert('podmienky_pracovneho_vztahu', $data);
 			$con_id = $this->db->insert_id();
@@ -146,6 +176,10 @@ class RelationMod extends CI_Model
 		$nextcon_testtime = null;
 		$nextcon_sacktime = null;
 
+		$nextcon_daytime = null;
+		$nextcon_apweektime = null;
+		$nextcon_deductableitem = null;
+
 		if($nextcon_bool=="true")
 		{
 			$nextcon_main = $params['main'];
@@ -154,6 +188,10 @@ class RelationMod extends CI_Model
 			$nextcon_uniform = $params['uniform'];
 			$nextcon_testtime = $params['testtime'];
 			$nextcon_sacktime = $params['sacktime'];
+
+			$nextcon_daytime = assign_value($params['daytime']);
+			$nextcon_apweektime = assign_value($params['apweektime']);
+			$nextcon_deductableitem = assign_value($params['deductableitem']);
 		}
 
 		$con_id = null;
@@ -162,6 +200,18 @@ class RelationMod extends CI_Model
 		$con_rel_id = $params['relid'];
 		$con_position_id = $params['positionid'];
 		$con_nextcon_id = null;
+
+		$con_nextcon_taxfree = assign_value($params['taxfree']);
+		$con_nextcon_taxbonus = assign_value($params['taxbonus']);
+		$con_nextcon_disabled = assign_value($params['disabled']);
+		$con_nextcon_retirement = assign_value($params['retirement']);
+		$con_nextcon_invalidity40 = assign_value($params['invalidity40']);
+		$con_nextcon_invalidity70 = assign_value($params['invalidity70']);
+		$con_nextcon_premature = assign_value($params['premature']);
+		$con_nextcon_exemption = assign_value($params['exemption']);
+		$con_nextcon_bank = assign_value($params['bank']);
+		$con_nextcon_bankpart = assign_value($params['bankpart']);
+		$con_nextcon_iban = assign_value($params['iban']);
 
 		$prevcon_id = $params['prevconds'];
 		$query = $this->db->query("select platnost_od from podmienky_pracovneho_vztahu where id = ".$prevcon_id);
@@ -184,10 +234,14 @@ class RelationMod extends CI_Model
 				$data = array(
 					'je_hlavny_pp' => $nextcon_main,
 					'vymera_dovolenky' => $nextcon_holliday,
-					'tyzdenny_pracovny_cas' => $nextcon_weektime,
+					'dohodnuty_tyzdenny_pracovny_cas' => $nextcon_weektime,
 					'je_pracovny_cas_rovnomerny' => $nextcon_uniform,
 					'skusobvna_doba' => $nextcon_testtime,
-					'vypovedna_doba' => $nextcon_sacktime
+					'vypovedna_doba' => $nextcon_sacktime,
+
+					'ustanoveny_tyzdenny_pracovny_cas' => $nextcon_apweektime,
+					'dohodnuty_denny_pracovny_cas' => $nextcon_daytime,
+					'uplatnenie_odpocitatelnej_polozky' => $nextcon_deductableitem
 				);
 				$this->db->insert('dalsie_podmienky', $data);
 				$nextcon_id = $this->db->insert_id();
@@ -202,7 +256,19 @@ class RelationMod extends CI_Model
 				'platnost_do' => $con_to,
 				'pracovny_vztah' => $con_rel_id,
 				'pozicia' => $con_position_id,
-				'dalsie_podmienky' =>$con_nextcon_id
+				'dalsie_podmienky' =>$con_nextcon_id,
+
+				'uplatnenie_nezdanitelnej_casti' =>$con_nextcon_taxfree,
+				'uplatnenie_danoveho_bonusu' =>$con_nextcon_taxbonus,
+				'drzitel_tzp_preukazu' =>$con_nextcon_disabled,
+				'poberatel_starobneho_vysluhoveho_dochodku' =>$con_nextcon_retirement,
+				'poberatel_invalidneho_vysluhoveho_dochodku_nad_40' =>$con_nextcon_invalidity40,
+				'poberatel_invalidneho_vysluhoveho_dochodku_nad_70' =>$con_nextcon_invalidity70,
+				'poberatel_predcasneho_dochodku' =>$con_nextcon_premature,
+				'uplatnenie_odvodovej_vynimky' =>$con_nextcon_exemption,
+				'posielanie_vyplaty_na_ucet' =>$con_nextcon_bank,
+				'cast_z_vyplaty_na_ucet' =>$con_nextcon_bankpart,
+				'iban_uctu_pre_vyplatu' =>$con_nextcon_iban
 			);
 			$this->db->insert('podmienky_pracovneho_vztahu', $data);
 			$con_id = $this->db->insert_id();

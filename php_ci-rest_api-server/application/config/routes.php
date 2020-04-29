@@ -50,80 +50,90 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
 */
 
-$route['auth/login']['post']           = 'auth/login';
+$route['auth/login']['post']           = 'Auth/login';
+$route['auth/logout']['post']           = 'Auth/logout';
 
-$route['employee']['get']           = 'employee';
-$route['employee/emp_usr/(:num)']['get']           = 'employee/emp_usr/$1';
-$route['employee/emps_usrs']['get']           = 'employee/emps_usrs';
-$route['employee/update']['post']           = 'employee/update';
-$route['employee/update_imp']['post']           = 'employee/update_imp';
-$route['employee/crt_emp']['post']           = 'employee/crt_emp';
-$route['employee/crt_usr']['post']           = 'employee/crt_usr';
-$route['employee/upd_usr']['post']           = 'employee/upd_usr';
-$route['employee/upd_usr_pas']['post']           = 'employee/upd_usr_pas';
-$route['employee/detail/(:num)']['get']           = 'employee/detail/$1';
-$route['employee/relations_places_details/(:num)']['get']		 = 'employee/relations_places_details/$1';
-$route['employee/emp_usr_imp/(:num)']['get'] 		= 'employee/emp_usr_imp/$1';
-$route['employee/emp_rel_ov/(:num)']['get'] 		= 'employee/emp_rel_ov/$1';
-$route['employee/count_imp_pay/(:num)']['get']		 = 'employee/count_imp_pay/$1';
-$route['employee/all_imp/(:num)']['get'] 		= 'employee/all_imp/$1';
-$route['employee/delete_imp/(:num)']['delete'] 			= 'employee/delete_imp/$1';
-$route['employee/del_emp/(:num)']['delete'] 			= 'employee/del_emp/$1';
+$route['employee']['get']           = 'Employee';
+$route['employee/emp_usr/(:num)']['get']           = 'Employee/emp_usr/$1';
+$route['employee/emps_usrs']['get']           = 'Employee/emps_usrs';
+$route['employee/update']['post']           = 'Employee/update';
+$route['employee/update_imp']['post']           = 'Employee/update_imp';
+$route['employee/crt_emp']['post']           = 'Employee/crt_emp';
+$route['employee/crt_usr']['post']           = 'Employee/crt_usr';
+$route['employee/upd_usr']['post']           = 'Employee/upd_usr';
+$route['employee/upd_usr_pas']['post']           = 'Employee/upd_usr_pas';
+$route['employee/detail/(:num)']['get']           = 'Employee/detail/$1';
+$route['employee/relations_places_details/(:num)']['get']		 = 'Employee/relations_places_details/$1';
+$route['employee/emp_usr_imp/(:num)']['get'] 		= 'Employee/emp_usr_imp/$1';
+$route['employee/emp_rel_ov/(:num)']['get'] 		= 'Employee/emp_rel_ov/$1';
+$route['employee/count_imp_pay/(:num)']['get']		 = 'Employee/count_imp_pay/$1';
+$route['employee/all_imp/(:num)']['get'] 		= 'Employee/all_imp/$1';
+$route['employee/delete_imp/(:num)']['delete'] 			= 'Employee/delete_imp/$1';
+$route['employee/del_emp/(:num)']['delete'] 			= 'Employee/del_emp/$1';
 
-$route['relation/detail/(:num)']['get']           = 'relation/detail/$1';
-$route['relation/nxt_dmnds_d/(:num)']['get']           = 'relation/nxt_dmnds_d/$1';
-$route['relation/con_ncon_po_pl/(:num)']['get']           = 'relation/con_ncon_po_pl/$1';
-$route['relation/rel_by_cons/(:num)']['get']           = 'relation/rel_by_cons/$1';
-$route['relation/emp_rel_cons_po_pl']['get']           = 'relation/emp_rel_cons_po_pl';
-$route['relation/crt_rel']['post']           = 'relation/crt_rel';
-$route['relation/upd_rel']['post']           = 'relation/upd_rel';
-$route['relation/del_rel/(:num)']['delete']           = 'relation/del_rel/$1';
-$route['relation/del_cons/(:num)']['delete']           = 'relation/del_cons/$1';
-$route['relation/del_lst_cons/(:num)/(:num)']['delete']           = 'relation/del_lst_cons/$1/$2';
+$route['relation/detail/(:num)']['get']           = 'Relation/detail/$1';
+$route['relation/nxt_dmnds_d/(:num)']['get']           = 'Relation/nxt_dmnds_d/$1';
+$route['relation/con_ncon_po_pl/(:num)']['get']           = 'Relation/con_ncon_po_pl/$1';
+$route['relation/rel_by_cons/(:num)']['get']           = 'Relation/rel_by_cons/$1';
+$route['relation/emp_rel_cons_po_pl']['get']           = 'Relation/emp_rel_cons_po_pl';
+$route['relation/crt_rel']['post']           = 'Relation/crt_rel';
+$route['relation/upd_rel']['post']           = 'Relation/upd_rel';
+$route['relation/del_rel/(:num)']['delete']           = 'Relation/del_rel/$1';
+$route['relation/del_cons/(:num)']['delete']           = 'Relation/del_cons/$1';
+$route['relation/del_lst_cons/(:num)/(:num)']['delete']           = 'Relation/del_lst_cons/$1/$2';
 
-$route['place']['get']           = 'place';
-$route['place/del_place/(:num)']['delete']           = 'place/del_place/$1';
-$route['place/crt_place']['post']           = 'place/crt_place';
+$route['place']['get']           = 'Place';
+$route['place/del_place/(:num)']['delete']           = 'Place/del_place/$1';
+$route['place/crt_place']['post']           = 'Place/crt_place';
 
-$route['position']['get']           = 'position';
-$route['position/pos_lvl']['get']           = 'position/pos_lvl';
-$route['position/lvls']['get']           = 'position/lvls';
-$route['position/crt_pos']['post']           = 'position/crt_pos';
-$route['position/upd_pos']['post']           = 'position/upd_pos';
-$route['position/del_pos/(:num)/(:num)']['delete']           = 'position/del_pos/$1/$2';
+$route['position']['get']           = 'Position';
+$route['position/pos_lvl']['get']           = 'Position/pos_lvl';
+$route['position/lvls']['get']           = 'Position/lvls';
+$route['position/crt_pos']['post']           = 'Position/crt_pos';
+$route['position/upd_pos']['post']           = 'Position/upd_pos';
+$route['position/del_pos/(:num)/(:num)']['delete']           = 'Position/del_pos/$1/$2';
 
-$route['wage/forms']['get']           = 'wage/forms';
-$route['wage/del_form/(:num)']['delete']           = 'wage/del_form/$1';
-$route['wage/wage_of_con/(:num)']['get']           = 'wage/wage_of_con/$1';
-$route['wage/wage_form_of_con/(:num)']['get']           = 'wage/wage_form_of_con/$1';
-$route['wage/wage_form/(:num)']['get']           = 'wage/wage_form/$1';
-$route['wage/crt_wage']['post']           = 'wage/crt_wage';
-$route['wage/crt_form']['post']           = 'wage/crt_form';
+$route['wage/forms']['get']           = 'Wage/forms';
+$route['wage/del_form/(:num)']['delete']           = 'Wage/del_form/$1';
+$route['wage/wage_of_con/(:num)']['get']           = 'Wage/wage_of_con/$1';
+$route['wage/wage_form_of_con/(:num)']['get']           = 'Wage/wage_form_of_con/$1';
+$route['wage/wage_form/(:num)']['get']           = 'Wage/wage_form/$1';
+$route['wage/crt_wage']['post']           = 'Wage/crt_wage';
+$route['wage/crt_form']['post']           = 'Wage/crt_form';
 
-$route['minwage']['get']           = 'minwage';
-$route['minwage/del_minwg/(:num)']['delete']           = 'minwage/del_minwg/$1';
-$route['minwage/crt_minwg']['post']           = 'minwage/crt_minwg';
-$route['minwage/upd_minwg']['post']           = 'minwage/upd_minwg';
+$route['level']['get']           = 'Level';
+$route['level/crt_lev']['post']           = 'Level/crt_lev';
+$route['level/upd_lev']['post']           = 'Level/upd_lev';
+$route['level/del_lev/(:num)']['delete']           = 'Level/del_lev/$1';
 
-$route['level']['get']           = 'level';
-$route['level/crt_lev']['post']           = 'level/crt_lev';
-$route['level/upd_lev']['post']           = 'level/upd_lev';
-$route['level/del_lev/(:num)']['delete']           = 'level/del_lev/$1';
+$route['surcharge']['get']           = 'SurchargeType';
+$route['surcharge/stbm/(:num)']['get']           = 'SurchargeType/sur_by_monthid/$1';
+$route['surcharge/del_sur/(:num)']['delete']           = 'SurchargeType/del_sur/$1';
+$route['surcharge/crt_sur']['post']           = 'SurchargeType/crt_sur';
+$route['surcharge/upd_sur']['post']           = 'SurchargeType/upd_sur';
 
-$route['surcharge']['get']           = 'surcharge';
-$route['surcharge/del_sur/(:num)']['delete']           = 'surcharge/del_sur/$1';
-$route['surcharge/crt_sur']['post']           = 'surcharge/crt_sur';
-$route['surcharge/upd_sur']['post']           = 'surcharge/upd_sur';
+$route['minwage']['get']           = 'MinWage';
+$route['minwage/del_minwg/(:num)']['delete']           = 'MinWage/del_minwg/$1';
+$route['minwage/crt_minwg']['post']           = 'MinWage/crt_minwg';
+$route['minwage/upd_minwg']['post']           = 'MinWage/upd_minwg';
 
-$route['hours/hrs/(:any)']['get']           = 'hours/hrs/$1';
-$route['hours/crt_hrs']['post']           = 'hours/crt_hrs';
-$route['hours/upd_hrs']['post']           = 'hours/upd_hrs';
-$route['hours/del_hrs/(:num)']['delete']           = 'hours/del_hrs/$1';
+$route['year/yrs/(:num)/(:num)']['get']           = 'Year/all_years_of_this_yearnumber/$1/$2';
 
-$route['absence/bsnc/(:any)']['get']           = 'absence/bsnc/$1';
-$route['absence/crt_bsnc']['post']           = 'absence/crt_bsnc';
-$route['absence/crt_fst']['post']           = 'absence/crt_fst';
-$route['absence/del_bsnc/(:num)']['delete']           = 'absence/del_bsnc/$1';
+$route['hours/hrs/(:any)']['get']           = 'Hours/hrs/$1';
+$route['hours/crt_hrs']['post']           = 'Hours/crt_hrs';
+$route['hours/upd_hrs']['post']           = 'Hours/upd_hrs';
+$route['hours/del_hrs/(:num)']['delete']           = 'Hours/del_hrs/$1';
+$route['hours/emp-hrs-mnth/(:any)']['get']           = 'Hours/employee_hours_of_month/$1';
+
+$route['absence/bsnc/(:any)']['get']           = 'Absence/bsnc/$1';
+$route['absence/bsnc-by-mnthid/(:num)']['get']           = 'Absence/absences_by_monthid/$1';
+$route['absence/crt_bsnc']['post']           = 'Absence/crt_bsnc';
+$route['absence/crt_fst']['post']           = 'Absence/crt_fst';
+$route['absence/del_bsnc/(:num)']['delete']           = 'Absence/del_bsnc/$1';
+
+$route['payment/mnth/(:num)/(:num)']['get']           = 'Payment/payments_month/$1/$2';
+$route['payment/lstmnth']['get']           = 'Payment/payments_last_month';
+$route['payment/nffr_mplpmnt/(:num)']['get']           = 'Payment/info_for_emplyee_payment/$1';
 
 $route['default_controller'] = 'Employee';
 $route['404_override'] = '';
