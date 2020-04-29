@@ -2,9 +2,9 @@ package application.models;
 
 public class WageD
 {
-    String id, label, employeeEnter, timeImportant, emergencyImportant, tarif, payWay, payDate;
-    String wageFormID, wageFormName, wageFormUnit, wageFormUnitShort;
-    String conditionsID;
+    private String id, label, employeeEnter, timeImportant, emergencyImportant, tarif, payWay, payDate;
+    private String wageFormID, wageFormName, wageFormUnit, wageFormUnitShort;
+    private String conditionsID;
 
     public WageD() {
     }

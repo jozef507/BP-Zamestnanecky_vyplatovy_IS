@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 public class HoursD
 {
-    String id, date, from, to, overTime, unitsDone, partBase, emergencyType, updated,
+    private String id, date, from, to, overTime, unitsDone, partBase, emergencyType, updated,
         employeeID, employeeNameLastname,
         consID,
         relID,
@@ -19,8 +19,8 @@ public class HoursD
         placeID, placeName;
 
     int Iid;
-    String wageFormLabel;
-    LocalDateTime updatedT;
+    private String wageFormLabel;
+    private LocalDateTime updatedT;
 
     public HoursD() {
     }

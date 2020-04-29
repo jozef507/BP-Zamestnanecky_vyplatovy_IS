@@ -5,7 +5,9 @@ import java.time.format.DateTimeFormatter;
 
 public class ConditionsD
 {
-    String id, from, to, relationID, positionID, nextConditionsID;
+    private String id, from, to, relationID, positionID, nextConditionsID,
+        taxFree, taxBonus, disabled, retirement, invalidity40, invalidity70,
+        premature, exemption, bank, bankPart, iban;
 
     public ConditionsD() {
     }
@@ -40,11 +42,7 @@ public class ConditionsD
         this.id = id;
     }
 
-    public String getFrom() {
-
-            return from;
-
-    }
+    public String getFrom() {  return from;  }
 
     public void setFrom(String from) {
         this.from = from;
@@ -80,5 +78,94 @@ public class ConditionsD
 
     public void setNextConditionsID(String nextConditionsID) {
         this.nextConditionsID = nextConditionsID;
+    }
+
+
+    public void setBank(String bank) {
+        this.bank = bank;
+    }
+
+    public String getBankPart() {
+        return bankPart;
+    }
+
+    public void setBankPart(String bankPart) {
+        this.bankPart = bankPart;
+    }
+
+    public String getIban() {
+        return iban;
+    }
+
+    public void setIban(String iban) {
+        this.iban = iban;
+    }
+
+    public String getTaxFree() {
+        return taxFree;
+    }
+
+    public void setTaxFree(String taxFree) {
+        this.taxFree = taxFree;
+    }
+
+    public String getTaxBonus() {
+        return taxBonus;
+    }
+
+    public void setTaxBonus(String taxBonus) {
+        this.taxBonus = taxBonus;
+    }
+
+    public String getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(String disabled) {
+        this.disabled = disabled;
+    }
+
+    public String getRetirement() {
+        return retirement;
+    }
+
+    public void setRetirement(String retirement) {
+        this.retirement = retirement;
+    }
+
+    public String getInvalidity40() {
+        return invalidity40;
+    }
+
+    public void setInvalidity40(String invalidity40) {
+        this.invalidity40 = invalidity40;
+    }
+
+    public String getInvalidity70() {
+        return invalidity70;
+    }
+
+    public void setInvalidity70(String invalidity70) {
+        this.invalidity70 = invalidity70;
+    }
+
+    public String getPremature() {
+        return premature;
+    }
+
+    public void setPremature(String premature) {
+        this.premature = premature;
+    }
+
+    public String getExemption() {
+        return exemption;
+    }
+
+    public void setExemption(String exemption) {
+        this.exemption = exemption;
+    }
+
+    public String getBank() {
+        return bank;
     }
 }

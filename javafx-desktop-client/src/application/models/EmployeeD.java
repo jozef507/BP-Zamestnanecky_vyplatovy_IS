@@ -6,7 +6,7 @@ public class EmployeeD
 {
     private String id, name, lastname, phone, bornNum, bornDate;
     private String pkID, email, password, userType, lastLogIn, created, isCurrent;
-    private String duID, insComp, town, street, number, from, childrenUnder, childrenOver, part, retirement, invalidity;
+    private String duID, insComp, town, street, number, from, childrenUnder, childrenOver;
 
     private ArrayList<RelationOV> relations;
 
@@ -32,18 +32,6 @@ public class EmployeeD
         this.from = from;
         this.childrenUnder = childrenUnder;
         this.childrenOver = childrenOver;
-        if(part.equals("0"))
-            this.part = "nie";
-        else
-            this.part = "áno";
-        if(retirement.equals("0"))
-            this.retirement = "nie";
-        else
-            this.retirement = "áno";
-        if(invalidity.equals("0"))
-            this.invalidity = "nie";
-        else
-            this.invalidity = "áno";
     }
 
     public EmployeeD(String id, String name, String lastname, String phone, String bornNum, String bornDate) {
@@ -67,8 +55,6 @@ public class EmployeeD
         this.from = from;
         this.childrenUnder = childrenUnder;
         this.childrenOver = childrenOver;
-        this.retirement = retirement;
-        this.invalidity = invalidity;
     }
 
     public String getId() {
@@ -183,22 +169,6 @@ public class EmployeeD
         this.childrenOver = childrenOver;
     }
 
-    public String getRetirement() {
-        return retirement;
-    }
-
-    public void setRetirement(String retirement) {
-        this.retirement = retirement;
-    }
-
-    public String getInvalidity() {
-        return invalidity;
-    }
-
-    public void setInvalidity(String invalidity) {
-        this.invalidity = invalidity;
-    }
-
     public ArrayList<RelationOV> getRelations() {
         return relations;
     }
@@ -229,14 +199,6 @@ public class EmployeeD
 
     public void setInsComp(String insComp) {
         this.insComp = insComp;
-    }
-
-    public String getPart() {
-        return part;
-    }
-
-    public void setPart(String part) {
-        this.part = part;
     }
 
     public String getIsCurrent() {

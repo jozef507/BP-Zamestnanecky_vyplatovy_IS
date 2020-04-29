@@ -1,13 +1,15 @@
 package application.models;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class AbsenceD
 {
-    String id, from, to, reason, characteristic, half, updated;
-    String halfT;
-    String  employeeID, employeeNameLastname,
+    private String id, from, to, reason, characteristic, half, updated;
+    private String halfT;
+    private String  employeeID, employeeNameLastname,
             conID,
             relID,
             yearID, yearNumber,
@@ -17,13 +19,15 @@ public class AbsenceD
             placeID, placeName;
     int Iid;
     LocalDateTime updatedT;
+    LocalDate fromT;
+    LocalDate toT;
+
 
     public AbsenceD() {
     }
 
     public String getId() {
         return id;
-
     }
 
     public void setId(String id) {
@@ -41,6 +45,13 @@ public class AbsenceD
 
     public void setFrom(String from) {
         this.from = from;
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            this.fromT = LocalDate.parse(from, formatter);
+        }catch (DateTimeParseException e){
+            e.printStackTrace();
+        }
     }
 
     public String getTo() {
@@ -49,6 +60,14 @@ public class AbsenceD
 
     public void setTo(String to) {
         this.to = to;
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            this.toT = LocalDate.parse(to, formatter);
+        }catch (DateTimeParseException e){
+            e.printStackTrace();
+        }
+
     }
 
     public String getReason() {
@@ -198,5 +217,15 @@ public class AbsenceD
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         return this.updatedT.format(formatter);
+    }
+
+    public String getFromT() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        return this.fromT.format(formatter);
+    }
+
+    public String getToT() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        return this.toT.format(formatter);
     }
 }

@@ -44,6 +44,15 @@ public class JsonArrayClass
         }
     }
 
+    public JSONObject getRow(int index)
+    {
+        try{
+            return (((JSONObject)array.get(index)));
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
     public int getSize()
     {
         return this.array.size();

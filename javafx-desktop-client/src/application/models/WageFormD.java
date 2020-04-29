@@ -2,7 +2,7 @@ package application.models;
 
 public class WageFormD
 {
-    String id, name, unit, unitShort;
+    private String id, name, unit, unitShort;
 
     public WageFormD() {
     }

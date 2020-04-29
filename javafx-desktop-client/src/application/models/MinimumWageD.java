@@ -2,7 +2,7 @@ package application.models;
 
 public class MinimumWageD
 {
-    String id, from, to, hourValue, monthValaue,
+    private String id, from, to, hourValue, monthValaue,
             levelID, levelNum;
 
     public MinimumWageD() {

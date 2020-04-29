@@ -2,9 +2,9 @@ package application.models;
 
 public class RelationD
 {
-    String id, type, from, to;
+    private String id, type, from, to;
 
-    String employeeID, employeeNameLastname,
+    private String employeeID, employeeNameLastname,
         conditionsID, conditionsFrom, conditionsTo,
         positionID, positionName,
         placeID, placeName;

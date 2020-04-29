@@ -2,7 +2,7 @@ package application.models;
 
 public class LevelD
 {
-    String id, number, caracteristic, from, to;
+    private String id, number, caracteristic, from, to;
 
     public LevelD() {
     }

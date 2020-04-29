@@ -1,10 +1,20 @@
 package application.models;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class LevyD
 {
-    String id, name, partEe, partEr, from, to;
+    private String id, name, assessmentBasis, employeeSum, employerSum, paymentID;
 
     public LevyD() {
+    }
+
+    public LevyD(String name, String assessmentBasis, String employeeSum, String employerSum) {
+        this.name = name;
+        this.assessmentBasis = assessmentBasis;
+        this.employeeSum = employeeSum;
+        this.employerSum = employerSum;
     }
 
     public String getId() {
@@ -23,35 +33,51 @@ public class LevyD
         this.name = name;
     }
 
-    public String getPartEe() {
-        return partEe;
+    public String getAssessmentBasis() {
+        return assessmentBasis;
     }
 
-    public void setPartEe(String partEe) {
-        this.partEe = partEe;
+    public void setAssessmentBasis(String assessmentBasis) {
+        this.assessmentBasis = assessmentBasis;
     }
 
-    public String getPartEr() {
-        return partEr;
+    public String getEmployeeSum() {
+        return employeeSum;
     }
 
-    public void setPartEr(String partEr) {
-        this.partEr = partEr;
+    public void setEmployeeSum(String employeeSum) {
+        this.employeeSum = employeeSum;
     }
 
-    public String getFrom() {
-        return from;
+    public String getEmployerSum() {
+        return employerSum;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setEmployerSum(String employerSum) {
+        this.employerSum = employerSum;
     }
 
-    public String getTo() {
-        return to;
+    public String getPaymentID() {
+        return paymentID;
     }
 
-    public void setTo(String to) {
-        this.to = to;
+    public void setPaymentID(String paymentID) {
+        this.paymentID = paymentID;
+    }
+
+    public void calculate(BigDecimal assesmentBasis, BigDecimal[] partsOfLevies)
+    {
+        if (partsOfLevies.length != 2)
+            return;
+
+        BigDecimal employeePart = partsOfLevies[0];
+        BigDecimal employerPart = partsOfLevies[1];
+
+        BigDecimal employeeLevy = employeePart.multiply(assesmentBasis);
+        BigDecimal employerLevy = employerPart.multiply(assesmentBasis);
+
+        this.assessmentBasis = assesmentBasis.setScale(2, RoundingMode.HALF_UP).toPlainString();
+        this.employeeSum = employeeLevy.setScale(2, RoundingMode.HALF_UP).toPlainString();
+        this.employerSum = employerLevy.setScale(2, RoundingMode.HALF_UP).toPlainString();
     }
 }

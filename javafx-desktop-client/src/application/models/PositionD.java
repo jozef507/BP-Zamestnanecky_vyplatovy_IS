@@ -2,7 +2,7 @@ package application.models;
 
 public class PositionD
 {
-    String id, name, place, characteristic,
+    private String id, name, place, characteristic,
         placeID, placeName,
         levelID, levelLevel;
 

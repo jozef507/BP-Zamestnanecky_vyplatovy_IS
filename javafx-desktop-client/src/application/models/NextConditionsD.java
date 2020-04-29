@@ -2,7 +2,8 @@ package application.models;
 
 public class NextConditionsD
 {
-    String id, isMain, hollidayTime, weekTime, isWeekTimeUniform, testTime, sackTime;
+    private String id, isMain, hollidayTime, weekTime, isWeekTimeUniform, testTime, sackTime,
+        apWeekTime, dayTime, deductableItem;
 
     public NextConditionsD() {
     }
@@ -35,10 +36,7 @@ public class NextConditionsD
     }
 
     public String getIsMain() {
-        if(isMain.equals("0"))
-            return "nie";
-        else
-            return "áno";
+        return isMain;
     }
 
     public void setIsMain(String isMain) {
@@ -62,10 +60,8 @@ public class NextConditionsD
     }
 
     public String getIsWeekTimeUniform() {
-        if(isWeekTimeUniform.equals("0"))
-            return "nie";
-        else
-            return "áno";    }
+        return isWeekTimeUniform;
+    }
 
     public void setIsWeekTimeUniform(String isWeekTimeUniform) {
 
@@ -86,5 +82,29 @@ public class NextConditionsD
 
     public void setSackTime(String sackTime) {
         this.sackTime = sackTime;
+    }
+
+    public String getApWeekTime() {
+        return apWeekTime;
+    }
+
+    public void setApWeekTime(String apWeekTime) {
+        this.apWeekTime = apWeekTime;
+    }
+
+    public String getDayTime() {
+        return dayTime;
+    }
+
+    public void setDayTime(String dayTime) {
+        this.dayTime = dayTime;
+    }
+
+    public String getDeductableItem() {
+        return deductableItem;
+    }
+
+    public void setDeductableItem(String deductableItem) {
+        this.deductableItem = deductableItem;
     }
 }

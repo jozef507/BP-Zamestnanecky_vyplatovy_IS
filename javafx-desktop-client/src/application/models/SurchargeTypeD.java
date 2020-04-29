@@ -2,7 +2,7 @@ package application.models;
 
 public class SurchargeTypeD
 {
-    String id, name, part, base, from, to;
+    private String id, name, description, part, base, from, to;
 
     public SurchargeTypeD() {
     }
@@ -53,5 +53,18 @@ public class SurchargeTypeD
 
     public void setTo(String to) {
         this.to = to;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getCheckboxString()
+    {
+        return id +" / "+ name + " / " + description + " / " + part;
     }
 }

@@ -3,11 +3,11 @@ package application.models;
 public class ImportantD
 {
     private String id, insComp, town, street, num, childUnder, childOver,
-        part, retirement, invalidity, from, to, employeeID;
+        from, to, employeeID;
 
     public ImportantD() {}
 
-    public ImportantD(String id, String insComp, String town, String street, String num, String childUnder, String childOver, String part, String retirement, String invalidity, String from, String to) {
+    public ImportantD(String id, String insComp, String town, String street, String num, String childUnder, String childOver, String from, String to) {
         this.id = id;
         this.insComp = insComp;
         this.town = town;
@@ -15,9 +15,6 @@ public class ImportantD
         this.num = num;
         this.childUnder = childUnder;
         this.childOver = childOver;
-        this.part = part;
-        this.retirement = retirement;
-        this.invalidity = invalidity;
         this.from = from;
         if(to==null || to.equals("00.00.0000"))
             this.to = "aktuálne";
@@ -78,30 +75,6 @@ public class ImportantD
 
     public void setChildOver(String childOver) {
         this.childOver = childOver;
-    }
-
-    public String getPart() {
-        return part;
-    }
-
-    public void setPart(String part) {
-        this.part = part;
-    }
-
-    public String getRetirement() {
-        return retirement;
-    }
-
-    public void setRetirement(String retirement) {
-        this.retirement = retirement;
-    }
-
-    public String getInvalidity() {
-        return invalidity;
-    }
-
-    public void setInvalidity(String invalidity) {
-        this.invalidity = invalidity;
     }
 
     public String getFrom() {

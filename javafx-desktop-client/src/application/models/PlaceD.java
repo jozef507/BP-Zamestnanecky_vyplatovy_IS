@@ -2,7 +2,7 @@ package application.models;
 
 public class PlaceD
 {
-    String id, name, town, street, num;
+    private String id, name, town, street, num;
 
     public PlaceD() {
     }
