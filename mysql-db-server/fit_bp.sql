@@ -27,7 +27,7 @@ drop table if exists pohybliva_zlozka;
 drop table if exists typ_priplatku;
 drop table if exists priplatok;
 drop table if exists nahrada;
-drop table if exists typ_odvodu;
+drop table if exists ina_zlozka_mzdy;
 drop table if exists odvod;
 drop table if exists zrazka;
 drop table if exists odpracovany_rok;
@@ -35,6 +35,7 @@ drop table if exists odpracovany_mesiac;
 drop table if exists odpracovany_mesiac_nepritomnost;
 drop table if exists nepritomnost;
 drop table if exists odpracovane_hodiny;
+drop table if exists mzdove_konstanty;
 
 set foreign_key_checks = 1;
 
@@ -92,7 +93,7 @@ create table pracujuci
 create table dolezite_udaje_pracujuceho
 (
     id int not null auto_increment,
-	zdravotna_poistovna varchar(255) not null,
+	zdravotna_poistovna varchar(30) not null,
 	/*cislo_zdravotnej_poistovni varchar(5) not null,*/
 
     /*trvaly pobyt*/
@@ -102,9 +103,6 @@ create table dolezite_udaje_pracujuceho
 
     pocet_deti_do_6_rokov varchar(2) not null,
     pocet_deti_nad_6_rokov varchar(2) not null,
-    uplatnenie_nedzanitelnej_casti boolean not null,
-    poberatel_starobneho_dochodku boolean not null,
-    poberatel_invalidneho_dochodku boolean not null,
 
     platnost_od date not null,
     platnost_do date null,
@@ -144,7 +142,8 @@ create table pracovisko
     ulica varchar(255) not null,
     cislo varchar(255) not null,
 
-    primary key (id)
+    primary key (id),
+    constraint pracovisko_c1 unique  (nazov)
 );
 
 create table stupen_narocnosti
@@ -180,7 +179,8 @@ create table pozicia
    /* stupen_narocnosti int not null,*/
 
     primary key (id),
-    constraint pozicia_c1 foreign key (pracovisko) references pracovisko(id)
+    constraint pozicia_c1 foreign key (pracovisko) references pracovisko(id),
+    constraint pozicia_c2 unique (pracovisko, nazov)
     /*constraint pozicia_c2 foreign key (stupen_narocnosti) references stupen_narocnosti(id)*/
 );
 
@@ -202,10 +202,14 @@ create table dalsie_podmienky
     id int not null auto_increment,
 	je_hlavny_pp boolean not null,
     vymera_dovolenky float not null,
-    tyzdenny_pracovny_cas float not null,
+    dohodnuty_tyzdenny_pracovny_cas float not null,
     je_pracovny_cas_rovnomerny boolean not null,
     skusobvna_doba int not null, /*dni*/
     vypovedna_doba int not null, /*dni*/
+
+    ustanoveny_tyzdenny_pracovny_cas float not null,
+    dohodnuty_denny_pracovny_cas float null,
+    uplatnenie_odpocitatelnej_polozky boolean not null,
 
     primary key (id)
 );
@@ -219,6 +223,19 @@ create table podmienky_pracovneho_vztahu
     pozicia int not null,
     dalsie_podmienky int null,
 
+    uplatnenie_nezdanitelnej_casti boolean not null,
+    uplatnenie_danoveho_bonusu boolean not null,
+    drzitel_tzp_preukazu boolean not null,
+    poberatel_starobneho_vysluhoveho_dochodku boolean not null,
+    poberatel_invalidneho_vysluhoveho_dochodku_nad_40 boolean not null,
+    poberatel_invalidneho_vysluhoveho_dochodku_nad_70 boolean not null,
+    poberatel_predcasneho_dochodku boolean not null,
+    uplatnenie_odvodovej_vynimky boolean not null,
+
+    posielanie_vyplaty_na_ucet boolean not null,
+    cast_z_vyplaty_na_ucet float null check ( cast_z_vyplaty_na_ucet > 0 && cast_z_vyplaty_na_ucet <= 1 ),
+    iban_uctu_pre_vyplatu char(24) null,
+
     primary key (id),
     constraint ppv_c1 foreign key (pracovny_vztah) references pracovny_vztah(id),
     constraint ppv_c2 foreign key (pozicia) references pozicia(id),
@@ -229,7 +246,7 @@ create table forma_mzdy
 (
     id int not null auto_increment,
 	nazov varchar(50) not null,
-    jednotka_vykonu varchar(10) not null,
+    jednotka_vykonu varchar(20) not null,
     skratka_jednotky varchar(5) not null,
 
     primary key (id)
@@ -245,7 +262,7 @@ create table zakladna_mzda
     mozne_evidovanie_pohotovosti boolean not null default false,
 	tarifa_za_jednotku_mzdy decimal(12,4) not null,
     sposob_vyplacania varchar(12) not null default 'pravidelne'
-        check (sposob_vyplacania = 'pravidelne'  || sposob_vyplacania = 'nepravidelne'),
+        check (sposob_vyplacania = 'pravidelne' || sposob_vyplacania = 'nepravidelne'),
     datum_vyplatenia date null,
     forma_mzdy int not null,
     podmienky_pracovneho_vztahu int not null,
@@ -255,29 +272,72 @@ create table zakladna_mzda
     constraint zakladna_mzda_c2 foreign key (podmienky_pracovneho_vztahu) references podmienky_pracovneho_vztahu(id)
 );
 
-create table vyplatna_paska
-( /*todo*/
+create table mzdove_konstanty
+(
     id int not null auto_increment,
-    pocet_odpracovanych_hodin float not null,
-	pocet_odpracovanych_dni float not null,
-	nezdanitelna_cast_zakladu_dane decimal(12,4) not null,
+
+    zakladny_tyzdenny_pracovny_cas decimal(12,4) not null,
+
+    max_vymeriavaci_zaklad decimal(12,4) not null,
+    min_vymeriavaci_zaklad decimal(12,4) not null,
+    max_denny_vymeriavaci_zaklad decimal(12,4) not null,
+
+	danovy_bonus_na_dieta_nad_6 decimal(12,4) not null,
+	danovy_bonus_na_dieta_pod_6 decimal(12,4) not null,
+
+    NCZD_na_danovnika decimal(12,4) not null,
+    nasobok_zivotneho_minima_pre_preddavok decimal(12,4) not null,
+
+    zaciatok_nocnej_prace time not null,
+    koniec_nocnej_prace time not null,
+
+    max_vymeriavaci_zaklad_pre_OP decimal(12,4) not null,
+    max_vyska_OP decimal(12,4) not null,
+
+    hranica_prekrocenia_OV decimal(12,4) not null,
+
+    platnost_od date not null,
+    platnost_do date null,
+
+    primary key (id)
+);
+
+create table vyplatna_paska
+(
+    id int not null auto_increment,
+    fond_hodin float  not null,
+    fond_dni float  not null,
+    odpracovane_hodiny float  not null,
+	odpracovane_dni float not null,
     hruba_mzda decimal(12,4) not null,
-    odvody_zamestnavatela_spolu decimal(12,4) not null,
-    odvody_zamestnanca_spolu decimal(12,4) not null,
+
+    vymeriavaci_zaklad decimal(12,4) not null,
+    poistne_zamestnanca decimal(12,4) not null,
+    nezdanitelna_mzda decimal(12,4) not null,
+    zdanitelna_mzda decimal(12,4) not null,
+    preddavky_na_dan decimal(12,4) not null,
     danovy_bonus decimal(12,4) not null,
-    cena_prace decimal(12,4) not null,
     cista_mzda decimal(12,4) not null,
-    suma_na_ucet decimal(12,4) not null,
-    zaloha decimal(12,4) not null,
+
+    cena_prace decimal(12,4) not null,
+    odvody_zamestnavatela decimal(12,4) not null,
+    odvody_dan_zamestnanca decimal(12,4) not null,
+    odvody_dan_spolu decimal(12,4) not null,
+
+    k_vyplate decimal(12,4) not null,
+    na_ucet decimal(12,4) not null,
+    v_hotovosti decimal(12,4) not null,
 
     dolezite_udaje_pracujuceho int not null,
     vypracoval_pracujuci int not null,
     minimalna_mzda int not null,
+    mzdove_konstanty int not null,
 
     primary key (id),
     constraint vyplatna_paska_c1 foreign key (dolezite_udaje_pracujuceho) references dolezite_udaje_pracujuceho(id),
     constraint vyplatna_paska_c2 foreign key (vypracoval_pracujuci) references pracujuci(id),
-    constraint vyplatna_paska_c3 foreign key (minimalna_mzda) references minimalna_mzda(id)
+    constraint vyplatna_paska_c3 foreign key (minimalna_mzda) references minimalna_mzda(id),
+    constraint vyplatna_paska_c4 foreign key (mzdove_konstanty) references mzdove_konstanty(id)
 );
 
 create table zakladna_zlozka
@@ -308,9 +368,11 @@ create table pohybliva_zlozka
 create table typ_priplatku
 (
     id int not null auto_increment,
-	nazov varchar(50) not null ,
+	nazov varchar(10) not null
+	    check (nazov='sobota' || nazov='nedeľa' || nazov='noc' || nazov='sviatok' || nazov='nadčas'),
+    popis varchar(20) null,
 	percentualna_cast float not null,
-	pocitany_zo varchar(25) not null check (pocitany_zo='minimálna mzda' || pocitany_zo='priemerná mzda' || pocitany_zo='základná mzda'),
+	pocitany_zo varchar(25) not null check (pocitany_zo='minimálna mzda' || pocitany_zo='priemerná mzda'),
 	platnost_od date not null,
 	platnost_do date null,
 
@@ -334,6 +396,7 @@ create table nahrada
 ( /*todo -typ check*/
     id int not null auto_increment,
 	typ varchar(50) not null,
+	pocet_dni float not null,
 	mnozstvo_jednotiek float not null,
 	suma decimal(12,4) not null,
 	vyplatna_paska int not null,
@@ -342,29 +405,28 @@ create table nahrada
     constraint nahrada_c1  foreign key (vyplatna_paska) references vyplatna_paska(id)
 );
 
-create table typ_odvodu
+create table ina_zlozka_mzdy
 (
     id int not null auto_increment,
-	nazov varchar(50) not null,
-	percentualna_cast_zamestnanec float not null,
-	percentualna_cast_zamestnavatel float not null,
-	platnost_od date not null,
-	platnost_do date null,
+    nazov varchar(100) not null,
+    suma decimal(12,4) not null,
+    vyplatna_paska int not null,
 
-    primary key (id)
+    primary key (id),
+    constraint ina_zlozka_mzdy_c1  foreign key (vyplatna_paska) references vyplatna_paska(id)
 );
 
 create table odvod
 (
     id int not null auto_increment,
-	suma_zamestnanec decimal(12,4) not null,
+    nazov varchar(100) not null,
+    vymeriavaci_zaklad decimal(12,4) not null,
+    suma_zamestnanec decimal(12,4) not null,
 	suma_zamestnavatel decimal(12,4) not null,
-	typ_odvodu int not null,
 	vyplatna_paska int not null,
 
     primary key (id),
-    constraint odvod_c1  foreign key (typ_odvodu) references typ_odvodu(id),
-    constraint odvod_c2  foreign key (vyplatna_paska) references vyplatna_paska(id)
+    constraint odvod_c1  foreign key (vyplatna_paska) references vyplatna_paska(id)
 );
 
 create table zrazka
@@ -382,6 +444,8 @@ create table odpracovany_rok
 (
     id int not null auto_increment,
     rok year not null,
+    narok_na_dovolenku float not null,
+    narok_na_dovolenku_z_minuleho_roka float not null,
 	vycerpana_dovolenka float not null,
 	priemerna_mzda_1 decimal(12,4) null,
 	priemerna_mzda_2 decimal(12,4) null,
@@ -398,7 +462,6 @@ create table odpracovany_mesiac
 (
     id int not null auto_increment,
     poradie_mesiaca smallint not null check (poradie_mesiaca<13 && poradie_mesiaca>0),
-	vycerpana_dovolenka float not null,
 	odpracovany_rok int not null,
 	vyplatna_paska int null,
 	je_mesiac_uzatvoreny boolean not null default false,
@@ -416,7 +479,9 @@ create table nepritomnost
     od date not null,
     do date not null,
 	je_polovica_dna boolean not null default false,
-	typ_dovodu varchar(256) not null,
+	typ_dovodu varchar(256) not null check(typ_dovodu='PN' || typ_dovodu='OČR'
+        || typ_dovodu='dovolenka' || typ_dovodu='náhradné voľno' || typ_dovodu='prekážka z dôvodu všeobecného záujmu'
+        || typ_dovodu='dôležitá osovná prekážka' || typ_dovodu='prekážka na strane zamestnávateľa' || typ_dovodu='iný'),
 	popis_dovodu varchar(1024) not null,
 
 	aktualizovane timestamp not null,
@@ -444,8 +509,8 @@ create table odpracovane_hodiny
 	z_toho_nadcas float null,
 	pocet_vykonanych_jednotiek float  null,
 	zaklad_podielovej_mzdy decimal(16,2)  null,
-	druh_casti_pohotovosti varchar(10) null default null check(druh_casti_pohotovosti is null || druh_casti_pohotovosti='aktívna'
-	                                                            || druh_casti_pohotovosti='neaktívna' ),
+	druh_casti_pohotovosti varchar(30) null default null check(druh_casti_pohotovosti is null || druh_casti_pohotovosti='aktívna'
+	                                                            || druh_casti_pohotovosti='neaktívna - na pracovisku' || druh_casti_pohotovosti='neaktívna - mimo pracoviska' ),
     aktualizovane timestamp not null,
     odpracovany_mesiac int not null,
     zakladna_mzda int not null,
@@ -628,36 +693,36 @@ insert into pracujuci(meno, priezvisko, telefon, rodne_cislo, datum_narodenia, p
 insert into autorizacia_uzivatela(prihlasovacie_konto, token, vyprsana_v, vytvorena_v, aktualizovana_v)
     values (2, '$1$HY2H7rB0$2U.dlCsoHX21s/gvjCypG/', '2020-02-24 23:28:10', '2020-02-24 11:28:10', '2020-02-24 11:28:10');*/
 
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Union', 'Vitaz', 'Vitaz', '506', '0', '2', true, false, false, '2005-01-01', '2018-12-31', 1);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Union', 'Vitaz', 'Vitaz', '506', '2', '2', true, false, false, '2019-01-01', null, 1);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Vseobecna zdravotna poistovna', 'Hermanovce', 'Hermanovce', '500', '0', '0', false, false, false, '2010-01-01', null, 2);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Dovera', 'Vitaz', 'Vitaz', '507', '0', '1', false, false, false, '2016-01-01', '2019-12-31', 3);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Union', 'Vitaz', 'Vitaz', '507', '0', '0', false, false, false, '2020-01-01', null, 3);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Dovera', 'Vitaz', 'Vitaz', '200', '0', '1', true, false, false, '2015-01-01', '2019-12-31', 4);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Dovera', 'Vitaz', 'Vitaz', '200', '0', '0', false, false, false, '2020-01-01', null, 4);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Union', 'Vitaz', 'Vitaz', '100', '0', '1', false, false, false, '2012-01-01', null, 5);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Union', 'Vitaz', 'Vitaz', '400', '2', '0', false, false, false, '2008-01-01', '2019-12-31', 6);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Union', 'Vitaz', 'Vitaz', '400', '0', '2', true, false, false, '2020-01-01', null, 6);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Vseobecna zdravotna poistovna', 'Vitaz', 'Vitaz', '220', '0', '0', false, false, false, '2004-01-01', null, 7);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Vseobecna zdravotna poistovna', 'Vitaz', 'Vitaz', '50', '0', '0', false, true, false, '2019-01-01', null, 8);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Vseobecna zdravotna poistovna', 'Vitaz', 'Vitaz', '600', '2', '0', false, false, false, '2019-01-01', null, 9);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Vseobecna zdravotna poistovna', 'Ovčie', 'Ovčie', '150', '0', '0', false, true, false, '2016-01-01', null, 10);
-insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, uplatnenie_nedzanitelnej_casti, poberatel_starobneho_dochodku, poberatel_invalidneho_dochodku, platnost_od, platnost_do, pracujuci)
-    values ('Union', 'Víťaz', 'Víťaz', '507', '0', '0', false, false, false, '2016-01-01', null, 11);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Union', 'Vitaz', 'Vitaz', '506', '0', '2', '2005-01-01', '2018-12-31', 1);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Union', 'Vitaz', 'Vitaz', '506', '2', '2', '2019-01-01', null, 1);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov,  platnost_od, platnost_do, pracujuci)
+    values ('Vseobecna zdravotna poistovna', 'Hermanovce', 'Hermanovce', '500', '0', '0', '2010-01-01', null, 2);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov,  platnost_od, platnost_do, pracujuci)
+    values ('Dovera', 'Vitaz', 'Vitaz', '507', '0', '1', '2016-01-01', '2019-12-31', 3);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Union', 'Vitaz', 'Vitaz', '507', '0', '0', '2020-01-01', null, 3);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Dovera', 'Vitaz', 'Vitaz', '200', '0', '1', '2015-01-01', '2019-12-31', 4);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Dovera', 'Vitaz', 'Vitaz', '200', '0', '0', '2020-01-01', null, 4);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Union', 'Vitaz', 'Vitaz', '100', '0', '1', '2012-01-01', null, 5);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Union', 'Vitaz', 'Vitaz', '400', '2', '0', '2008-01-01', '2019-12-31', 6);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Union', 'Vitaz', 'Vitaz', '400', '0', '2', '2020-01-01', null, 6);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Vseobecna zdravotna poistovna', 'Vitaz', 'Vitaz', '220', '0', '0','2004-01-01', null, 7);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Vseobecna zdravotna poistovna', 'Vitaz', 'Vitaz', '50', '0', '0', '2019-01-01', null, 8);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Vseobecna zdravotna poistovna', 'Vitaz', 'Vitaz', '600', '2', '0', '2019-01-01', null, 9);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Vseobecna zdravotna poistovna', 'Ovčie', 'Ovčie', '150', '0', '0', '2016-01-01', null, 10);
+insert into dolezite_udaje_pracujuceho(zdravotna_poistovna,  mesto, ulica, cislo, pocet_deti_do_6_rokov, pocet_deti_nad_6_rokov, platnost_od, platnost_do, pracujuci)
+    values ('Union', 'Víťaz', 'Víťaz', '507', '0', '0', '2016-01-01', null, 11);
 
 insert into pracovny_vztah(typ, datum_vzniku, datum_vyprsania, pracujuci)
     values ('PP: na plný úväzok', '2005-01-01', null, 2); /*2*/
@@ -759,60 +824,60 @@ insert into pozicia_stupen_narocnosti(pozicia, stupen_narocnosti)
 insert into pozicia_stupen_narocnosti(pozicia, stupen_narocnosti)
     values (7, 2);
 
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 40, true, 90, 90); /*2*/
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 40, true, 90, 90); /*3*/
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 40, true, 90, 90); /*5*/
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 40, true, 90, 90); /*6*/
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 40, true, 90, 90); /*7*/
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 30, true, 90, 90); /*8*/
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 40, true, 90, 90); /*9*/
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 30, true, 90, 90); /*10*/
-insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba)
-    values (true, 21, 37.5, true, 90, 90); /*11*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 40, true, 90, 90, false, 40, null); /*2*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 40, true, 90, 90, false, 40, null); /*3*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 40, true, 90, 90, false, 40, null); /*5*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 40, true, 90, 90, false, 40, null); /*6*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 40, true, 90, 90, false, 40, null); /*7*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 30, true, 90, 90, true, 38.750, null); /*8*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 40, true, 90, 90, false, 40, 12); /*9*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 30, false, 90, 90, false, 40, null); /*10*/
+insert into dalsie_podmienky(je_hlavny_pp, vymera_dovolenky, dohodnuty_tyzdenny_pracovny_cas, je_pracovny_cas_rovnomerny, skusobvna_doba, vypovedna_doba, uplatnenie_odpocitatelnej_polozky, ustanoveny_tyzdenny_pracovny_cas, dohodnuty_denny_pracovny_cas)
+    values (true, 21, 37.5, true, 90, 90, false, 40, null); /*11*/
 
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2005-01-01', null, 1, 1, 1); /*2*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2015-01-01', null, 2, 2, 2); /*3*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2019-01-01', '2019-12-31', 3, 3, null); /*4*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2020-01-01', '2020-12-31', 4, 3, null); /*4*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2012-01-01', null, 5, 3, 3); /*5*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2008-01-01', null, 6, 4, 4); /*6*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2004-01-01', null, 7, 5, 5); /*7*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2019-01-01', null, 8, 5, 6); /*8*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2019-01-01', null, 9, 6, 7); /*9*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2016-01-01', null, 10, 7, 8); /*10*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2016-01-01', null, 11, 2, 9); /*11*/
-insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky)
-    values ('2020-01-01', '2020-12-31', 12, 7, null); /*11*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2005-01-01', null, 1, 1, 1, false, false, false, false, false, false, true, false, true, 1, 'SK9011000000002600000126'); /*2*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2015-01-01', null, 2, 2, 2, false, false, false, false, false, false, false, false, true, 1, 'SK9011000000002600000126'); /*3*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2019-01-01', '2019-12-31', 3, 3, null, false, false, false, false, true, false, false, false, true, 1, 'SK9011000000002600000126'); /*4*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2020-01-01', '2020-12-31', 4, 3, null, false, false, false, false, true, false, false, false, true, 1, 'SK9011000000002600000126'); /*4*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2012-01-01', null, 5, 3, 3, false, false, false, false, false, false, false, false, true, 1, 'SK9011000000002600000126'); /*5*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2008-01-01', null, 6, 4, 4, false, false, false, false, false, false, false, false, true, 1, 'SK9011000000002600000126'); /*6*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2004-01-01', null, 7, 5, 5, false, false, false, false, false, false, false, false, true, 1, 'SK9011000000002600000126'); /*7*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2019-01-01', null, 8, 5, 6, false, false, false, false, false, false, false, false, true, 1, 'SK9011000000002600000126'); /*8*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2019-01-01', null, 9, 6, 7, false, false, false, false, false, false, false, false, true, 1, 'SK9011000000002600000126'); /*9*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2016-01-01', null, 10, 7, 8, false, false, false, true, false, false, false, false, false, null, null); /*10*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2016-01-01', null, 11, 2, 9, false, false, false, false, false, false, false, false, true, 1, 'SK9011000000002600000126'); /*11*/
+insert into podmienky_pracovneho_vztahu(platnost_od, platnost_do, pracovny_vztah, pozicia, dalsie_podmienky, uplatnenie_nezdanitelnej_casti, uplatnenie_danoveho_bonusu, drzitel_tzp_preukazu, poberatel_starobneho_vysluhoveho_dochodku, poberatel_invalidneho_vysluhoveho_dochodku_nad_40, poberatel_invalidneho_vysluhoveho_dochodku_nad_70, poberatel_predcasneho_dochodku, uplatnenie_odvodovej_vynimky, posielanie_vyplaty_na_ucet, cast_z_vyplaty_na_ucet, iban_uctu_pre_vyplatu)
+    values ('2020-01-01', '2020-12-31', 12, 7, null, false, false, false, false, false, false, false, false, true, 1, 'SK9011000000002600000126'); /*11*/
 
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
-    values ('časová-hodinová', 'hodina', 'hod');
+    values ('časová', 'hodina', 'hod');
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
-    values ('časová-mesačná', 'mesiac', 'mes');
+    values ('časová', 'mesiac', 'mes');
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
-    values ('výkonová-kusy', 'kus', 'ks');
+    values ('výkonová', 'kus', 'ks');
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
-    values ('výkonová-balenia', 'balenie', 'bal');
+    values ('podielová', 'euro', '€');
 insert into forma_mzdy(nazov, jednotka_vykonu, skratka_jednotky)
-    values ('podielová-tržba', 'euro', '€');
+    values ('výkon práce', 'dosiahnutie cieľa', 'cieľ');
 
 insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vykon_eviduje_zamestnanec, nutne_evidovanie_casu,  datum_vyplatenia, forma_mzdy, podmienky_pracovneho_vztahu)
     values (950, 'pravidelne', 'časová mzda',true, true, null, 2, 1); /*2*/
@@ -833,105 +898,105 @@ insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vyk
 insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vykon_eviduje_zamestnanec, nutne_evidovanie_casu,  datum_vyplatenia, forma_mzdy, podmienky_pracovneho_vztahu)
      values (1.5000, 'pravidelne','časová mzda',true, true, null, 1, 9);  /*9*/
 insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vykon_eviduje_zamestnanec, nutne_evidovanie_casu,  datum_vyplatenia, forma_mzdy, podmienky_pracovneho_vztahu)
-     values (0.0500, 'pravidelne', 'podielová mzda - bar',false, true, null, 5, 9);  /*9*/
+     values (0.0500, 'pravidelne', 'podielová mzda - bar',false, false, null, 4, 9);  /*9*/
 insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vykon_eviduje_zamestnanec, nutne_evidovanie_casu,  datum_vyplatenia, forma_mzdy, podmienky_pracovneho_vztahu)
-     values (0.0500, 'pravidelne', 'podielová mzda - kuchyňa',false, true, null, 5, 9);  /*9*/
+     values (0.0500, 'pravidelne', 'podielová mzda - kuchyňa',false, false, null, 4, 9);  /*9*/
 insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vykon_eviduje_zamestnanec, nutne_evidovanie_casu,  datum_vyplatenia, forma_mzdy, podmienky_pracovneho_vztahu)
-     values (0.3000, 'pravidelne', 'vykonná mzda', true, true, null, 4, 10);  /*10*/
+     values (0.3000, 'pravidelne', 'vykonná mzda', true, true, null, 3, 10);  /*10*/
 insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vykon_eviduje_zamestnanec, nutne_evidovanie_casu,  datum_vyplatenia, forma_mzdy, podmienky_pracovneho_vztahu)
      values (950, 'pravidelne', 'časová mzda', true, true, null, 2, 11);  /*11*/
 insert into zakladna_mzda(tarifa_za_jednotku_mzdy, sposob_vyplacania, popis, vykon_eviduje_zamestnanec, nutne_evidovanie_casu,  datum_vyplatenia, forma_mzdy, podmienky_pracovneho_vztahu)
-     values (0.3500, 'pravidelne', 'vykonná mzda', true, true, null, 4, 12);  /*11*/
+     values (0.3500, 'pravidelne', 'vykonná mzda', true, true, null, 3, 12);  /*11*/
 
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 1);  /*2*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 2);  /*3*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 3);  /*4*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 5);  /*5*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 6);  /*6*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 7);  /*7*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 8);  /*8*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 9);  /*9*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 10);  /*10*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 11);  /*11*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2019', 0, null, null, null, null, 12);  /*11*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 1);  /*2*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 2);  /*3*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 4);  /*4*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 5);  /*5*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 6);  /*6*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 7);  /*7*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 8);  /*8*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 9);  /*9*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 10);  /*10*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-     values ('2020', 0, null, null, null, null, 11);  /*11*/
-insert into odpracovany_rok(rok, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
-    values ('2020', 0, null, null, null, null, 12);  /*11*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 1);  /*2*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 2);  /*3*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 3);  /*4*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 5);  /*5*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 6);  /*6*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 7);  /*7*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 8);  /*8*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 9);  /*9*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 10);  /*10*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 11);  /*11*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2019',5, 21, 0, null, null, null, null, 12);  /*11*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 1);  /*2*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 2);  /*3*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 4);  /*4*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 5);  /*5*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 6);  /*6*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 7);  /*7*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 8);  /*8*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 9);  /*9*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 10);  /*10*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+     values ('2020',5, 21, 0, null, null, null, null, 11);  /*11*/
+insert into odpracovany_rok(rok, narok_na_dovolenku_z_minuleho_roka, narok_na_dovolenku, vycerpana_dovolenka, priemerna_mzda_1, priemerna_mzda_2, priemerna_mzda_3, priemerna_mzda_4, podmienky_pracovneho_vztahu)
+    values ('2020',5, 21, 0, null, null, null, null, 12);  /*11*/
 
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 1, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 2, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 3, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 4, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 5, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 6, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 7, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 8, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 9, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 10, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (12, 0, 11, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 12, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 13, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 14, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 15, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 16, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 17, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 18, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 19, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 20, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 21, null);
-insert into odpracovany_mesiac(poradie_mesiaca, vycerpana_dovolenka, odpracovany_rok, vyplatna_paska)
-    values (1, 0, 22, null);
+insert into odpracovany_mesiac(poradie_mesiaca, odpracovany_rok, vyplatna_paska)
+    values (12,  1, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  2, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  3, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  4, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  5, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  6, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  7, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  8, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  9, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  10, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (12,  11, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  12, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  13, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  14, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  15, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  16, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  17, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  18, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  19, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  20, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  21, null);
+insert into odpracovany_mesiac(poradie_mesiaca,  odpracovany_rok, vyplatna_paska)
+    values (1,  22, null);
 
 
 set @s = 0;
@@ -1354,25 +1419,25 @@ call rok_podmienok_pv(9, '2019-12-31', @r);
 /*select @r;*/
 call mesiac_roka_podmienok(@r, '2019-12-31', @m);
 /*select @m;*/
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-01', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-02', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-03', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-04', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-05', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-06', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-09', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-10', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-11', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-14', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-15', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-16', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-17', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-18', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-19', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-20', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-28', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-29', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2019-12-30', '8:00', '16:00', null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-01', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-02', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-03', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-04', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-05', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-06', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-09', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-10', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-11', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-14', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-15', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-16', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-17', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-18', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-19', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-20', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-28', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-29', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2019-12-30', null, null, null, null,900, null);
 
 
 set @r =0;
@@ -1381,25 +1446,25 @@ call rok_podmienok_pv(9, '2019-12-31', @r);
 /*select @r;*/
 call mesiac_roka_podmienok(@r, '2019-12-31', @m);
 /*select @m;*/
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-01', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-02', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-03', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-04', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-05', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-06', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-09', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-10', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-11', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-14', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-15', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-16', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-17', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-18', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-19', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-20', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-28', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-29', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2019-12-30', '8:00', '16:00', null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-01', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-02', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-03', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-04', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-05', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-06', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-09', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-10', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-11', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-14', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-15', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-16', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-17', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-18', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-19', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-20', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-28', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-29', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2019-12-30', null, null, null, null,900, null);
 
 set @r =0;
 set @m = 0;
@@ -1407,25 +1472,25 @@ call rok_podmienok_pv(9, '2020-01-02', @r);
 /*select @r;*/
 call mesiac_roka_podmienok(@r, '2020-01-02', @m);
 /*select @m;*/
-call pridat_odpracovane_hodiny(@m, 9,'2020-01-02', '8:00', '16:00', null, null,null, null);
+call pridat_odpracovane_hodiny(@m, 9,'2020-01-01', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-03', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-07', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-08', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-11', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-12', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-13', '8:00', '16:00', null, null,null, null);
-call pridat_odpracovane_hodiny(@m, 9,'2020-01-14', '8:00', '16:00', null, null,null, null);
-call pridat_odpracovane_hodiny(@m, 9,'2020-01-15', '8:00', '16:00', null, null,null, null);
+call pridat_odpracovane_hodiny(@m, 9,'2020-01-14', '16:00', '00:00', null, null,null, null);
+call pridat_odpracovane_hodiny(@m, 9,'2020-01-15', '18:00', '02:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-16', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-17', '8:00', '16:00', null, null,null, null);
-call pridat_odpracovane_hodiny(@m, 9,'2020-01-20', '8:00', '16:00', null, null,null, null);
-call pridat_odpracovane_hodiny(@m, 9,'2020-01-21', '8:00', '16:00', null, null,null, null);
+call pridat_odpracovane_hodiny(@m, 9,'2020-01-20', '18:00', '02:00', null, null,null, null);
+call pridat_odpracovane_hodiny(@m, 9,'2020-01-21', '18:00', '02:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-22', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-25', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-26', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-27', '8:00', '16:00', null, null,null, null);
-call pridat_odpracovane_hodiny(@m, 9,'2020-01-28', '8:00', '16:00', null, null,null, null);
-call pridat_odpracovane_hodiny(@m, 9,'2020-01-29', '8:00', '16:00', null, null,null, null);
+call pridat_odpracovane_hodiny(@m, 9,'2020-01-28', '18:00', '02:00', null, null,null, null);
+call pridat_odpracovane_hodiny(@m, 9,'2020-01-29', '18:00', '02:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-30', '8:00', '16:00', null, null,null, null);
 call pridat_odpracovane_hodiny(@m, 9,'2020-01-31', '8:00', '16:00', null, null,null, null);
 
@@ -1435,27 +1500,27 @@ call rok_podmienok_pv(9, '2020-01-02', @r);
 /*select @r;*/
 call mesiac_roka_podmienok(@r, '2020-01-02', @m);
 /*select @m;*/
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-02', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-03', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-07', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-08', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-11', '8:00', '16:00', 2.00, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-12', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-13', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-14', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-15', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-16', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-17', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-20', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-21', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-22', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-25', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-26', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-27', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-28', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-29', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-30', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 10,'2020-01-31', '8:00', '16:00', null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-01', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-03', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-07', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-08', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-11', null, null, 2.00, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-12', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-13', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-14', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-15', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-16', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-17', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-20', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-21', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-22', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-25', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-26', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-27', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-28', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-29', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-30', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 10,'2020-01-31', null, null, null, null,900, null);
 
 
 set @r =0;
@@ -1464,27 +1529,27 @@ call rok_podmienok_pv(9, '2020-01-02', @r);
 /*select @r;*/
 call mesiac_roka_podmienok(@r, '2020-01-02', @m);
 /*select @m;*/
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-02', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-03', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-07', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-08', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-11', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-12', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-13', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-14', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-15', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-16', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-17', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-20', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-21', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-22', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-25', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-26', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-27', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-28', '8:00', '16:00', null, null,1000, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-29', '8:00', '16:00', null, null,1100, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-30', '8:00', '16:00', null, null,900, null);
-call pridat_odpracovane_hodiny(@m, 11,'2020-01-31', '8:00', '16:00', null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-01', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-03', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-07', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-08', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-11', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-12', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-13', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-14', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-15', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-16', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-17', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-20', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-21', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-22', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-25', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-26', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-27', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-28', null, null, null, null,1000, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-29', null, null, null, null,1100, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-30', null, null, null, null,900, null);
+call pridat_odpracovane_hodiny(@m, 11,'2020-01-31', null, null, null, null,900, null);
 
 set @r =0;
 set @m = 0;
@@ -1622,6 +1687,106 @@ call pridat_odpracovane_hodiny(@m, 14,'2020-01-29', '10:00', '13:00', null, 150,
 call pridat_odpracovane_hodiny(@m, 14,'2020-01-30', '10:00', '13:00', null, 150,null, null);
 call pridat_odpracovane_hodiny(@m, 14,'2020-01-31', '10:00', '13:00', null, 150,null, null);
 
+insert into mzdove_konstanty(zakladny_tyzdenny_pracovny_cas, max_vymeriavaci_zaklad, min_vymeriavaci_zaklad, max_denny_vymeriavaci_zaklad, danovy_bonus_na_dieta_nad_6, danovy_bonus_na_dieta_pod_6, NCZD_na_danovnika, nasobok_zivotneho_minima_pre_preddavok, platnost_od, platnost_do, zaciatok_nocnej_prace, koniec_nocnej_prace, max_vymeriavaci_zaklad_pre_OP, max_vyska_OP, hranica_prekrocenia_OV)
+    values (40, 6678.00, 0.00, 66.6083, 22.17, 44.34, 367.58, 3096.95, '2019-07-01', '2019-12-31', '20:00', '06:00', 570, 380, 200);
+insert into mzdove_konstanty(zakladny_tyzdenny_pracovny_cas, max_vymeriavaci_zaklad, min_vymeriavaci_zaklad, max_denny_vymeriavaci_zaklad, danovy_bonus_na_dieta_nad_6, danovy_bonus_na_dieta_pod_6, NCZD_na_danovnika, nasobok_zivotneho_minima_pre_preddavok, platnost_od, platnost_do, zaciatok_nocnej_prace, koniec_nocnej_prace, max_vymeriavaci_zaklad_pre_OP, max_vyska_OP, hranica_prekrocenia_OV)
+    values (40, 7091.00, 0.00, 66.6083, 22.72, 45.44, 367.58, 3096.95, '2020-01-01', '2020-06-30', '20:00', '06:00', 570, 380, 200);
+
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('sobota', 'nepravidelné vyk.', 0.5, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('sobota', 'pravidelné vyk.', 0.45, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('nedeľa', 'nepravidelné vyk.', 1, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('nedeľa', 'pravidelné vyk.', 0.9, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('noc', 'nerizik - nepravid', 0.4, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('noc', 'nerizik - pravid', 0.35, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('noc', 'rizik.', 0.5, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('sviatok', '.', 1, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('nadčas', 'nerizik.', 0.25, 'minimálna mzda', '2019-05-01', '2019-12-31');
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('nadčas', 'rizik.', 0.35, 'minimálna mzda', '2019-05-01', '2019-12-31');
+
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('sobota', 'nepravidelné vyk.', 0.5, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('sobota', 'pravidelné vyk.', 0.45, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('nedeľa', 'nepravidelné vyk.', 1, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('nedeľa', 'pravidelné vyk.', 0.9, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('noc', 'nerizik - nepravid', 0.4, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('noc', 'nerizik - pravid', 0.35, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('noc', 'rizik.', 0.5, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('sviatok', 'dohodár', 1, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('sviatok', 'zamestnanec', 1, 'priemerná mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('nadčas', 'nerizik.', 0.25, 'minimálna mzda', '2020-01-01', null);
+insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
+    values('nadčas', 'rizik.', 0.35, 'minimálna mzda', '2020-01-01', null);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+select p.id, p.meno, p.priezvisko, pv.id, pv.typ, om.id, om.poradie_mesiaca, zm.popis, oh.* from pracujuci p join pracovny_vztah pv on p.id = pv.pracujuci join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu join odpracovany_mesiac om on o.id = om.odpracovany_rok join odpracovane_hodiny oh on om.id = oh.odpracovany_mesiac join zakladna_mzda zm on ppv.id = zm.podmienky_pracovneho_vztahu where p.id=9;
+
+
+
+
 /*select p.nazov, sn.cislo_stupna from pozicia p join pozicia_stupen_narocnosti psn join stupen_narocnosti sn on p.id=psn.pozicia and psn.stupen_narocnosti = sn.id;*/
 select p.*, count(v.id) as c from pracujuci p join pracovny_vztah v on p.id = v.pracujuci where now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null) group by p.id;
 select p.*, count(v.id) as c from pracujuci p left join pracovny_vztah v on p.id = v.pracujuci  where (now() > v.datum_vzniku and (now() < v.datum_vyprsania or v.datum_vyprsania is null)) or v.pracujuci is null group by p.id;
@@ -1733,3 +1898,97 @@ select  ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do
 select  ppv.id as ppv_id, ppv.dalsie_podmienky, ppv.platnost_od, ppv.platnost_do, poz.nazov as poz_nazov, pr.nazov as pr_nazov,  DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y') as nice_date_platnost_od,  DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as nice_date_platnost_do from podmienky_pracovneho_vztahu ppv join pozicia poz join pracovisko pr on ppv.pozicia=poz.id and poz.pracovisko=pr.id where  ppv.pracovny_vztah = 13 order by ppv.platnost_od desc limit 1;
 
 
+
+
+
+select p.*, v.id as v_id, v.typ as p2_nazov, p3.nazov as p3_nazov, ppv.platnost_od, ppv.platnost_do from pracovisko p3 join pozicia p2 on p2.pracovisko = p3.id join podmienky_pracovneho_vztahu ppv on ppv.pozicia = p2.id join pracovny_vztah v on v.id = ppv.pracovny_vztah right join pracujuci p on  p.id = v.pracujuci order by p.id, platnost_od;
+
+select rok from odpracovany_rok group by rok order by rok;
+
+select p.id as p_id, p.priezvisko, p.meno, pv.id as pv_id, pv.typ, ppv.id as ppv_id, ppv.platnost_od, ppv.platnost_do, p2.id as p2_id, p2.nazov as p2_nazov, p3.id as p3_id, p3.nazov as p3_nazov, o.id as o_id, o.rok, om.id as om_id, om.poradie_mesiaca, om.je_mesiac_uzatvoreny, vp.id as vp_id, vp.* from pracujuci p join pracovny_vztah pv on p.id = pv.pracujuci join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah join pozicia p2 on ppv.pozicia = p2.id join pracovisko p3 on p2.pracovisko = p3.id left join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu left join odpracovany_mesiac om on o.id = om.odpracovany_rok left join vyplatna_paska vp on om.vyplatna_paska = vp.id where (('2020-01-01' between ppv.platnost_od and ppv.platnost_do) or (ppv.platnost_od<='2020-01-01' and platnost_do is null)) and o.rok = 2020 and om.poradie_mesiaca = 1 order by p.priezvisko, p.meno, p.id;
+
+select * from podmienky_pracovneho_vztahu;
+
+
+
+/*vypis mzdovych konstant*/
+select *
+from mzdove_konstanty mk
+where (('2020-01-01' between mk.platnost_od and mk.platnost_do) or ('2020-01-01'>=mk.platnost_od and mk.platnost_do is null));
+
+/*vypis najnizsej minimalnej mzdy pre dohodarov*/
+select *
+from minimalna_mzda mm
+where stupen_narocnosti = 1 and (('2020-01-01' between mm.platnost_od and mm.platnost_do) or ('2020-01-01'>=mm.platnost_od and mm.platnost_do is null));
+
+
+
+/*pre PP kedze dohody maju inú minimalnu mzdu (id mesiaca, datum prveho dna mesiaca v ktorom sa bude pocitat mzda)*/
+select dup.id as dup_id, dup.mesto as dup_mesto, dup.ulica as dup_ulica, dup.cislo as dup_cislo, dup.*,
+    p.id as p_id, DATE_FORMAT(p.datum_narodenia,'%d.%m.%Y') as p_datum_narodenia, p.*,
+    pv.id as pv_id, DATE_FORMAT(pv.datum_vzniku,'%d.%m.%Y') as pv_datum_vzniku, DATE_FORMAT(pv.datum_vyprsania,'%d.%m.%Y') as pv_datum_vyprsania, pv.*,
+    ppv.id as ppv_id, DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y') as ppv_platnost_od, DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as ppv_platnost_do, ppv.*,
+    dp.id as dp_id, dp.*,
+    p2.id as p2_id, p2.nazov as p2_nazov, p2.charakteristika as p2_charakteristika, p2.*,
+    p3.id as p3_id, p3.nazov as p3_nazov, p3.*,
+    sn.id as sn_id, sn.charakteristika as sn_charakteristika, sn.*,
+    mm.id as mm_id, DATE_FORMAT(mm.platnost_od,'%d.%m.%Y') as mm_platnost_od, DATE_FORMAT(mm.platnost_do,'%d.%m.%Y') as mm_platnost_do, mm.*,
+    o.id as o_id, o.*,
+    om.id as om_id, om.*
+from dolezite_udaje_pracujuceho dup
+    join pracujuci p on dup.pracujuci = p.id
+    join pracovny_vztah pv on p.id = pv.pracujuci
+    join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah
+    left join dalsie_podmienky dp on ppv.dalsie_podmienky = dp.id
+    join pozicia p2 on ppv.pozicia = p2.id
+    join pracovisko p3 on p2.pracovisko = p3.id
+    join pozicia_stupen_narocnosti psn on p2.id = psn.pozicia
+    join stupen_narocnosti sn on psn.stupen_narocnosti = sn.id
+    join minimalna_mzda mm on sn.id = mm.stupen_narocnosti
+    join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu
+    join odpracovany_mesiac om on o.id = om.odpracovany_rok
+where (om.id=22)
+    and (('2020-01-01' between dup.platnost_od and dup.platnost_do) or ('2020-01-01'>=dup.platnost_od and dup.platnost_do is null))
+    and (('2020-01-01' between mm.platnost_od and mm.platnost_do) or ('2020-01-01'>=mm.platnost_od and mm.platnost_do is null));
+
+/*pre vypis zakladnych miezd vztahu*/
+select zm.id as zm_id, zm.*, fm.id as fm_id, fm.*
+from odpracovany_mesiac om
+    join odpracovany_rok o on om.odpracovany_rok = o.id
+    join podmienky_pracovneho_vztahu ppv on o.podmienky_pracovneho_vztahu = ppv.id
+    join zakladna_mzda zm on ppv.id = zm.podmienky_pracovneho_vztahu
+    join forma_mzdy fm on zm.forma_mzdy = fm.id
+where (om.id=19);
+
+select o.id as o_id, o.rok, om.id as om_id, om.poradie_mesiaca
+from odpracovany_rok o
+    join odpracovany_mesiac om on o.id = om.odpracovany_rok
+where o.podmienky_pracovneho_vztahu=12
+    and om.je_mesiac_uzatvoreny=false;
+
+select om.id as om_id, oh.id as oh_id, oh.*, TIME_FORMAT(oh.od, '%H:%i'), TIME_FORMAT(oh.do, '%H:%i'), zm.id as zm_id
+from odpracovany_mesiac om
+    join odpracovane_hodiny oh on om.id = oh.odpracovany_mesiac
+    join zakladna_mzda zm on oh.zakladna_mzda = zm.id
+    join forma_mzdy fm on zm.forma_mzdy = fm.id
+where om.id = 19
+order by zm.id, oh.datum, oh.od;
+
+select o.*
+from pracovny_vztah pv
+    join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah
+    join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu
+where pv.id=1 and o.rok=2020
+order by ppv.platnost_od desc;
+
+select o.rok, om.poradie_mesiaca from odpracovany_rok o join odpracovany_mesiac om on o.id = om.odpracovany_rok where om.id = 1;
+
+
+select tp.*, DATE_FORMAT(tp.platnost_od,'%d.%m.%Y') as platnost_od , DATE_FORMAT(tp.platnost_do,'%d.%m.%Y') as platnost_do
+from typ_priplatku tp where ('2020-01-01' between platnost_od and platnost_do) or ('2020-01-01'>= tp.platnost_od and tp.platnost_do is null);
+
+select * from typ_priplatku;
+
+select mk.* from mzdove_konstanty mk where (('2020-01-01' between mk.platnost_od and mk.platnost_do) or ('2020-01-01'>=mk.platnost_od and mk.platnost_do is null));
+
+select * from odpracovany_mesiac_nepritomnost omn join nepritomnost n on omn.nepritomnost = n.id where omn.odpracovany_mesiac=19;
