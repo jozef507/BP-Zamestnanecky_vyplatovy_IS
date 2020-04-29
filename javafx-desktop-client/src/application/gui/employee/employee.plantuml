@@ -1,0 +1,621 @@
+@startuml
+
+title __EMPLOYEE's Class Diagram__\n
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.AddEmployee {
+              - begin : DatePicker
+              - borndate : DatePicker
+              - bornnumber : TextField
+              - cancel : Button
+              - childOverF : TextField
+              - childUnderF : TextField
+              - create : Button
+              - insCompF : TextField
+              - label : Label
+              - lastname : TextField
+              - name : TextField
+              - numF : TextField
+              - phone : TextField
+              - streetF : TextField
+              - townF : TextField
+              - vb : VBox
+              + AddEmployee()
+              + initialize()
+              - cancelClick()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - createClick()
+              - createEmployee()
+              - setDatePicker()
+              - setModelsFromInputs()
+              - setTextfieldLimit()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.AddRelation {
+              + addPosition : Button
+              + apWeekTime : TextField
+              + bank : CheckBox
+              + bankPart : TextField
+              + dayTime : TextField
+              + deductableItem : CheckBox
+              + desibled : CheckBox
+              + exemption : CheckBox
+              + hb : HBox
+              + hollidayTime : TextField
+              + iban : TextField
+              + infoLabel : Label
+              + invalidity40 : CheckBox
+              + invalidity70 : CheckBox
+              + isEnd : CheckBox
+              + isMain : CheckBox
+              + isUniform : CheckBox
+              + name : Text
+              + place : Text
+              + position : Text
+              + premature : CheckBox
+              + relBegin : DatePicker
+              + relEnd : DatePicker
+              + relType : ComboBox
+              + retirement : CheckBox
+              + sackTime : TextField
+              + taxBonus : CheckBox
+              + taxFree : CheckBox
+              + testTime : TextField
+              + vb : VBox
+              + vb_wage : VBox
+              + weekTime : TextField
+              - wageDs : ArrayList<WageD>
+              - wagesControllers : ArrayList<AddRelationBox>
+              + AddRelation()
+              + addPosition()
+              + addWage()
+              + cancel()
+              + create()
+              + initialize()
+              + removeWage()
+              + setChoosenPosition()
+              + setPositionElements()
+              - checkFormular()
+              - checkFormularTypes()
+              - createRelation()
+              - setCheckBoxes()
+              - setDatePicker()
+              - setElements()
+              - setModelsFromInputs()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.AddRelationBox {
+              + emergency : CheckBox
+              + employee : CheckBox
+              + form : ComboBox
+              + label : TextField
+              + payDate : DatePicker
+              + tarif : TextField
+              + time : CheckBox
+              + way : ComboBox
+              - wageFormDs : ObservableList<WageFormD>
+              + AddRelationBox()
+              + getEmployee()
+              + getForm()
+              + getFormID()
+              + getLabel()
+              + getPayDate()
+              + getTarif()
+              + getTime()
+              + getWay()
+              + initialize()
+              - getWageForms()
+              - setDatePicker()
+              - setTextfieldLimit()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.AddRelationChooseposition {
+              + characteristicCol : TableColumn
+              + idCol : TableColumn
+              + input : TextField
+              + nameCol : TableColumn
+              + place : ComboBox
+              + placeCol : TableColumn
+              + tab : TableView<PositionD>
+              - places : ArrayList<String>
+              - positionDs : ObservableList<PositionD>
+              + AddRelationChooseposition()
+              + btn1()
+              + btn2()
+              + initialize()
+              - getPlaces()
+              - isFiltered()
+              - positionSelect()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.PageEmployee {
+              + bornNumberCol : TableColumn
+              + countCol : TableColumn
+              + idCol : TableColumn
+              + input : TextField
+              + lastNameCol : TableColumn
+              + nameCol : TableColumn
+              + phoneNumberCol : TableColumn
+              + place : ComboBox
+              + relat : ComboBox
+              - employeeOVS : ObservableList<EmployeeOV>
+              - places : ArrayList<String>
+              - tab : TableView<EmployeeOV>
+              + OnEnterClick()
+              + PageEmployee()
+              + btn()
+              + initialize()
+              + onRemoveClick()
+              + updateInfo()
+              - employeeSelect()
+              - getPlaces()
+              - isFiltered()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.PageEmployeeDetails {
+              - born_date : Text
+              - born_num : Text
+              - cBox : ArrayList<PageEmployeeDetailsBox>
+              - children_over : Text
+              - children_under : Text
+              - email : Text
+              - employeeID : String
+              - from : Text
+              - hBoxes : ArrayList<HBox>
+              - hb : HBox
+              - insComp : Text
+              - name : Text
+              - num : Text
+              - phone : Text
+              - ret1 : Button
+              - role : Text
+              - sp : ScrollPane
+              - street : Text
+              - town : Text
+              - update1 : Button
+              - update2 : Button
+              - username : Text
+              - vb : VBox
+              + PageEmployeeDetails()
+              + add1()
+              + getEmployeeD()
+              + initialize()
+              + updateInfo()
+              - openUpdateEmployeeInfoScene()
+              - setBoxes()
+              - setEmployee()
+              - setTextFields()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.PageEmployeeDetailsBox {
+              + expire : Text
+              + hb : HBox
+              + main : Text
+              + origin : Text
+              + place : Text
+              + position : Text
+              + type : Text
+              + PageEmployeeDetailsBox()
+              + initialize()
+              + onClicked()
+              - setStyle()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.PageEmployeeDetailsRelation {
+              + id : Text
+              + infoLabel : Label
+              + name : Text
+              + relFrom : Text
+              + relTo : Text
+              + type : Text
+              + vb : VBox
+              + vbConditions : VBox
+              - conditionsDs : ArrayList<ConditionsD>
+              - nextConditionsDs : ArrayList<NextConditionsD>
+              - places : ArrayList<String>
+              - positions : ArrayList<String>
+              - vBoxes : ArrayList<VBox>
+              + PageEmployeeDetailsRelation()
+              + changeCon()
+              + getConditionsDs()
+              + getRelationD()
+              + initialize()
+              + remove()
+              + removeCon()
+              + updateInfo()
+              - setBoxes()
+              - setConditionsDs()
+              - setRelationD()
+              - setTexts()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.PageEmployeeDetailsRelationBox {
+              + apWeekTime : Text
+              + bank : Text
+              + bankPart : Text
+              + dayTime : Text
+              + deductableItem : Text
+              + disabled : Text
+              + exemption : Text
+              + from : Text
+              + hb : HBox
+              + hollidayTime : Text
+              + iban : Text
+              + invalidity40 : Text
+              + invalidity70 : Text
+              + isMain : Text
+              + isUniform : Text
+              + place : Text
+              + position : Text
+              + premature : Text
+              + retirement : Text
+              + sackTime : Text
+              + taxBonus : Text
+              + taxFree : Text
+              + testTime : Text
+              + to : Text
+              + vb : VBox
+              + vbWage : VBox
+              + weekTIme : Text
+              - Splace : String
+              - Sposition : String
+              - wageDS : ArrayList<WageD>
+              - wageFormDS : ArrayList<WageFormD>
+              + PageEmployeeDetailsRelationBox()
+              + initialize()
+              - getStringBoolVal()
+              - setBoxes()
+              - setTexts()
+              - setWageDS()
+              - setWageFormDS()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.PageEmployeeDetailsRelationBoxBox {
+              + date : Text
+              + emergency : Text
+              + employee : Text
+              + form : Text
+              + label : Text
+              + tarif : Text
+              + time : Text
+              + way : Text
+              - wageFormDS : ArrayList<WageFormD>
+              + PageEmployeeDetailsRelationBoxBox()
+              + initialize()
+              - getWageForm()
+              - setTexts()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.PageEmployeeImportant {
+              + add : Button
+              + delete : Button
+              + name : Text
+              + vb : VBox
+              - employeeID : String
+              - employeeName : String
+              - importants : ArrayList<ImportantD>
+              + PageEmployeeImportant()
+              + getEmployeeID()
+              + initialize()
+              + updateInfo()
+              - clear()
+              - openUpdateEmployeeImportantScene()
+              - returnEmployeeImportant()
+              - setImportants()
+              - setPage()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.PageEmployeeImportantBox {
+              + children_over : Text
+              + children_under : Text
+              + from : Text
+              + insComp : Text
+              + num : Text
+              + street : Text
+              + to : Text
+              + town : Text
+              - schildren_over : String
+              - schildren_under : String
+              - sfrom : String
+              - sinsComp : String
+              - snum : String
+              - sstreet : String
+              - sto : String
+              - stown : String
+              + PageEmployeeImportantBox()
+              + initialize()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          interface application.gui.employee.RelationInterface {
+              {abstract} + setChoosenPosition()
+              {abstract} + setPositionElements()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.UpdateEmployee {
+              + borndate : DatePicker
+              + bornnumber : TextField
+              + cancel : Button
+              + label : Label
+              + lastname : TextField
+              + name : TextField
+              + ok : Button
+              + phone : TextField
+              - employeeBorndate : String
+              - employeeBornnumber : String
+              - employeeID : String
+              - employeeLastname : String
+              - employeeName : String
+              - employeePhone : String
+              + UpdateEmployee()
+              + initialize()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - setDatePicker()
+              - setInputs()
+              - setTextfieldLimit()
+              - updateEmployee()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.UpdateEmployeeImportant {
+              + begin : DatePicker
+              + cancel : Button
+              + childOverF : TextField
+              + childUnderF : TextField
+              + insCompF : TextField
+              + label : Label
+              + numF : TextField
+              + ok : Button
+              + streetF : TextField
+              + townF : TextField
+              - childOver : String
+              - childUnder : String
+              - employeeID : String
+              - id : String
+              - insComp : String
+              - num : String
+              - street : String
+              - town : String
+              + UpdateEmployeeImportant()
+              + initialize()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - setDatePicker()
+              - setInputs()
+              - setTextfieldLimit()
+              - updateEmployeeImp()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace employee {
+          class application.gui.employee.UpdateRelation {
+              + addPosition : Button
+              + apWeekTime : TextField
+              + bank : CheckBox
+              + bankPart : TextField
+              + dayTime : TextField
+              + deductableItem : CheckBox
+              + desibled : CheckBox
+              + exemption : CheckBox
+              + from : DatePicker
+              + hb : HBox
+              + hollidayTime : TextField
+              + iban : TextField
+              + infoLabel : Label
+              + invalidity40 : CheckBox
+              + invalidity70 : CheckBox
+              + isMain : CheckBox
+              + isUniform : CheckBox
+              + name : Text
+              + place : Text
+              + position : Text
+              + premature : CheckBox
+              + retirement : CheckBox
+              + sackTime : TextField
+              + taxBonus : CheckBox
+              + taxFree : CheckBox
+              + testTime : TextField
+              + vb : VBox
+              + vb_wage : VBox
+              + weekTime : TextField
+              - wageDs : ArrayList<WageD>
+              - wagesControllers : ArrayList<AddRelationBox>
+              + UpdateRelation()
+              + addPosition()
+              + addWage()
+              + cancel()
+              + create()
+              + initialize()
+              + removeWage()
+              + setChoosenPosition()
+              + setPositionElements()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - setCheckBoxes()
+              - setDatePicker()
+              - setModelsFromInputs()
+              - updateRelation()
+          }
+        }
+      }
+    }
+  }
+  
+
+  application.gui.employee.AddEmployee o-- application.models.EmployeeD : employeeD
+  application.gui.employee.AddEmployee o-- application.models.ImportantD : importantD
+  application.gui.employee.AddEmployee o-- application.gui.employee.PageEmployee : pageEmployee
+  application.gui.employee.AddRelation .up.|> application.gui.employee.RelationInterface
+  application.gui.employee.AddRelation o-- application.models.PositionD : choosenPosition
+  application.gui.employee.AddRelation o-- application.models.ConditionsD : conditionsD
+  application.gui.employee.AddRelation o-- application.models.NextConditionsD : nextConditionsD
+  application.gui.employee.AddRelation o-- application.gui.employee.PageEmployeeDetails : pageEmployeeDetails
+  application.gui.employee.AddRelation o-- application.models.RelationD : relationD
+  application.gui.employee.AddRelationChooseposition o-- application.gui.employee.RelationInterface : controllerAddRelation
+  application.gui.employee.PageEmployeeDetails o-- application.models.EmployeeD : employeeD
+  application.gui.employee.PageEmployeeDetailsBox o-- application.models.EmployeeD : employeeD
+  application.gui.employee.PageEmployeeDetailsBox o-- application.models.RelationOV : rel
+  application.gui.employee.PageEmployeeDetailsRelation o-- application.models.EmployeeD : employeeD
+  application.gui.employee.PageEmployeeDetailsRelation o-- application.models.RelationD : relationD
+  application.gui.employee.PageEmployeeDetailsRelation o-- application.models.RelationOV : relationOV
+  application.gui.employee.PageEmployeeDetailsRelationBox o-- application.models.ConditionsD : conditionsD
+  application.gui.employee.PageEmployeeDetailsRelationBox o-- application.models.NextConditionsD : nextConditionsD
+  application.gui.employee.PageEmployeeDetailsRelationBoxBox o-- application.models.WageD : wageD
+  application.gui.employee.UpdateEmployee o-- application.gui.employee.PageEmployeeDetails : c
+  application.gui.employee.UpdateEmployeeImportant o-- application.gui.employee.PageEmployeeImportant : c
+  application.gui.employee.UpdateRelation .up.|> application.gui.employee.RelationInterface
+  application.gui.employee.UpdateRelation o-- application.models.PositionD : choosenPosition
+  application.gui.employee.UpdateRelation o-- application.models.ConditionsD : conditionsD
+  application.gui.employee.UpdateRelation o-- application.models.NextConditionsD : nextConditionsD
+  application.gui.employee.UpdateRelation o-- application.gui.employee.PageEmployeeDetailsRelation : pageEmployeeDetailsRelation
+  application.gui.employee.UpdateRelation o-- application.models.RelationD : relationD
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

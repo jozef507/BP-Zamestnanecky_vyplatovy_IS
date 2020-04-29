@@ -116,6 +116,10 @@ public class PageEmployeeDetailsRelationBox
     public VBox vbWage;
     public Text from;
     public Text to;
+    public Text apWeekTime, bank, bankPart, dayTime,
+            deductableItem, disabled, exemption, iban,
+            invalidity40, invalidity70, premature,
+            retirement, taxBonus, taxFree;
 
 
     /*---------------------------------------------------------------------------------------*/
@@ -160,17 +164,39 @@ public class PageEmployeeDetailsRelationBox
             dt = LocalDate.parse(this.conditionsD.getTo());
             sto = formatter.format(dt);
         }
-
         to.setText(sto);
+
+        deductableItem.setText("nie");
+        iban.setText(conditionsD.getIban());
+        try {
+            bankPart.setText((Integer.parseInt(conditionsD.getBankPart()) * 100 + "%"));
+        } catch (NumberFormatException e){
+            ;
+        }
+        bank.setText(getStringBoolVal(conditionsD.getBank()));
+        disabled.setText(getStringBoolVal(conditionsD.getDisabled()));
+        exemption.setText(getStringBoolVal(conditionsD.getExemption()));
+
+        invalidity40.setText(getStringBoolVal(conditionsD.getInvalidity40()));
+        invalidity70.setText(getStringBoolVal(conditionsD.getInvalidity70()));
+        premature.setText(getStringBoolVal(conditionsD.getPremature()));
+        retirement.setText(getStringBoolVal(conditionsD.getRetirement()));
+        taxBonus.setText(getStringBoolVal(conditionsD.getTaxBonus()));
+        taxFree.setText(getStringBoolVal(conditionsD.getTaxFree()));
+
 
         if(this.nextConditionsD!=null)
         {
-            isMain.setText(nextConditionsD.getIsMain());
-            isUniform.setText(nextConditionsD.getIsWeekTimeUniform());
+            isMain.setText(getStringBoolVal(nextConditionsD.getIsMain()));
+            isUniform.setText(getStringBoolVal(nextConditionsD.getIsWeekTimeUniform()));
             testTime.setText(nextConditionsD.getTestTime());
             hollidayTime.setText(nextConditionsD.getHollidayTime());
             weekTIme.setText(nextConditionsD.getWeekTime());
             sackTime.setText(nextConditionsD.getSackTime());
+
+            apWeekTime.setText(nextConditionsD.getApWeekTime());
+            dayTime.setText(nextConditionsD.getDayTime());
+            deductableItem.setText(getStringBoolVal(nextConditionsD.getDeductableItem()));
         }
 
         place.setText(Splace);
@@ -183,4 +209,11 @@ public class PageEmployeeDetailsRelationBox
 
     /*---------------------------------------------------------------------------------------*/
     /*--------------------------------------GUI HELPERS--------------------------------------*/
+    private String getStringBoolVal(String string)
+    {
+        if(string.equals("1"))
+            return "áno";
+        else
+            return "nie";
+    }
 }

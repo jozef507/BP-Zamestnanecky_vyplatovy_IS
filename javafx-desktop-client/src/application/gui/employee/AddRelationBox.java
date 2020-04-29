@@ -119,10 +119,43 @@ public class AddRelationBox
         payDate.setDisable(true);
         way.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
             if(newValue.equals("pravidelne") )
+            {
                 payDate.setDisable(true);
+                payDate.getEditor().clear();
+                if(form.getSelectionModel().isSelected(4))
+                {
+                    form.getSelectionModel().select(0);
+                }
+            }
             else
+            {
                 payDate.setDisable(false);
+                form.getSelectionModel().select(4);
+            }
         });
+
+        form.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
+            if(newValue.toString().contains("časová"))
+            {
+                time.setSelected(true);
+                time.setDisable(true);
+                way.getSelectionModel().select(0);
+            }
+            else if (newValue.toString().contains("cieľ"))
+            {
+                time.setSelected(true);
+                time.setDisable(true);
+                way.getSelectionModel().select(1);
+            }
+            else
+            {
+                time.setSelected(false);
+                time.setDisable(false);
+                way.getSelectionModel().select(0);
+            }
+        });
+
+        employee.setSelected(true);
 
     }
 

@@ -74,9 +74,6 @@ public class PageEmployeeImportant
                     json.getElement(i, "cislo"),
                     json.getElement(i, "pocet_deti_do_6_rokov"),
                     json.getElement(i, "pocet_deti_nad_6_rokov"),
-                    json.getElement(i, "uplatnenie_nedzanitelnej_casti"),
-                    json.getElement(i, "poberatel_starobneho_dochodku"),
-                    json.getElement(i, "poberatel_invalidneho_dochodku"),
                     json.getElement(i, "nice_date1"),
                     json.getElement(i, "nice_date2")
             ));
@@ -168,9 +165,6 @@ public class PageEmployeeImportant
                         this.importants.get(a).getNum(),
                         this.importants.get(a).getChildUnder(),
                         this.importants.get(a).getChildOver(),
-                        this.importants.get(a).getPart(),
-                        this.importants.get(a).getRetirement(),
-                        this.importants.get(a).getInvalidity(),
                         this.importants.get(a).getFrom(),
                         this.importants.get(a).getTo()
                 );
@@ -203,16 +197,10 @@ public class PageEmployeeImportant
                         this.importants.get((this.importants.size()) - 1).getNum(),
                         this.importants.get((this.importants.size()) - 1).getChildUnder(),
                         this.importants.get((this.importants.size()) - 1).getChildOver(),
-                        this.importants.get((this.importants.size()) - 1).getPart(),
-                        this.importants.get((this.importants.size()) - 1).getRetirement(),
-                        this.importants.get((this.importants.size()) - 1).getInvalidity(),
                         this
                 );
             }catch (IndexOutOfBoundsException e){
                 return new UpdateEmployeeImportant(
-                        "",
-                        "",
-                        "",
                         "",
                         "",
                         "",

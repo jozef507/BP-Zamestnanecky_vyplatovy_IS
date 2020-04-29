@@ -257,7 +257,6 @@ public class PageAbsence
             }
             filteredData = new FilteredList<>(absenceDS, e->true);
             filteredData2 = new FilteredList<>(absenceDS, e->true);
-
         });
 
         MainPaneManager.getC().desibleBackPage();

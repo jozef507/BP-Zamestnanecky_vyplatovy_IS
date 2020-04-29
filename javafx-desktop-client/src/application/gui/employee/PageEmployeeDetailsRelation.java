@@ -133,6 +133,18 @@ public class PageEmployeeDetailsRelation
             conditionsD.setNextConditionsID(json.getElement(i, "dalsie_podmienky"));
             conditionsD.setPositionID(json.getElement(i, "pozicia"));
 
+            conditionsD.setTaxFree(json.getElement(i, "uplatnenie_nezdanitelnej_casti"));
+            conditionsD.setTaxBonus(json.getElement(i, "uplatnenie_danoveho_bonusu"));
+            conditionsD.setDisabled(json.getElement(i, "drzitel_tzp_preukazu"));
+            conditionsD.setRetirement(json.getElement(i, "poberatel_starobneho_vysluhoveho_dochodku"));
+            conditionsD.setInvalidity40(json.getElement(i, "poberatel_invalidneho_vysluhoveho_dochodku_nad_40"));
+            conditionsD.setInvalidity70(json.getElement(i, "poberatel_invalidneho_vysluhoveho_dochodku_nad_70"));
+            conditionsD.setPremature(json.getElement(i, "poberatel_predcasneho_dochodku"));
+            conditionsD.setExemption(json.getElement(i, "uplatnenie_odvodovej_vynimky"));
+            conditionsD.setBank(json.getElement(i, "posielanie_vyplaty_na_ucet"));
+            conditionsD.setBankPart(json.getElement(i, "cast_z_vyplaty_na_ucet"));
+            conditionsD.setIban(json.getElement(i, "iban_uctu_pre_vyplatu"));
+
             String place = json.getElement(i, "pr_nazov");
             String position = json.getElement(i, "po_nazov");
 
@@ -142,10 +154,14 @@ public class PageEmployeeDetailsRelation
                 nextConditionsD.setId(json.getElement(i, "dp_id"));
                 nextConditionsD.setIsMain(json.getElement(i, "je_hlavny_pp"));
                 nextConditionsD.setHollidayTime(json.getElement(i, "vymera_dovolenky"));
-                nextConditionsD.setWeekTime(json.getElement(i, "tyzdenny_pracovny_cas"));
+                nextConditionsD.setWeekTime(json.getElement(i, "dohodnuty_tyzdenny_pracovny_cas"));
                 nextConditionsD.setIsWeekTimeUniform(json.getElement(i, "je_pracovny_cas_rovnomerny"));
                 nextConditionsD.setTestTime(json.getElement(i, "skusobvna_doba"));
                 nextConditionsD.setSackTime(json.getElement(i, "vypovedna_doba"));
+
+                nextConditionsD.setApWeekTime(json.getElement(i, "ustanoveny_tyzdenny_pracovny_cas"));
+                nextConditionsD.setDayTime(json.getElement(i, "dohodnuty_denny_pracovny_cas"));
+                nextConditionsD.setDeductableItem(json.getElement(i, "uplatnenie_odpocitatelnej_polozky"));
             }
 
             this.conditionsDs.add(conditionsD);
@@ -177,7 +193,7 @@ public class PageEmployeeDetailsRelation
         this.setBoxes();
     }
 
-    private void setTexts()
+     private void setTexts()
     {
         name.setText(this.employeeD.getName()+" "+this.employeeD.getLastname());
         id.setText(this.relationD.getId());

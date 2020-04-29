@@ -78,16 +78,31 @@ public class AddRelation implements RelationInterface
             ht.addParam("uniform", this.nextConditionsD.getIsWeekTimeUniform());
             ht.addParam("testtime", this.nextConditionsD.getTestTime());
             ht.addParam("sacktime", this.nextConditionsD.getSackTime());
+
+            ht.addParam("daytime", this.nextConditionsD.getDayTime());
+            ht.addParam("apweektime", this.nextConditionsD.getApWeekTime());
+            ht.addParam("deductableitem", this.nextConditionsD.getDeductableItem());
         }
         else
         {
             ht.addParam("nextconditions", "false");
-
         }
 
         ht.addParam("from", this.conditionsD.getFrom());
         ht.addParam("to", this.conditionsD.getTo());
         ht.addParam("positionid", this.conditionsD.getPositionID());
+
+        ht.addParam("taxfree", this.conditionsD.getTaxFree());
+        ht.addParam("taxbonus", this.conditionsD.getTaxBonus());
+        ht.addParam("disabled", this.conditionsD.getDisabled());
+        ht.addParam("retirement", this.conditionsD.getRetirement());
+        ht.addParam("invalidity40", this.conditionsD.getInvalidity40());
+        ht.addParam("invalidity70", this.conditionsD.getInvalidity70());
+        ht.addParam("premature", this.conditionsD.getPremature());
+        ht.addParam("exemption", this.conditionsD.getExemption());
+        ht.addParam("bank", this.conditionsD.getBank());
+        ht.addParam("bankpart", this.conditionsD.getBankPart());
+        ht.addParam("iban", this.conditionsD.getIban());
 
         ht.sendPost("relation/crt_rel", LoggedInUser.getToken(), LoggedInUser.getId());
 
@@ -139,12 +154,23 @@ public class AddRelation implements RelationInterface
     public VBox vb_wage;
     public Label infoLabel;
 
+    public CheckBox bank, deductableItem, desibled, exemption,
+            invalidity40, invalidity70, premature, retirement,
+            taxBonus, taxFree;
+    public TextField apWeekTime, dayTime, bankPart, iban;
+
 
     /*---------------------------------------------------------------------------------------*/
     /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
     public void initialize()
     {
         setElements();
+        setCheckBoxes();
+        isMain.setSelected(true);
+        isUniform.setSelected(true);
+        bank.setSelected(false);
+        bankPart.setDisable(true);
+        iban.setDisable(true);
 
         relEnd.setDisable(true);
         hb.setDisable(true);
@@ -180,7 +206,86 @@ public class AddRelation implements RelationInterface
                 "D: o pracovnej činnosti",
                 "D: o brig. práci študentov"
         );
+    }
 
+    private void setCheckBoxes()
+    {
+        isUniform.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    dayTime.setDisable(true);
+                    dayTime.clear();
+                } else {
+                    dayTime.setDisable(false);
+                }
+            }
+        });
+
+        retirement.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    premature.setSelected(false);
+                    invalidity40.setSelected(false);
+                    invalidity70.setSelected(false);
+                }
+            }
+        });
+
+        premature.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    retirement.setSelected(false);
+                    invalidity40.setSelected(false);
+                    invalidity70.setSelected(false);
+                }
+            }
+        });
+
+        invalidity40.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    premature.setSelected(false);
+                    retirement.setSelected(false);
+                    invalidity70.setSelected(false);
+                }
+            }
+        });
+
+        invalidity70.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    premature.setSelected(false);
+                    invalidity40.setSelected(false);
+                    retirement.setSelected(false);
+                }
+            }
+        });
+
+        bank.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue)
+                {
+                    bankPart.setDisable(false);
+                    iban.setDisable(false);
+                } else {
+                    bankPart.setDisable(true);
+                    bankPart.clear();
+                    iban.setDisable(true);
+                    iban.clear();
+                }
+            }
+        });
     }
 
     private void setDatePicker()
@@ -319,7 +424,15 @@ public class AddRelation implements RelationInterface
                 flag=false;
             else if(sackTime.getText() == null || sackTime.getText().trim().isEmpty())
                 flag=false;
+            else if(!dayTime.isDisable() && (dayTime.getText() == null || dayTime.getText().trim().isEmpty()))
+                flag=false;
+            else if(apWeekTime.getText() == null || apWeekTime.getText().trim().isEmpty())
+                flag=false;
         }
+        else if(!bankPart.isDisable() && (bankPart.getText() == null || bankPart.getText().trim().isEmpty()))
+            flag=false;
+        else if(!iban.isDisable() && (iban.getText() == null || iban.getText().trim().isEmpty()))
+            flag=false;
         else if(choosenPosition == null)
             flag=false;
         else if(wagesControllers.size() == 0)
@@ -361,24 +474,97 @@ public class AddRelation implements RelationInterface
                 flag = false;
             else if (!hollidayTime.getText().matches("^\\+?-?\\d+(\\.\\d+)?$"))
                 flag = false;
+            else if (!dayTime.isDisable() &&!dayTime.getText().matches("^\\+?-?\\d+(\\.\\d+)?$"))
+                flag = false;
             try {
                 double d = Double.parseDouble(weekTime.getText());
+                double e = Double.parseDouble(apWeekTime.getText());
                 if (d > 40) flag = false;
+                if (e > 40) flag = false;
             } catch (NumberFormatException nfe) {
                 flag = false;
             }
         }
 
+        try {
+            if(!bankPart.isDisable())
+            {
+                double d = Double.parseDouble(bankPart.getText());
+                if (d<=0 || d>=1) flag = false;
+            }
+        } catch (NumberFormatException nfe) {
+            flag = false;
+        }
+
+        int timeEvidence = 0, timeForm = 0, unregularly = 0, wages = 0;
         for(int i = 0;i<wagesControllers.size();i++)
         {
-            if(!wagesControllers.get(i).getTarif().getText().matches("^\\+?-?\\d+(\\.\\d+)?$")) flag=false;
+            if(!wagesControllers.get(i).getTarif().getText().matches("^\\+?-?\\d+(\\.\\d+)?$"))
+                flag=false;
             if(!flag) break;
+            if(wagesControllers.get(i).getForm().getValue().toString().contains("časová")) timeForm++;
+            if(wagesControllers.get(i).getTime().isSelected()) timeEvidence++;
+            if(wagesControllers.get(i).getWay().getValue().toString().contains("nepravidelne")) unregularly++;
+            wages++;
+        }
+        if(flag)
+        {
+            if(!(unregularly==0 || wages==unregularly))
+            {
+                System.out.println("Pravidelne vyplácane mzdy môžu byť buď všetky alebo žiadna!");
+                infoLabel.setText("Pravidelne vyplácane mzdy môžu byť buď všetky alebo žiadna!");
+                infoLabel.setVisible(true);
+                return false;
+            }
+
+            if(unregularly==0)
+            {
+                if(timeForm!=0)
+                {
+                    if(timeForm!=1)
+                    {
+                        System.out.println("Možné zadať len jednú časovú mzdu!");
+                        infoLabel.setText("Možné zadať len jednú časovú mzdu!");
+                        infoLabel.setVisible(true);
+                        return false;
+                    }
+
+                    if(timeForm!=timeEvidence)
+                    {
+                        System.out.println("Ak existuje časová forma mzdy, len pri nej je možné evidovanie času!");
+                        infoLabel.setText("Ak existuje časová forma mzdy, len pri nej je možné evidovanie času!");
+                        infoLabel.setVisible(true);
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(timeEvidence!=1)
+                    {
+                        System.out.println("Len pri jednej pravidelnej, nečasovej mzde je možné evidovať čas!");
+                        infoLabel.setText("Len pri jednej pravidelnej, nečasovej mzde je možné evidovať čas!");
+                        infoLabel.setVisible(true);
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if(wages!=timeEvidence)
+                {
+                    System.out.println("Pri každej nepravidelnej mzde je nutné evidovať čas.");
+                    infoLabel.setText("Pri každej nepravidelnej mzde je nutné evidovať čas.");
+                    infoLabel.setVisible(true);
+                    return false;
+                }
+            }
+
         }
 
         if(!flag)
         {
-            System.out.println("Niektoré vyplnené údaje majú nesprávny formát.");
-            infoLabel.setText("Niektoré vyplnené údaje majú nesprávny formát.");
+            System.out.println("Nesprávny formát údajov");
+            infoLabel.setText("Nesprávny formát údajov");
             infoLabel.setVisible(true);
             return flag;
         }
@@ -394,14 +580,25 @@ public class AddRelation implements RelationInterface
         if(isEnd.isSelected())
             relationD.setTo(relEnd.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         else
-            relationD.setTo("NULL");
+            relationD.setTo("");
         relationD.setEmployeeID(this.pageEmployeeDetails.getEmployeeD().getId());
         this.relationD = relationD;
 
         ConditionsD conditionsD = new ConditionsD();
         conditionsD.setFrom(relBegin.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        conditionsD.setTo("NULL");
+        conditionsD.setTo("");
         conditionsD.setPositionID(this.choosenPosition.getId());
+        conditionsD.setTaxFree(taxFree.isSelected()? "1":"0");
+        conditionsD.setTaxBonus(taxBonus.isSelected()? "1":"0");
+        conditionsD.setDisabled(desibled.isSelected()? "1":"0");
+        conditionsD.setRetirement(retirement.isSelected()? "1":"0");
+        conditionsD.setInvalidity40(invalidity40.isSelected()? "1":"0");
+        conditionsD.setInvalidity70(invalidity70.isSelected()? "1":"0");
+        conditionsD.setPremature(premature.isSelected()? "1":"0");
+        conditionsD.setExemption(exemption.isSelected()? "1":"0");
+        conditionsD.setBank(bank.isSelected()? "1":"0");
+        conditionsD.setBankPart(bankPart.getText());
+        conditionsD.setIban(iban.getText());
         this.conditionsD = conditionsD;
 
         NextConditionsD nextConditionsD = new NextConditionsD();
@@ -421,9 +618,13 @@ public class AddRelation implements RelationInterface
             nextConditionsD.setWeekTime(weekTime.getText());
             nextConditionsD.setTestTime(testTime.getText());
             nextConditionsD.setSackTime(sackTime.getText());
+            nextConditionsD.setDayTime(dayTime.getText());
+            nextConditionsD.setApWeekTime(apWeekTime.getText());
+            nextConditionsD.setDeductableItem(deductableItem.isSelected()? "1":"0");
         }
         this.nextConditionsD = nextConditionsD;
 
+        this.wageDs.clear();
         for (int i = 0; i<wagesControllers.size(); i++)
         {
             WageD wageD = new WageD();

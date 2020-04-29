@@ -29,9 +29,6 @@ public class UpdateEmployeeImportant
     private String num;
     private String childUnder;
     private String childOver;
-    private String part;
-    private String retirement;
-    private String invalidity;
     private String employeeID;
     private PageEmployeeImportant c;
 
@@ -39,8 +36,8 @@ public class UpdateEmployeeImportant
     /*---------------------------------------------------------------------------------------*/
     /*-------------------------------------CONSTRUCTORS--------------------------------------*/
     public UpdateEmployeeImportant(String id, String insComp, String town, String street, String num,
-                                   String childUnder, String childOver, String part, String retirement,
-                                   String invalidity, PageEmployeeImportant c) {
+                                   String childUnder, String childOver, PageEmployeeImportant c)
+    {
         this.id = id;
         this.insComp = insComp;
         this.town = town;
@@ -48,9 +45,6 @@ public class UpdateEmployeeImportant
         this.num = num;
         this.childUnder = childUnder;
         this.childOver = childOver;
-        this.part = part;
-        this.retirement = retirement;
-        this.invalidity = invalidity;
         this.c = c;
         this.employeeID = c.getEmployeeID();
     }
@@ -66,21 +60,6 @@ public class UpdateEmployeeImportant
         String sNum = numF.getText();
         String sChildUnder = childUnderF.getText();
         String sChildOver = childOverF.getText();
-        String sPart = partF.getValue().toString();
-        if(sPart.equals("áno"))
-            sPart="1";
-        else
-            sPart="0";
-        String sRetirement = retirementF.getValue().toString();
-        if(sRetirement.equals("áno"))
-            sRetirement="1";
-        else
-            sRetirement="0";
-        String sInvalidity = invalidityF.getValue().toString();
-        if(sInvalidity.equals("áno"))
-            sInvalidity="1";
-        else
-            sInvalidity="0";
 
         String sEnd=null;
         String sBegin=null;
@@ -110,9 +89,6 @@ public class UpdateEmployeeImportant
         ht.addParam("num", sNum);
         ht.addParam("childunder", sChildUnder);
         ht.addParam("childover", sChildOver);
-        ht.addParam("part", sPart);
-        ht.addParam("retirement", sRetirement);
-        ht.addParam("invalidity", sInvalidity);
         ht.addParam("end", sEnd);
         ht.addParam("begin", sBegin);
         ht.addParam("employee", this.employeeID);
@@ -147,7 +123,6 @@ public class UpdateEmployeeImportant
     /*--------------------------------------GUI FIELDS---------------------------------------*/
     public TextField insCompF, townF, streetF, numF, childUnderF,
             childOverF;
-    public ComboBox partF, retirementF, invalidityF;
     public Button cancel;
     public Button ok;
     public Label label;
@@ -161,10 +136,9 @@ public class UpdateEmployeeImportant
     {
         this.changeFocus();
         this.setDatePicker();
-        this.setComboBoxes();
         this.setInputs();
 
-        this.setTextfieldLimit(insCompF, 255);
+        this.setTextfieldLimit(insCompF, 30);
         this.setTextfieldLimit(townF, 255);
         this.setTextfieldLimit(streetF, 255);
         this.setTextfieldLimit(numF, 255);
@@ -247,40 +221,8 @@ public class UpdateEmployeeImportant
         numF.setText(this.num);
         childUnderF.setText(this.childUnder);
         childOverF.setText(this.childOver);
-
-        if(this.part.equals("nie"))
-            partF.getSelectionModel().select(1);
-        else
-            partF.getSelectionModel().select(0);
-
-        if(this.retirement.equals("nie"))
-            retirementF.getSelectionModel().select(1);
-        else
-            retirementF.getSelectionModel().select(0);
-
-        if(this.invalidity.equals("nie"))
-            invalidityF.getSelectionModel().select(1);
-        else
-            invalidityF.getSelectionModel().select(0);
     }
 
-    private void setComboBoxes()
-    {
-        partF.getItems().addAll(
-                "áno",
-                "nie"
-        );
-
-        retirementF.getItems().addAll(
-                "áno",
-                "nie"
-        );
-
-        invalidityF.getItems().addAll(
-                "áno",
-                "nie"
-        );
-    }
 
 
     /*---------------------------------------------------------------------------------------*/
@@ -306,12 +248,6 @@ public class UpdateEmployeeImportant
         else if(childUnderF.getText() == null || childUnderF.getText().trim().isEmpty())
             flag=false;
         else if(childOverF.getText() == null || childOverF.getText().trim().isEmpty())
-            flag=false;
-        else if(partF.getSelectionModel().isEmpty())
-            flag=false;
-        else if(retirementF.getSelectionModel().isEmpty())
-            flag=false;
-        else if(invalidityF.getSelectionModel().isEmpty())
             flag=false;
         else if(begin.getValue()==null)
             flag=false;

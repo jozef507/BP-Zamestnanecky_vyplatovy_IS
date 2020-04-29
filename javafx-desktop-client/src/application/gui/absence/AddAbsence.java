@@ -166,7 +166,7 @@ public class AddAbsence
 
     public void onAddRelationClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("absence/AddAbsenceChooserelation.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddAbsenceChooserelation.fxml"));
         loader.setControllerFactory(c -> {
             return new AddAbsenceChooserelation(this);
         });

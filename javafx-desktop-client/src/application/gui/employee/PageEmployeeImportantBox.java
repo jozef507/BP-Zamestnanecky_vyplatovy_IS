@@ -14,25 +14,19 @@ public class PageEmployeeImportantBox {
     private String snum;
     private String schildren_under;
     private String schildren_over;
-    private String spart;
-    private String sretirement;
-    private String sinvalidity;
     private String sfrom;
     private String sto;
 
 
     /*---------------------------------------------------------------------------------------*/
     /*-------------------------------------CONSTRUCTORS--------------------------------------*/
-    public PageEmployeeImportantBox(String sinsComp, String stown, String sstreet, String snum, String schildren_under, String schildren_over, String spart, String sretirement, String sinvalidity, String sfrom, String sto) {
+    public PageEmployeeImportantBox(String sinsComp, String stown, String sstreet, String snum, String schildren_under, String schildren_over, String sfrom, String sto) {
         this.sinsComp = sinsComp;
         this.stown = stown;
         this.sstreet = sstreet;
         this.snum = snum;
         this.schildren_under = schildren_under;
         this.schildren_over = schildren_over;
-        this.spart = spart;
-        this.sretirement = sretirement;
-        this.sinvalidity = sinvalidity;
         this.sfrom = sfrom;
         this.sto = sto;
     }
@@ -53,9 +47,6 @@ public class PageEmployeeImportantBox {
     public Text to;
     public Text children_under;
     public Text children_over;
-    public Text retirement;
-    public Text invalidity;
-    public Text part;
 
 
     /*---------------------------------------------------------------------------------------*/
@@ -71,18 +62,6 @@ public class PageEmployeeImportantBox {
         to.setText(sto);
         children_under.setText(schildren_under);
         children_over.setText(schildren_over);
-        if(sretirement.equals("0"))
-            retirement.setText("nie");
-        else
-            retirement.setText("áno");
-        if(sinvalidity.equals("0"))
-            invalidity.setText("nie");
-        else
-            invalidity.setText("áno");
-        if(spart.equals("0"))
-            part.setText("nie");
-        else
-            part.setText("áno");
 
     }
 

@@ -90,9 +90,6 @@ public class PageEmployeeDetails
             this.employeeD.setFrom(json.getElement(1, "nice_date2"));
             this.employeeD.setChildrenUnder(json.getElement(1, "pocet_deti_do_6_rokov"));
             this.employeeD.setChildrenOver(json.getElement(1, "pocet_deti_nad_6_rokov"));
-            this.employeeD.setPart(json.getElement(1, "uplatnenie_nedzanitelnej_casti"));
-            this.employeeD.setRetirement(json.getElement(1, "poberatel_starobneho_dochodku"));
-            this.employeeD.setInvalidity(json.getElement(1, "poberatel_invalidneho_dochodku"));
         }
 
         ht.sendGet("employee/emp_rel_ov/"+this.employeeID, LoggedInUser.getToken(), LoggedInUser.getId());
@@ -126,7 +123,7 @@ public class PageEmployeeDetails
     /*--------------------------------------GUI FIELDS---------------------------------------*/
     @FXML
     private Text name, phone, email, born_num, born_date, username, role, town, street,
-            num, from, children_under, children_over, retirement, invalidity, insComp, part;
+            num, from, children_under, children_over, insComp;
     @FXML
     private HBox hb;
     @FXML
@@ -231,9 +228,6 @@ public class PageEmployeeDetails
         from.setText(this.employeeD.getFrom());
         children_under.setText(this.employeeD.getChildrenUnder());
         children_over.setText(this.employeeD.getChildrenOver());
-        part.setText(this.employeeD.getPart());
-        retirement.setText(this.employeeD.getRetirement());
-        invalidity.setText(this.employeeD.getInvalidity());
     }
 
 
@@ -279,13 +273,4 @@ public class PageEmployeeDetails
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }
-
-
-
-
-
-
-
-
-
 }

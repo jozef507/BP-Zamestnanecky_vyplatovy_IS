@@ -23,11 +23,7 @@ public class PageFirm
 
     /*---------------------------------------------------------------------------------------*/
     /*--------------------------------------GUI METHODS--------------------------------------*/
-    public void onFormClick(MouseEvent mouseEvent)
-    {
-        FXMLLoader l = new FXMLLoader(getClass().getResource("PageFirmForm.fxml"));
-        MainPaneManager.getC().loadAnchorPage(l);
-    }
+
 
     public void onPositionClick(MouseEvent mouseEvent)
     {

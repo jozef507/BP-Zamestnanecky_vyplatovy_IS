@@ -23,6 +23,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
@@ -92,7 +93,7 @@ public class PageEmployee
         ht.sendGet("employee", LoggedInUser.getToken(), LoggedInUser.getId());
         JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
 
-        String prevEmployeeID="-1";
+        String prevEmployeeID="-1", prevRelationID="-1";
         for(int i=0; i<json.getSize(); i++)
         {
             if(!json.getElement(i,"id").equals(prevEmployeeID))
@@ -120,11 +121,36 @@ public class PageEmployee
             }
             else
             {
-                employeeOVS.get(employeeOVS.size()-1).addWorkRelation(json.getElement(i, "p2_nazov"));
-                employeeOVS.get(employeeOVS.size()-1).addPlace(json.getElement(i, "p3_nazov"));
-                employeeOVS.get(employeeOVS.size()-1).setActrelat(employeeOVS.get(employeeOVS.size()-1).getActrelat()+1);
+                if(json.getElement(i,"v_id").equals(prevRelationID))
+                {
+                    String from = json.getElement(i, "platnost_od"), to = json.getElement(i, "platnost_do");
+                    LocalDate ldFrom = LocalDate.parse(from),  now = LocalDate.now(), ldTo=null;
+                    if(to!=null)
+                        ldTo = LocalDate.parse(to);
+
+                    if(ldTo==null)
+                    {
+                        if(now.compareTo(ldFrom) >= 0){
+                            employeeOVS.get(employeeOVS.size() - 1).getPlaces().remove(employeeOVS.get(employeeOVS.size() - 1).getPlaces().size() - 1);
+                            employeeOVS.get(employeeOVS.size() - 1).addPlace(json.getElement(i, "p3_nazov"));
+                        }
+                    } else {
+                        if ((now.compareTo(ldTo) > 0) || (now.compareTo(ldFrom) >= 0 && ldTo.compareTo(now) >= 0)) {
+                            employeeOVS.get(employeeOVS.size() - 1).getPlaces().remove(employeeOVS.get(employeeOVS.size() - 1).getPlaces().size() - 1);
+                            employeeOVS.get(employeeOVS.size() - 1).addPlace(json.getElement(i, "p3_nazov"));
+                        }
+                    }
+                }
+                else
+                {
+                    employeeOVS.get(employeeOVS.size()-1).addWorkRelation(json.getElement(i, "p2_nazov"));
+                    employeeOVS.get(employeeOVS.size()-1).addPlace(json.getElement(i, "p3_nazov"));
+                    employeeOVS.get(employeeOVS.size()-1).setActrelat(employeeOVS.get(employeeOVS.size()-1).getActrelat()+1);
+                }
+
             }
             prevEmployeeID = json.getElement(i,"id");
+            prevRelationID = json.getElement(i,"v_id");
         }
 
         return employeeOVS;
@@ -340,7 +366,7 @@ public class PageEmployee
             e.printStackTrace();
         }
         Stage primaryStage = new Stage();
-        primaryStage.setTitle("Úprava informácií pracujúceho");
+        primaryStage.setTitle("Vytvorenie nového pracujúceho");
         primaryStage.setScene(new Scene(root1, 505, 600));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();

@@ -118,7 +118,8 @@ public class AddHoursBox
     {
         emergency.getItems().addAll(
                 "aktívna",
-                "neaktívna"
+                "neaktívna - na pracovisku",
+                "neaktívna - mimo pracoviska"
         );
     }
 
@@ -127,15 +128,15 @@ public class AddHoursBox
         String formName = this.hoursInterface.getChoosenWage().getWageFormName();
         String timeRequired = this.hoursInterface.getChoosenWage().getEmployeeEnter();
         String emergencyRequired = this.hoursInterface.getChoosenWage().getEmergencyImportant();
-        if(formName.matches("^časová-?.*$"))
+        if(formName.matches("^časová$"))
         {
             timeCB.setSelected(true);
         }
-        else if(formName.matches("^výkonová-?.*$"))
+        else if(formName.matches("^výkonová$"))
         {
             unitsCB.setSelected(true);
         }
-        else if(formName.matches("^podielová-?.*$"))
+        else if(formName.matches("^podielová$"))
         {
             partCB.setSelected(true);
         }

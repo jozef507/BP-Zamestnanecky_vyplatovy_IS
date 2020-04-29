@@ -50,16 +50,10 @@ public class AddEmployee
         ht.addParam("num", this.importantD.getNum());
         ht.addParam("childunder", this.importantD.getChildUnder());
         ht.addParam("childover", this.importantD.getChildOver());
-        ht.addParam("part", this.importantD.getPart());
-        ht.addParam("retirement", this.importantD.getRetirement());
-        ht.addParam("invalidity", this.importantD.getInvalidity());
         ht.addParam("begin", this.importantD.getFrom());
         ht.addParam("end", this.importantD.getTo());
 
-
         ht.sendPost("employee/crt_emp", LoggedInUser.getToken(), LoggedInUser.getId());
-
-
     }
 
 
@@ -74,7 +68,6 @@ public class AddEmployee
     @FXML private Button create;
     @FXML private TextField insCompF, townF, streetF, numF, childUnderF,
             childOverF;
-    @FXML private ComboBox partF, retirementF, invalidityF;
     @FXML private Button cancel;
     @FXML private Label label;
     @FXML private DatePicker begin;
@@ -86,7 +79,6 @@ public class AddEmployee
     @FXML
     public void initialize() throws IOException, InterruptedException {
         this.setDatePicker();
-        this.setComboBoxes();
         label.setVisible(false);
         this.changeFocus();
         this.setTextfieldLimit(name, 255);
@@ -94,7 +86,7 @@ public class AddEmployee
         this.setTextfieldLimit(phone, 10);
         this.setTextfieldLimit(bornnumber, 10);
 
-        this.setTextfieldLimit(insCompF, 255);
+        this.setTextfieldLimit(insCompF, 30);
         this.setTextfieldLimit(townF, 255);
         this.setTextfieldLimit(streetF, 255);
         this.setTextfieldLimit(numF, 255);
@@ -137,23 +129,6 @@ public class AddEmployee
         borndate.setPromptText("D.M.RRRR");
     }
 
-    private void setComboBoxes()
-    {
-        partF.getItems().addAll(
-                "áno",
-                "nie"
-        );
-
-        retirementF.getItems().addAll(
-                "áno",
-                "nie"
-        );
-
-        invalidityF.getItems().addAll(
-                "áno",
-                "nie"
-        );
-    }
 
     private void changeFocus()
     {
@@ -239,13 +214,6 @@ public class AddEmployee
         else if(childOverF.getText() == null || childOverF.getText().trim().isEmpty())
             flag=false;
 
-        if(partF.getSelectionModel().isEmpty())
-            flag=false;
-        else if(retirementF.getSelectionModel().isEmpty())
-            flag=false;
-        else if(invalidityF.getSelectionModel().isEmpty())
-            flag=false;
-
         else if(begin.getValue()==null)
             flag=false;
         else if(borndate.getValue()==null)
@@ -302,21 +270,7 @@ public class AddEmployee
         importantD.setNum(numF.getText());
         importantD.setChildUnder(childUnderF.getText());
         importantD.setChildOver(childOverF.getText());
-        String sPart = partF.getValue().toString();
-        if(sPart.equals("áno"))
-            importantD.setPart("1");
-        else
-            importantD.setPart("0");
-        String sRetirement = retirementF.getValue().toString();
-        if(sRetirement.equals("áno"))
-            importantD.setRetirement("1");
-        else
-            importantD.setRetirement("0");
-        String sInvalidity = invalidityF.getValue().toString();
-        if(sInvalidity.equals("áno"))
-            importantD.setInvalidity("1");
-        else
-            importantD.setInvalidity("0");
+
         importantD.setFrom(begin.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         importantD.setTo("NULL");
 
