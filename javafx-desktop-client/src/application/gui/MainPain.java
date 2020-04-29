@@ -90,6 +90,7 @@ public class MainPain implements Initializable {
 
     public void btn4(MouseEvent mouseEvent)
     {
+        loadAnchorPage("payment/PagePayment");
         menuButtonClicked("b4");
     }
 

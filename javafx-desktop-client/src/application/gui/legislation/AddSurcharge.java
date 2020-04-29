@@ -22,6 +22,7 @@ public class AddSurcharge
     /*---------------------------------------------------------------------------------------*/
     /*----------------------------------------FIELDS-----------------------------------------*/
     private ArrayList<String> bases;
+    private ArrayList<String> names;
     private PageLegislationSurcharge pageLegislationSurcharge;
     private SurchargeTypeD surchargeTypeD;
 
@@ -35,6 +36,12 @@ public class AddSurcharge
         this.bases.add("minimálna mzda");
         this.bases.add("priemerná mzda");
         this.bases.add("základná mzda");
+        this.names = new ArrayList<>();
+        this.names.add("sobota");
+        this.names.add("nedeľa");
+        this.names.add("noc");
+        this.names.add("sviatok");
+        this.names.add("nadčas");
     }
 
 
@@ -44,6 +51,7 @@ public class AddSurcharge
         HttpClientClass ht = new HttpClientClass();
 
         ht.addParam("name", this.surchargeTypeD.getName());
+        ht.addParam("description", this.surchargeTypeD.getDescription());
         ht.addParam("part", this.surchargeTypeD.getPart());
         ht.addParam("base", this.surchargeTypeD.getBase());
         ht.addParam("from", this.surchargeTypeD.getFrom());
@@ -58,8 +66,9 @@ public class AddSurcharge
     public Button cancel;
     public Button create;
     public DatePicker from;
-    public TextField name, part;
-    public ComboBox<String> base;
+    public TextField part;
+    public TextField description;
+    public ComboBox<String> base, name;
     public Label label;
 
 
@@ -71,14 +80,13 @@ public class AddSurcharge
         setDatePicker();
         setComboboxes();
         changeFocus();
-        this.setTextfieldLimit(name, 50);
-
+        setTextfieldLimit(description, 20);
     }
 
-    private void setTextfieldLimit(TextField textArea, int limit)
+    private void setTextfieldLimit(TextInputControl textArea, int limit)
     {
         textArea.setTextFormatter(new TextFormatter<String>(change ->
-                change.getControlNewText().length() <= limit ? change : null));
+                change.getControlNewText().length()  <= limit ? change : null));
     }
 
     private void setDatePicker()
@@ -113,6 +121,11 @@ public class AddSurcharge
         for (String p:this.bases)
         {
             base.getItems().add(p);
+        }
+
+        for (String p:this.names)
+        {
+            name.getItems().add(p);
         }
 
     }
@@ -177,8 +190,10 @@ public class AddSurcharge
         boolean flag = true;
         label.setVisible(false);
 
-        if(name.getText() == null || name.getText().trim().isEmpty())
+        if(name.getSelectionModel().isEmpty())
             flag=false;
+        /*else if(description.getText() == null || description.getText().trim().isEmpty())
+            flag=false;*/
         else if(part.getText() == null || part.getText().trim().isEmpty())
             flag=false;
 
@@ -204,7 +219,7 @@ public class AddSurcharge
 
        try {
             double d = Double.parseDouble(part.getText());
-            if(!(d>0 && d<1)) flag = false;
+            if(!(d>=0 && d<=1)) flag = false;
         } catch (NumberFormatException nfe) {
            flag=false;
         }
@@ -222,7 +237,8 @@ public class AddSurcharge
 
     private void setModelsFromInputs()
     {
-        this.surchargeTypeD.setName(name.getText());
+        this.surchargeTypeD.setName(name.getValue());
+        this.surchargeTypeD.setDescription(description.getText());
         this.surchargeTypeD.setPart(part.getText());
         this.surchargeTypeD.setFrom(from.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         this.surchargeTypeD.setBase(base.getValue());

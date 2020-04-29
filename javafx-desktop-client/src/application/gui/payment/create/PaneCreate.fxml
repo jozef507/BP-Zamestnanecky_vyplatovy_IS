@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<SplitPane dividerPositions="0.5, 0.5" focusTraversable="true" prefHeight="647.0" prefWidth="891.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.payment.create.PaneCreate">
+   <items>
+      <ScrollPane fitToHeight="true" maxWidth="200.0" stylesheets="@../../../../css/fullpackstyling.css">
+         <content>
+            <VBox fillWidth="false" minWidth="200.0" styleClass="box">
+               <children>
+                  <VBox minWidth="194.0" spacing="5.0" styleClass="panel4">
+                     <children>
+                        <HBox spacing="7.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Zamestnanec">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="3.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="10.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Meno">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="name" strokeType="OUTSIDE" strokeWidth="0.0" text="Jozef">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="46.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Priezvisko">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="lastname" strokeType="OUTSIDE" strokeWidth="0.0" text="Ondria">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="82.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Dátum nar.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="borndate" strokeType="OUTSIDE" strokeWidth="0.0" text="9804028135">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="67.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Rod. č.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="bornnumber" strokeType="OUTSIDE" strokeWidth="0.0" text="9804028135">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="89.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Zdrav. poisť.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="inscompany" strokeType="OUTSIDE" strokeWidth="0.0" text="Všeobecna zdravotna poistovna">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+                  <VBox layoutX="13.0" layoutY="20.0" minWidth="194.0" spacing="5.0" styleClass="panel4">
+                     <children>
+                        <HBox spacing="7.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Pracovný vzťah">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="3.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="10.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Typ">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="relationtype" strokeType="OUTSIDE" strokeWidth="0.0" text="Dohoda">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="192.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Pravidel. príjem">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="regularwage" strokeType="OUTSIDE" strokeWidth="0.0" text="áno">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="46.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Vznik">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="from" strokeType="OUTSIDE" strokeWidth="0.0" text="1.1.2020">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="67.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Vypršanie">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="to" strokeType="OUTSIDE" strokeWidth="0.0" text="2.1.2020">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="84.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Pracovisko">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="place" strokeType="OUTSIDE" strokeWidth="0.0" text="rrr">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="4.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="104.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Pozícia">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="position" strokeType="OUTSIDE" strokeWidth="0.0" text="rrr">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="124.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Dohod. TPC">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="weektime" strokeType="OUTSIDE" strokeWidth="0.0" text="00 hod">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="4.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="144.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Ustan. TPC">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="apweektime" strokeType="OUTSIDE" strokeWidth="0.0" text="00 hod">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="164.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Rovnomerný PC">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="uniformtime" strokeType="OUTSIDE" strokeWidth="0.0" text="áno">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="192.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Denný PC">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="daytime" strokeType="OUTSIDE" strokeWidth="0.0" text="00Hod">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+                  <VBox minWidth="194.0" spacing="5.0" styleClass="panel4">
+                     <children>
+                        <HBox spacing="7.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Predch. obdobie">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="3.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="10.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Priemerná mz.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="averageWage" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="192.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Denný vym. zák.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="dayAssessmentBasis" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets left="3.0" right="3.0" />
+               </padding>
+            </VBox>
+         </content>
+      </ScrollPane>
+      <AnchorPane fx:id="anchorpane" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false" />
+      <ScrollPane fitToHeight="true" maxWidth="200.0" stylesheets="@../../../../css/fullpackstyling.css">
+         <content>
+            <VBox minWidth="200.0" styleClass="box">
+               <children>
+                  <VBox layoutX="13.0" layoutY="20.0" minWidth="194.0" spacing="5.0" styleClass="panel4">
+                     <children>
+                        <HBox spacing="7.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Výplata - zamestnanec">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="3.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="44.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Obdobie">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="months" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="44.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Fond prac. č.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="fund" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="10.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Základna zlož.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="basecomponent" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="192.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Pohyblivá zlož.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="dynamiccomponent" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="46.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Príplatky">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="surcharges" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="67.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Náhrady">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="compensations" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="84.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Iné">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="others" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="158.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Doplatok do MM">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="deficit" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="104.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Hrubá mzda">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="grosswage" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="164.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Vymeriavací zák.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Text>
+                              <Text fx:id="assessmentbasis" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="4.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="124.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Odv. soc. poisť.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="leviessocialinsurence" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="144.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Odv. zdrav. poisť.">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="leviesinsurencecompany" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="348.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Ciast. zák. dane">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="partialTaxBase" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="228.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Zdanit mzda">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="taxablewage" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="164.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Preddavok">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="advances" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="192.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Danov. bonus">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="taxbonus" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="232.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Cista mzda">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="netwage" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="252.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Zrážky">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="wagededuction" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="272.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="K výplate">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="topay" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+                  <VBox layoutX="13.0" layoutY="10.0" minWidth="194.0" spacing="5.0" styleClass="panel4">
+                     <children>
+                        <HBox spacing="7.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Výplata - zamestnávateľ">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="3.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="69.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Odv. soc. poisť">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="eleviessocialinsurence" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="46.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Odv. zdrav. poisť">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="eleviesinsurencecompany" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="10.0" layoutY="10.0" spacing="7.0">
+                           <children>
+                              <Text fill="#00000080" strokeType="OUTSIDE" strokeWidth="0.0" text="Cena práce">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                              <Text fx:id="workprice" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font size="12.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets left="3.0" right="3.0" />
+               </padding>
+            </VBox>
+         </content>
+      </ScrollPane>
+   </items>
+</SplitPane>

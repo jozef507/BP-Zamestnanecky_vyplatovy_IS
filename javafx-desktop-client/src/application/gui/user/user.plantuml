@@ -1,0 +1,177 @@
+@startuml
+
+title __USER's Class Diagram__\n
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace user {
+          class application.gui.user.AddAccount {
+              + cancel : Button
+              + create : Button
+              + email : TextField
+              + label : Label
+              + password1 : PasswordField
+              + password2 : PasswordField
+              + role : ComboBox
+              + AddAccount()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - createAccount()
+              - getMd5()
+              - setComboBoxes()
+              - setModelsFromInputs()
+              - setTextfieldLimit()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace user {
+          class application.gui.user.PageUsers {
+              + bornNumberCol : TableColumn
+              + emailCol : TableColumn
+              + idCol : TableColumn
+              + input : TextField
+              + lastNameCol : TableColumn
+              + nameCol : TableColumn
+              + place : ComboBox
+              + relat : ComboBox
+              + roleCol : TableColumn
+              - employeeDS : ObservableList<EmployeeD>
+              - places : ArrayList<String>
+              - tab : TableView<EmployeeD>
+              + PageUsers()
+              + btn()
+              + initialize()
+              + updateInfo()
+              - employeeSelect()
+              - isFiltered()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace user {
+          class application.gui.user.PageUsersDetails {
+              + change : Button
+              + create : Button
+              + created : Text
+              + current : Text
+              + id : Text
+              + lastlogin : Text
+              + update : Button
+              - born_date : Text
+              - born_num : Text
+              - cBox : ArrayList<PageEmployeeDetailsBox>
+              - email : Text
+              - employeeID : String
+              - name : Text
+              - phone : Text
+              - role : Text
+              - username : Text
+              - vb : VBox
+              + PageUsersDetails()
+              + changeClick()
+              + createClick()
+              + getEmployeeD()
+              + initialize()
+              + updateClick()
+              + updateInfo()
+              - setButtons()
+              - setEmployee()
+              - setTextFields()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace user {
+          class application.gui.user.UpdateAccount {
+              + cancel : Button
+              + create : Button
+              + current : ComboBox
+              + email : TextField
+              + label : Label
+              + password1 : PasswordField
+              + password2 : PasswordField
+              + role : ComboBox
+              + UpdateAccount()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - changeFocus()
+              - checkFormular()
+              - createAccount()
+              - setComboBoxes()
+              - setInputs()
+              - setModelsFromInputs()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace user {
+          class application.gui.user.UpdateAccountPassword {
+              + cancel : Button
+              + create : Button
+              + label : Label
+              + password1 : PasswordField
+              + password2 : PasswordField
+              + UpdateAccountPassword()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - checkFormular()
+              - createAccount()
+              - getMd5()
+              - setModelsFromInputs()
+              - setTextfieldLimit()
+          }
+        }
+      }
+    }
+  }
+  
+
+  application.gui.user.AddAccount o-- application.models.EmployeeD : employeeD
+  application.gui.user.AddAccount o-- application.gui.user.PageUsersDetails : pageUsersDetails
+  application.gui.user.PageUsersDetails o-- application.models.EmployeeD : employeeD
+  application.gui.user.UpdateAccount o-- application.models.EmployeeD : employeeD
+  application.gui.user.UpdateAccount o-- application.gui.user.PageUsersDetails : pageUsersDetails
+  application.gui.user.UpdateAccountPassword o-- application.models.EmployeeD : employeeD
+  application.gui.user.UpdateAccountPassword o-- application.gui.user.PageUsersDetails : pageUsersDetails
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

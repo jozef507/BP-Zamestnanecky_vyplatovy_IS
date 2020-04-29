@@ -1,0 +1,399 @@
+@startuml
+
+title __LEGISLATION's Class Diagram__\n
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.AddLevel {
+              + cancel : Button
+              + car : TextArea
+              + create : Button
+              + from : DatePicker
+              + label : Label
+              + number : TextField
+              + AddLevel()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - createLevel()
+              - setDatePicker()
+              - setModelsFromInputs()
+              - setTextfieldLimit()
+              - setTextfieldLimit()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.AddLevy {
+              + cancel : Button
+              + create : Button
+              + from : DatePicker
+              + label : Label
+              + name : TextField
+              + partEe : TextField
+              + partEr : TextField
+              + AddLevy()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - createLevy()
+              - setDatePicker()
+              - setModelsFromInputs()
+              - setTextfieldLimit()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.AddMinimumwage {
+              + cancel : Button
+              + create : Button
+              + from : DatePicker
+              + hour : TextField
+              + label : Label
+              + level : ComboBox<String>
+              + month : TextField
+              - levelDS : ArrayList<LevelD>
+              + AddMinimumwage()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - createMinimumwage()
+              - getLevels()
+              - setComboboxes()
+              - setDatePicker()
+              - setModelsFromInputs()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.AddSurcharge {
+              + base : ComboBox<String>
+              + cancel : Button
+              + create : Button
+              + description : TextField
+              + from : DatePicker
+              + label : Label
+              + name : ComboBox<String>
+              + part : TextField
+              - bases : ArrayList<String>
+              - names : ArrayList<String>
+              + AddSurcharge()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - changeFocus()
+              - checkFormular()
+              - checkFormularTypes()
+              - createSurcharge()
+              - setComboboxes()
+              - setDatePicker()
+              - setModelsFromInputs()
+              - setTextfieldLimit()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.PageLegislation {
+              + initialize()
+              + onLevelClick()
+              + onLevyClick()
+              + onMinimumClick()
+              + onSurchargeClick()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.PageLegislationLevel {
+              + carCol : TableColumn
+              + fromCol : TableColumn
+              + idCol : TableColumn
+              + input : TextField
+              + numCol : TableColumn
+              + place : ComboBox
+              + toCol : TableColumn
+              - levelDS : ObservableList<LevelD>
+              - places : ArrayList<String>
+              - tab : TableView<LevelD>
+              + PageLegislationLevel()
+              + initialize()
+              + onAddClick()
+              + onRemoveClick()
+              + onUpdateClick()
+              + updateInfo()
+              - isFiltered()
+              - levelSelect()
+              - removeLevel()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.PageLegislationLevy {
+              + fromCol : TableColumn
+              + idCol : TableColumn
+              + input : TextField
+              + nameCol : TableColumn
+              + partEeCol : TableColumn
+              + partErCol : TableColumn
+              + toCol : TableColumn
+              - levyDS : ObservableList<LevyD>
+              - tab : TableView<LevyD>
+              + PageLegislationLevy()
+              + initialize()
+              + onAddClick()
+              + onRemoveClick()
+              + onUpdateClick()
+              + updateInfo()
+              - isFiltered()
+              - levySelect()
+              - removeLevy()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.PageLegislationMinimum {
+              + fromCol : TableColumn
+              + hourCol : TableColumn
+              + idCol : TableColumn
+              + input : TextField
+              + monthCol : TableColumn
+              + numCol : TableColumn
+              + place : ComboBox
+              + toCol : TableColumn
+              - minimumWageDS : ObservableList<MinimumWageD>
+              - places : ArrayList<String>
+              - tab : TableView<MinimumWageD>
+              + PageLegislationMinimum()
+              + initialize()
+              + onAddClick()
+              + onRemoveClick()
+              + onUpdateClick()
+              + updateInfo()
+              - isFiltered()
+              - minimumWageSelect()
+              - removeMinimumWage()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.PageLegislationSurcharge {
+              + baseCol : TableColumn
+              + descriptionCol : TableColumn
+              + fromCol : TableColumn
+              + idCol : TableColumn
+              + input : TextField
+              + nameCol : TableColumn
+              + partCol : TableColumn
+              + toCol : TableColumn
+              - surchargeTypeDS : ObservableList<SurchargeTypeD>
+              - tab : TableView<SurchargeTypeD>
+              + PageLegislationSurcharge()
+              + initialize()
+              + onAddClick()
+              + onRemoveClick()
+              + onUpdateClick()
+              + updateInfo()
+              - isFiltered()
+              - removeSurcharge()
+              - surchargeTypeSelect()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.UpdateLevel {
+              + cancel : Button
+              + create : Button
+              + label : Label
+              + to : DatePicker
+              - levelDS : ArrayList<LevelD>
+              - placeDS : ArrayList<PlaceD>
+              + UpdateLevel()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - checkFormular()
+              - checkFormularTypes()
+              - createPosition()
+              - setDatePicker()
+              - setModelsFromInputs()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.UpdateLevy {
+              + cancel : Button
+              + create : Button
+              + label : Label
+              + to : DatePicker
+              + UpdateLevy()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - checkFormular()
+              - checkFormularTypes()
+              - setDatePicker()
+              - setModelsFromInputs()
+              - updateLevy()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.UpdateMinimumwage {
+              + cancel : Button
+              + create : Button
+              + label : Label
+              + to : DatePicker
+              + UpdateMinimumwage()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - checkFormular()
+              - checkFormularTypes()
+              - createPosition()
+              - setDatePicker()
+              - setModelsFromInputs()
+          }
+        }
+      }
+    }
+  }
+  
+
+  namespace  {
+    namespace pplication {
+      namespace gui {
+        namespace legislation {
+          class application.gui.legislation.UpdateSurcharge {
+              + cancel : Button
+              + create : Button
+              + label : Label
+              + to : DatePicker
+              + UpdateSurcharge()
+              + cancelClick()
+              + createClick()
+              + initialize()
+              - checkFormular()
+              - checkFormularTypes()
+              - setDatePicker()
+              - setModelsFromInputs()
+              - updateSurcharge()
+          }
+        }
+      }
+    }
+  }
+  
+
+  application.gui.legislation.AddLevel o-- application.models.LevelD : levelD
+  application.gui.legislation.AddLevel o-- application.gui.legislation.PageLegislationLevel : pageLegislationLevel
+  application.gui.legislation.AddLevy o-- application.models.LevyD : levyD
+  application.gui.legislation.AddLevy o-- application.gui.legislation.PageLegislationLevy : pageLegislationLevy
+  application.gui.legislation.AddMinimumwage o-- application.models.MinimumWageD : minimumWageD
+  application.gui.legislation.AddMinimumwage o-- application.gui.legislation.PageLegislationMinimum : pageLegislationMinimum
+  application.gui.legislation.AddSurcharge o-- application.gui.legislation.PageLegislationSurcharge : pageLegislationSurcharge
+  application.gui.legislation.AddSurcharge o-- application.models.SurchargeTypeD : surchargeTypeD
+  application.gui.legislation.UpdateLevel o-- application.models.LevelD : levelD
+  application.gui.legislation.UpdateLevel o-- application.gui.legislation.PageLegislationLevel : pageLegislationLevel
+  application.gui.legislation.UpdateLevy o-- application.models.LevyD : levyD
+  application.gui.legislation.UpdateLevy o-- application.gui.legislation.PageLegislationLevy : pageLegislationLevy
+  application.gui.legislation.UpdateMinimumwage o-- application.models.MinimumWageD : minimumWageD
+  application.gui.legislation.UpdateMinimumwage o-- application.gui.legislation.PageLegislationMinimum : pageLegislationMinimum
+  application.gui.legislation.UpdateSurcharge o-- application.gui.legislation.PageLegislationSurcharge : pageLegislationSurcharge
+  application.gui.legislation.UpdateSurcharge o-- application.models.SurchargeTypeD : surchargeTypeD
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

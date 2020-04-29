@@ -36,7 +36,8 @@
          <TableView fx:id="tab" prefHeight="384.0" prefWidth="807.0" VBox.vgrow="ALWAYS">
                <columns>
                   <TableColumn fx:id="idCol" prefWidth="40.0" text="ID" />
-                  <TableColumn fx:id="nameCol" prefWidth="171.0" text="Názov" />
+                  <TableColumn fx:id="nameCol" prefWidth="171.0" text="Typ" />
+                  <TableColumn fx:id="descriptionCol" prefWidth="171.0" text="Popis" />
                   <TableColumn fx:id="partCol" prefWidth="165.0" text="Podiel (desatiný tvar)" />
                   <TableColumn fx:id="baseCol" prefWidth="168.0" text="Počítaný z" />
                   <TableColumn fx:id="fromCol" prefWidth="119.0" text="Platný od" />

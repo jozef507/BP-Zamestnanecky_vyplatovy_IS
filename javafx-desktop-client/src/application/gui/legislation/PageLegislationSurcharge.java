@@ -116,7 +116,7 @@ public class PageLegislationSurcharge
     @FXML
     private TableView<SurchargeTypeD> tab = new TableView<SurchargeTypeD>();
     @FXML
-    public TableColumn idCol, nameCol, partCol, baseCol, fromCol, toCol;
+    public TableColumn idCol, nameCol, descriptionCol, partCol, baseCol, fromCol, toCol;
     @FXML
     public TextField input;
 
@@ -128,6 +128,7 @@ public class PageLegislationSurcharge
     {
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        descriptionCol.setCellValueFactory(new PropertyValueFactory<>("description"));
         partCol.setCellValueFactory(new PropertyValueFactory<>("part"));
         baseCol.setCellValueFactory(new PropertyValueFactory<>("base"));
         fromCol.setCellValueFactory(new PropertyValueFactory<>("from"));
