@@ -1,8 +1,6 @@
 module BP {
     requires javafx.fxml;
     requires javafx.controls;
-    requires java.sql;
-    requires mysql.connector.java;
     requires java.net.http;
     requires json.simple;
 
@@ -14,5 +12,7 @@ module BP {
     opens application.gui.hours;
     opens application.gui.legislation;
     opens application.gui.user;
+    opens application.gui.payment;
+    opens application.gui.payment.create;
     opens application.models;
 }

@@ -1,0 +1,50 @@
+.table-view {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+    -fx-border-color: darkgray transparent darkgray transparent;
+    -fx-border-width: 0.5 0 0.5 0;
+
+    -fx-selection-bar: #cccccc;
+    -fx-selection-bar-non-focused: #e6e6e6;
+
+    -fx-cursor: hand;
+}
+
+.table-column{
+    -fx-text-fill: black;
+    -fx-alignment: center;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}
+
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-border-width: 0 0 0.5 0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent darkgray transparent;
+}
+
+table-view .table-column {
+    -fx-alignment: center;
+}
+
+.noheader .column-header-background {
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+}
+
+.noheader .scroll-bar * {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
