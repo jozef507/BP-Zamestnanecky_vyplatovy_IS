@@ -8,6 +8,7 @@ import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
 import application.models.PaymentD;
+import application.pdf.PaymentPDF;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -225,6 +226,30 @@ public class PagePayment
         return paymentDS;
     }
 
+    private boolean deletePayment(String id)  {
+        try{
+            HttpClientClass ht = new HttpClientClass();
+            ht.sendDelete("payment/del_pmnt/"+id, LoggedInUser.getToken(), LoggedInUser.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return false;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return false;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return false;
+        }
+
+        return true;
+    }
+
     private ArrayList<String> getPlaces() throws IOException, InterruptedException, CommunicationException {
         ArrayList<String> places = new ArrayList<>();
         HttpClientClass ht = new HttpClientClass();
@@ -261,6 +286,8 @@ public class PagePayment
     public ToggleButton closed, unclosed;
     public ToggleGroup toggle1;
 
+    @FXML private Button generate;
+
 
     /*---------------------------------------------------------------------------------------*/
     /*----------------------------------GUI INITIALIZATIONS----------------------------------*/
@@ -284,6 +311,8 @@ public class PagePayment
         filterAfterSelect();
 
         MainPaneManager.getC().desibleBackPage();
+
+        generate.setDisable(true);
     }
 
     private void setComboBoxes()
@@ -453,7 +482,10 @@ public class PagePayment
                     if(oldValue.equals(closed))
                         unclosed.setSelected(true);
                     else if(oldValue.equals(unclosed))
+                    {
                         closed.setSelected(true);
+                    }
+
                 }
                 else if(newValue.equals(closed))
                 {
@@ -466,6 +498,7 @@ public class PagePayment
                     });
                     sortedData = new SortedList<>(filteredData);
                     sortedData.comparatorProperty().bind(tab.comparatorProperty());
+                    generate.setDisable(false);
                     tab.setItems(sortedData);
                 }
                 else if (newValue.equals(unclosed))
@@ -479,27 +512,11 @@ public class PagePayment
                     });
                     sortedData = new SortedList<>(filteredData);
                     sortedData.comparatorProperty().bind(tab.comparatorProperty());
+                    generate.setDisable(true);
                     tab.setItems(sortedData);
                 }
             }
         });
-
-        /*ab.setRowFactory(tv -> {
-            TableRow<PaymentD> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
-                    PaymentD e = row.getItem();
-                    System.out.println(e.toString());
-
-                    FXMLLoader l = new FXMLLoader(getClass().getResource("PageEmployeeDetails.fxml"));
-                    l.setControllerFactory(c -> {
-                        return new PageEmployeeDetails(e.getId());
-                    });
-                    MainPaneManager.getC().loadScrollPage(l);
-                }
-            });
-            return row ;
-        });*/
     }
 
     private boolean isFiltered(PaymentD paymentD, boolean cls, String inp, String pla, String rel)
@@ -581,6 +598,8 @@ public class PagePayment
         {
             CustomAlert al = new CustomAlert("Opätovný prepočet výplaty", "Výplata pre tento pracovný vzťah je už vypočítana.\nSte si istý, že chcete túto výplatu prepočítať opäť?", "", "Áno", "Nie");
             if(!al.showWait()) return;
+
+            if(!deletePayment(p.getId())) return;
         }
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("create/PaneCreate.fxml"));
@@ -595,27 +614,23 @@ public class PagePayment
         }
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Výpočet výplaty");
-        primaryStage.setScene(new Scene(root1, 891, 497));
+        primaryStage.setScene(new Scene(root1));
+        primaryStage.setWidth(1300);
+        primaryStage.setHeight(700);
+
         primaryStage.initModality(Modality.APPLICATION_MODAL);
-       /* primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            CustomAlert al = new CustomAlert("Ukončenie výpočtu výplaty",
-                    "Ste si istý, že chcete ukončiť výpočet vypláty?\n Doterajšie zmeny nebudú uložené.",
-                    "", "Áno", "Nie");
-            if(!al.showWait()) return;
-            public void handle(WindowEvent we) {
-                System.out.println("Stage is closing");
-                LoggedInUser.logout();
-            }
-        });*/
+
         primaryStage.show();
     }
 
 
-    /*public void btn(ActionEvent actionEvent)
+    public void onGenerateClick(MouseEvent mouseEvent)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("AddEmployee.fxml"));
+        ArrayList<PaymentD> payments= new ArrayList<>(sortedData);
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("PagePaymentName.fxml"));
         loader.setControllerFactory(c -> {
-            return new AddEmployee(this);
+            return new PagePaymentName(payments);
         });
         Parent root1 = null;
         try {
@@ -624,62 +639,14 @@ public class PagePayment
             e.printStackTrace();
         }
         Stage primaryStage = new Stage();
-        primaryStage.setTitle("Vytvorenie nového pracujúceho");
-        primaryStage.setScene(new Scene(root1, 505, 600));
+        primaryStage.setTitle("Výpočet výplaty");
+        primaryStage.setScene(new Scene(root1, 385, 199));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
+
         primaryStage.show();
     }
 
-    public void onRemoveClick(MouseEvent mouseEvent)
-    {
-        EmployeeOV em = tab.getSelectionModel().getSelectedItem();
-        if(em==null)
-        {
-            CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
-            return;
-        }
 
-        CustomAlert al = new CustomAlert("Odstránenie pracujúceho", "Ste si istý, že chcete odstrániť vybraného pracujúceho?", "", "Áno", "Nie");
-        if(!al.showWait()) return;
-
-        HttpClientClass ht = new HttpClientClass();
-        try {
-            ht.sendDelete("employee/del_emp/"+em.getId(), LoggedInUser.getToken(), LoggedInUser.getId());
-        } catch (IOException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-            return;
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
-            return;
-        }
-
-        updateInfo();
-    }
-
-    public void OnEnterClick(MouseEvent mouseEvent)
-    {
-        EmployeeOV e = tab.getSelectionModel().getSelectedItem();
-        if(e==null)
-        {
-            CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
-            return;
-        }
-
-        FXMLLoader l = new FXMLLoader(getClass().getResource("PageEmployeeDetails.fxml"));
-        l.setControllerFactory(c -> {
-            return new PageEmployeeDetails(Integer.toString(e.getId()));
-        });
-        MainPaneManager.getC().loadScrollPage(l);
-    }*/
 
     /*---------------------------------------------------------------------------------------*/
     /*--------------------------------------GUI HELPERS--------------------------------------*/

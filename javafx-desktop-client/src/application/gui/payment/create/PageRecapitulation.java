@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import java.math.RoundingMode;
 
@@ -15,8 +16,6 @@ public class PageRecapitulation {
     /*---------------------------------------------------------------------------------------------------------------*/
     /*----------------------------------------------------FIELDS-----------------------------------------------------*/
     private PaneCreate paneCreate;
-
-
 
     /*---------------------------------------------------------------------------------------------------------------*/
     /*-------------------------------------------------CONSTRUCTORS--------------------------------------------------*/
@@ -40,6 +39,8 @@ public class PageRecapitulation {
     @FXML
     private Button next;
     @FXML
+    private Label label;
+    @FXML
     private Text sum0;
     @FXML
     private Text sum1;
@@ -50,8 +51,6 @@ public class PageRecapitulation {
     @FXML
     private Text sum4;
 
-    @FXML
-    private Label label;
     /*---------------------------------------------------------------------------------------------------------------*/
     /*----------------------------------------------GUI INITIALIZATIONS----------------------------------------------*/
     @FXML
@@ -63,7 +62,7 @@ public class PageRecapitulation {
     private void setElementsWithInitialData()
     {
         sum0.setText(paneCreate.getPaymentManager().getNetWageManager().getNetWage().setScale(2, RoundingMode.HALF_UP).toPlainString() + " €");
-        sum1.setText("-"+paneCreate.getPaymentManager().getNetWageManager().getNetWage().setScale(2, RoundingMode.HALF_UP).toPlainString() + " €");
+        sum1.setText("-"+paneCreate.getPaymentManager().getNetWageManager().getDeductionsManager().getDeductionsTotal().setScale(2, RoundingMode.HALF_UP).toPlainString() + " €");
         sum2.setText(paneCreate.getPaymentManager().getNetWageManager().getSumTotal().setScale(2, RoundingMode.HALF_UP).toPlainString() + " €");
         sum3.setText(paneCreate.getPaymentManager().getNetWageManager().getToBankAccountFromTotal().setScale(2, RoundingMode.HALF_UP).toPlainString() + " €");
         sum4.setText(paneCreate.getPaymentManager().getNetWageManager().getInCashFromTotal().setScale(2, RoundingMode.HALF_UP).toPlainString() + " €");
@@ -82,7 +81,13 @@ public class PageRecapitulation {
     private void onNextClick(MouseEvent mouseEvent)
     {
         setElementsFromModel();
-        setNextPage();
+        if(!paneCreate.getPaymentManager().exportPayment())
+            return;
+        paneCreate.getPaymentManager().calculateAverageWage();
+        paneCreate.getPagePayment().updateInfo();
+
+        Stage stage = (Stage) next.getScene().getWindow();
+        stage.close();
     }
 
     /*---------------------------------------------------------------------------------------------------------------*/
@@ -103,14 +108,7 @@ public class PageRecapitulation {
         paneCreate.loadAnchorPage(l);
     }
 
-    private void setNextPage()
-    {
-        FXMLLoader l = new FXMLLoader(getClass().getResource("PageBasDynComp.fxml"));
-        l.setControllerFactory(c -> {
-            return new PageBasDynComp(paneCreate);
-        });
-        paneCreate.loadAnchorPage(l);
-    }
+
 
 
 }

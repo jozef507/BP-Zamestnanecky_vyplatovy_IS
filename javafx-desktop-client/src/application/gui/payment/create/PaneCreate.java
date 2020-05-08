@@ -44,6 +44,10 @@ public class PaneCreate
         this.wasAveragePage = wasAveragePage;
     }
 
+    public PagePayment getPagePayment() {
+        return pagePayment;
+    }
+
     /*----------------------------------------------------------------------------------------------------------------*/
     /*----------------------------------------------------METHODS-----------------------------------------------------*/
 
@@ -287,7 +291,7 @@ public class PaneCreate
 
     private void setFristPage()
     {
-        FXMLLoader l = new FXMLLoader(getClass().getResource("PageRecapitulation.fxml"));
+        FXMLLoader l = new FXMLLoader(getClass().getResource("PageFund.fxml"));
         l.setControllerFactory(c -> {
             return new PageFund(this);
         });

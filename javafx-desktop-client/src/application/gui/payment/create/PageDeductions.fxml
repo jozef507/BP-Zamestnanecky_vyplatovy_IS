@@ -22,7 +22,7 @@
          <content>
             <VBox alignment="CENTER" minHeight="-Infinity" spacing="50.0">
                <children>
-                  <VBox maxWidth="1000.0" prefHeight="147.0" prefWidth="687.0" spacing="15.0" stylesheets="@../../../../css/fullpackstyling.css">
+                  <VBox maxWidth="1000.0" spacing="15.0" stylesheets="@../../../../css/fullpackstyling.css">
                      <children>
                         <HBox alignment="BOTTOM_LEFT" fillHeight="false" minHeight="21.0" prefHeight="21.0" prefWidth="755.0">
                            <children>

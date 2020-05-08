@@ -234,7 +234,7 @@
                         </GridPane>
                      </children>
                   </VBox>
-                  <VBox maxWidth="1000.0" prefHeight="147.0" prefWidth="687.0" spacing="15.0" stylesheets="@../../../../css/fullpackstyling.css">
+                  <VBox maxWidth="1000.0" spacing="15.0" stylesheets="@../../../../css/fullpackstyling.css">
                      <children>
                         <HBox alignment="BOTTOM_LEFT" fillHeight="false" minHeight="21.0" prefHeight="21.0" prefWidth="755.0">
                            <children>
@@ -267,9 +267,9 @@
                               </GridPane>
                            </children>
                         </HBox>
-                        <VBox prefWidth="100.0">
+                        <VBox>
                            <children>
-                              <TableView fx:id="tab1" maxWidth="1000.0" prefHeight="81.0" prefWidth="687.0" stylesheets="@../../../../css/table.css">
+                              <TableView fx:id="tab1" maxWidth="1000.0" minHeight="80.0" prefHeight="81.0" prefWidth="687.0" stylesheets="@../../../../css/table.css">
                                  <columns>
                                     <TableColumn fx:id="reasonCol" prefWidth="75.0" text="Dôvod" />
                                     <TableColumn fx:id="daysCol" prefWidth="75.0" text="Počet dní" />

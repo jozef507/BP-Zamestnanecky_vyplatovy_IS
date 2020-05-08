@@ -76,9 +76,10 @@ public class PageOtherComponents {
     {
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         sumCol.setCellValueFactory(new PropertyValueFactory<>("wage"));
+        setInitialData();
         setTab0();
 
-        setInitialData();
+
     }
 
     private void setTab0()
@@ -87,8 +88,12 @@ public class PageOtherComponents {
 
         tab0.setFixedCellSize(25);
         tab0.prefHeightProperty().bind(tab0.fixedCellSizeProperty().multiply(Bindings.size(tab0.getItems()).add(1.2)));
-        tab0.minHeightProperty().setValue(50);
         tab0.maxHeightProperty().bind(tab0.prefHeightProperty());
+
+        if(otherComponentDS.size()==0)
+            tab0.minHeightProperty().setValue(50);
+        else
+            tab0.minHeightProperty().bind(tab0.prefHeightProperty());
     }
 
     private void setInitialData()
@@ -157,6 +162,11 @@ public class PageOtherComponents {
         otherComponentDS.removeAll(otherComponentDS);
         otherComponentDS.addAll(FXCollections.observableArrayList(paneCreate.getPaymentManager().getGrossWageManager()
                 .getOthersComponentsManager().getOtherComponentDS()));
+
+        if(otherComponentDS.size()==0)
+            tab0.minHeightProperty().setValue(50);
+        else
+            tab0.minHeightProperty().bind(tab0.prefHeightProperty());
     }
 
     public void addOtherComponent(PaymentOtherComponentD paymentOtherComponentD)

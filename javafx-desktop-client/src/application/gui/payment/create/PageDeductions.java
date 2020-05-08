@@ -77,9 +77,9 @@ public class PageDeductions {
     {
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         sumCol.setCellValueFactory(new PropertyValueFactory<>("sum"));
-        setTab0();
 
         setInitialData();
+        setTab0();
     }
 
     private void setTab0()
@@ -88,8 +88,12 @@ public class PageDeductions {
 
         tab0.setFixedCellSize(25);
         tab0.prefHeightProperty().bind(tab0.fixedCellSizeProperty().multiply(Bindings.size(tab0.getItems()).add(1.2)));
-        tab0.minHeightProperty().setValue(50);
         tab0.maxHeightProperty().bind(tab0.prefHeightProperty());
+
+        if(paymentDeductionDS.size()==0)
+            tab0.minHeightProperty().setValue(50);
+        else
+            tab0.minHeightProperty().bind(tab0.prefHeightProperty());
     }
 
     private void setInitialData()
@@ -158,6 +162,11 @@ public class PageDeductions {
         paymentDeductionDS.removeAll(paymentDeductionDS);
         paymentDeductionDS.addAll(FXCollections.observableArrayList(paneCreate.getPaymentManager().getNetWageManager()
                 .getDeductionsManager().getPaymentDeductionDS()));
+
+        if(paymentDeductionDS.size()==0)
+            tab0.minHeightProperty().setValue(50);
+        else
+            tab0.minHeightProperty().bind(tab0.prefHeightProperty());
     }
 
     public void addDeduction(PaymentDeductionD paymentDeductionD)
@@ -180,7 +189,7 @@ public class PageDeductions {
 
     private void setNextPage()
     {
-        FXMLLoader l = new FXMLLoader(getClass().getResource("PageFund.fxml"));
+        FXMLLoader l = new FXMLLoader(getClass().getResource("PageRecapitulation.fxml"));
         l.setControllerFactory(c -> {
             return new PageRecapitulation(paneCreate);
         });

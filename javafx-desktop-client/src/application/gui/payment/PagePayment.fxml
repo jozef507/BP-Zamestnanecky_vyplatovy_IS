@@ -64,9 +64,8 @@
             </TableView>
             <HBox alignment="CENTER" prefHeight="69.0" prefWidth="810.0" spacing="15.0">
                <children>
-                  <Button fx:id="remove" mnemonicParsing="false" prefHeight="40.0" prefWidth="136.0" text="Odstrániť" />
-                  <Button fx:id="add" mnemonicParsing="false" prefHeight="40.0" prefWidth="136.0" text="Pridať " />
-                  <Button fx:id="calculate" mnemonicParsing="false" onMouseClicked="#onCalculateClick" prefHeight="40.0" prefWidth="136.0" text="Vypočítať výplatu" />
+                  <Button fx:id="calculate" mnemonicParsing="false" onMouseClicked="#onCalculateClick" prefHeight="40.0" prefWidth="156.0" text="Vypočítať výplatu" />
+                  <Button fx:id="generate" mnemonicParsing="false" onMouseClicked="#onGenerateClick" prefHeight="40.0" prefWidth="156.0" text="Generovať výplaty" />
                </children>
             </HBox>
          </children>

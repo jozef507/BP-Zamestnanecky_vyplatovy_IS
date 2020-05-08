@@ -156,9 +156,9 @@ public class PageWageCompensations {
         hoursCol.setCellValueFactory(new PropertyValueFactory<>("hours"));
         calcFromCol.setCellValueFactory(new PropertyValueFactory<>("calculatedFrom"));
         sumCol.setCellValueFactory(new PropertyValueFactory<>("wage"));
-        setTab1();
 
         setInitialData();
+        setTab1();
         setElementsDisable();
         setListeners();
 
@@ -169,8 +169,12 @@ public class PageWageCompensations {
     {
         tab1.setFixedCellSize(25);
         tab1.prefHeightProperty().bind(tab1.fixedCellSizeProperty().multiply(Bindings.size(tab1.getItems()).add(1.2)));
-        tab1.minHeightProperty().setValue(50);
         tab1.maxHeightProperty().bind(tab1.prefHeightProperty());
+
+        if(customConpensations.size()==0)
+            tab1.minHeightProperty().setValue(50);
+        else
+            tab1.minHeightProperty().bind(tab1.prefHeightProperty());
     }
 
 
@@ -309,6 +313,11 @@ public class PageWageCompensations {
         customConpensations.removeAll(customConpensations);
         customConpensations.addAll(FXCollections.observableArrayList(paneCreate.getPaymentManager().getGrossWageManager()
                 .getWageCompensationManager().getCustomCompensations()));
+
+        if(customConpensations.size()==0)
+            tab1.minHeightProperty().setValue(50);
+        else
+            tab1.minHeightProperty().bind(tab1.prefHeightProperty());
     }
 
     public void addCustomCompensation(PaymentWageCompensationD paymentWageCompensationD)

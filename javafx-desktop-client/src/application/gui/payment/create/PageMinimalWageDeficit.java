@@ -69,8 +69,8 @@ public class PageMinimalWageDeficit {
         paneCreate.getDeficit().setText(paneCreate.getPaymentManager().getGrossWageManager().getMinimalWageDeficitManager()
                 .getPaymentOtherComponentD().getWage() + " €");
         paneCreate.getPaymentManager().getGrossWageManager().calculateGrossWageTotal();
-        paneCreate.getGrosswage().setText(paneCreate.getPaymentManager().getGrossWageManager().getGrossWage().toPlainString());
-        paneCreate.getAssessmentbasis().setText(paneCreate.getPaymentManager().getGrossWageManager().getGrossWage().toPlainString());
+        paneCreate.getGrosswage().setText(paneCreate.getPaymentManager().getGrossWageManager().getGrossWage().toPlainString() + " €");
+        paneCreate.getAssessmentbasis().setText(paneCreate.getPaymentManager().getGrossWageManager().getGrossWage().toPlainString() + " €");
         setNextPage();
     }
 

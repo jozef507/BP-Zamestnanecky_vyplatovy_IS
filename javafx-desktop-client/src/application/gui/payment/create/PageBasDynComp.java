@@ -151,9 +151,6 @@ public class PageBasDynComp {
         }
         setTab2Items();
 
-
-
-        //this.changeFocus();
     }
 
     private void setTab0Items()
@@ -166,8 +163,13 @@ public class PageBasDynComp {
 
         tab0.setFixedCellSize(25);
         tab0.prefHeightProperty().bind(tab0.fixedCellSizeProperty().multiply(Bindings.size(tab0.getItems()).add(1.2)));
-        tab0.minHeightProperty().setValue(50);
         tab0.maxHeightProperty().bind(tab0.prefHeightProperty());
+
+        if(paymentBasicComponentDS.size()==0)
+            tab0.minHeightProperty().setValue(50);
+        else
+            tab0.minHeightProperty().bind(tab0.prefHeightProperty());
+
     }
 
     private void setTab1Items()
@@ -180,8 +182,12 @@ public class PageBasDynComp {
 
         tab1.setFixedCellSize(25);
         tab1.prefHeightProperty().bind(tab1.fixedCellSizeProperty().multiply(Bindings.size(tab1.getItems()).add(1.2)));
-        tab1.minHeightProperty().setValue(50);
         tab1.maxHeightProperty().bind(tab1.prefHeightProperty());
+
+        if(paymentBasicComponentDS.size()==0)
+            tab1.minHeightProperty().setValue(50);
+        else
+            tab1.minHeightProperty().bind(tab1.prefHeightProperty());
     }
 
     private void setTab2Items()
@@ -194,8 +200,12 @@ public class PageBasDynComp {
 
         tab2.setFixedCellSize(25);
         tab2.prefHeightProperty().bind(tab2.fixedCellSizeProperty().multiply(Bindings.size(tab2.getItems()).add(1.2)));
-        tab2.minHeightProperty().setValue(50);
         tab2.maxHeightProperty().bind(tab2.prefHeightProperty());
+
+        if(paymentDynamicComponentDS.size()==0)
+            tab2.minHeightProperty().setValue(50);
+        else
+            tab2.minHeightProperty().bind(tab2.prefHeightProperty());
     }
 
     private void refreshTab0Items()
@@ -205,6 +215,11 @@ public class PageBasDynComp {
                 .getBasicComponentManager().getPaymentBasicComponentDS()));
         regularWageSum.setText(paneCreate.getPaymentManager().getGrossWageManager()
                 .getBasicComponentManager().getBasicComponentsTotal().toPlainString() + " €");
+
+        if(paymentBasicComponentDS.size()==0)
+            tab0.minHeightProperty().setValue(50);
+        else
+            tab0.minHeightProperty().bind(tab0.prefHeightProperty());
     }
 
     private void refreshTab1Items()
@@ -214,6 +229,11 @@ public class PageBasDynComp {
                 .getBasicComponentManager().getPaymentBasicComponentDS()));
         unregularWageSum.setText(paneCreate.getPaymentManager().getGrossWageManager()
                 .getBasicComponentManager().getBasicComponentsTotal().toPlainString() + " €");
+
+        if(paymentBasicComponentDS.size()==0)
+            tab1.minHeightProperty().setValue(50);
+        else
+            tab1.minHeightProperty().bind(tab1.prefHeightProperty());
     }
 
     private void refreshTab2Items()
@@ -223,6 +243,11 @@ public class PageBasDynComp {
                 .getDynamicComponentManager().getPaymentDynamicComponentDS()));
         dynamicWageSum.setText(paneCreate.getPaymentManager().getGrossWageManager()
                 .getDynamicComponentManager().getDynamicComponentsTotal().toPlainString() + " €");
+
+        if(paymentDynamicComponentDS.size()==0)
+            tab2.minHeightProperty().setValue(50);
+        else
+            tab2.minHeightProperty().bind(tab2.prefHeightProperty());
     }
 
     /*private void changeFocus()
