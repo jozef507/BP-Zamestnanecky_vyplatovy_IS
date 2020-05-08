@@ -200,7 +200,7 @@ public class WorkedPerformanceOfWage
         performanceTotal = new BigDecimal("0");
         for(HoursD h:hoursDS)
         {
-            performanceTotal = performanceTotal.add(new BigDecimal(eliminateNull(h.getPartBase())));
+            performanceTotal = performanceTotal.add(new BigDecimal(eliminateNull(h.getUnitsDone())));
         }
     }
 

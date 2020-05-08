@@ -1,9 +1,11 @@
 package application.models;
 
+import java.util.ArrayList;
+
 public class PaymentD
 {
-    private String id, hoursFund, daysFund, hoursWorked, daysWorked,
-        grossWage, assessmentBasis, employeeEnsurence, nonTaxableWage, taxableWage,
+    private String id, hoursFund, daysFund, hoursWorked, daysWorked, hwEmergency,
+        grossWage, gwEmergency, assessmentBasis, employeeEnsurence, nonTaxableWage, taxableWage,
         taxAdvances, taxBonus, netWage,
         workPrice, employerLevies, employeeLevies, leviesSum,
         total, onAccount, cash;
@@ -16,11 +18,20 @@ public class PaymentD
     private String employeeID, employeeLastnameName;
     private int IEmployeeID;
     private String relationID, relationType;
-    private String conditionsID;
+    private String conditionsID, weekTime;
     private String positionID, positionName;
     private String placeID, placeName;
-    private String yearID, yearNumber;
+    private String yearID, yearNumber, yearAverageWage,  yearHoliday, yearHolidayLastYear,yearHolideyTaken;
     private String monthID, monthNumber, monthIsClosed;
+
+    private ArrayList<PaymentBasicComponentD> basicComponentDS;
+    private ArrayList<PaymentDynamicComponentD> dynamicComponentDS;
+    private ArrayList<PaymentWageCompensationD> wageCompensationDS;
+    private ArrayList<PaymentSurchargeD> surchargeDS;
+    private ArrayList<PaymentOtherComponentD> otherComponentDS;
+    private ArrayList<LevyD> levyDS;
+    private ArrayList<PaymentDeductionD> deductionDS;
+
 
     public String getId() {
         return id;
@@ -334,4 +345,118 @@ public class PaymentD
     public void setWageConstantsID(String wageConstantsID) {
         this.wageConstantsID = wageConstantsID;
     }
+
+    public String getHwEmergency() {
+        return hwEmergency;
+    }
+
+    public void setHwEmergency(String hwEmergency) {
+        this.hwEmergency = hwEmergency;
+    }
+
+    public String getGwEmergency() {
+        return gwEmergency;
+    }
+
+    public void setGwEmergency(String gwEmergency) {
+        this.gwEmergency = gwEmergency;
+    }
+
+    public ArrayList<PaymentBasicComponentD> getBasicComponentDS() {
+        return basicComponentDS;
+    }
+
+    public void setBasicComponentDS(ArrayList<PaymentBasicComponentD> basicComponentDS) {
+        this.basicComponentDS = basicComponentDS;
+    }
+
+    public ArrayList<PaymentDynamicComponentD> getDynamicComponentDS() {
+        return dynamicComponentDS;
+    }
+
+    public void setDynamicComponentDS(ArrayList<PaymentDynamicComponentD> dynamicComponentDS) {
+        this.dynamicComponentDS = dynamicComponentDS;
+    }
+
+    public ArrayList<PaymentWageCompensationD> getWageCompensationDS() {
+        return wageCompensationDS;
+    }
+
+    public void setWageCompensationDS(ArrayList<PaymentWageCompensationD> wageCompensationDS) {
+        this.wageCompensationDS = wageCompensationDS;
+    }
+
+    public ArrayList<PaymentSurchargeD> getSurchargeDS() {
+        return surchargeDS;
+    }
+
+    public void setSurchargeDS(ArrayList<PaymentSurchargeD> surchargeDS) {
+        this.surchargeDS = surchargeDS;
+    }
+
+    public ArrayList<PaymentOtherComponentD> getOtherComponentDS() {
+        return otherComponentDS;
+    }
+
+    public void setOtherComponentDS(ArrayList<PaymentOtherComponentD> otherComponentDS) {
+        this.otherComponentDS = otherComponentDS;
+    }
+
+    public ArrayList<LevyD> getLevyDS() {
+        return levyDS;
+    }
+
+    public void setLevyDS(ArrayList<LevyD> levyDS) {
+        this.levyDS = levyDS;
+    }
+
+    public ArrayList<PaymentDeductionD> getDeductionDS() {
+        return deductionDS;
+    }
+
+    public void setDeductionDS(ArrayList<PaymentDeductionD> deductionDS) {
+        this.deductionDS = deductionDS;
+    }
+
+    public String getWeekTime() {
+        return weekTime;
+    }
+
+    public void setWeekTime(String weekTime) {
+        this.weekTime = weekTime;
+    }
+
+    public String getYearHoliday() {
+        return yearHoliday;
+    }
+
+    public void setYearHoliday(String yearHoliday) {
+        this.yearHoliday = yearHoliday;
+    }
+
+    public String getYearHolidayLastYear() {
+        return yearHolidayLastYear;
+    }
+
+    public void setYearHolidayLastYear(String yearHolidayLastYear) {
+        this.yearHolidayLastYear = yearHolidayLastYear;
+    }
+
+    public String getYearHolideyTaken() {
+        return yearHolideyTaken;
+    }
+
+    public void setYearHolideyTaken(String yearHolideyTaken) {
+        this.yearHolideyTaken = yearHolideyTaken;
+    }
+
+    public String getYearAverageWage() {
+        return yearAverageWage;
+    }
+
+    public void setYearAverageWage(String yearAverageWage) {
+        this.yearAverageWage = yearAverageWage;
+    }
 }
+
+

@@ -8,7 +8,7 @@ import java.math.RoundingMode;
 public class PaymentSurchargeD {
     /* model */
     String id, hours, wage;
-    String surcharegeTypeID;
+    String surcharegeTypeID, surchargeName;
     String paymentID;
 
     /* app */
@@ -17,6 +17,12 @@ public class PaymentSurchargeD {
     public PaymentSurchargeD(String appID, GrossWageManager grossWageManager) {
         this.appID = appID;
         processHours(grossWageManager);
+        hours ="0";
+        wage = "0";
+        surcharegeTypeID = "1";
+    }
+
+    public PaymentSurchargeD() {
     }
 
     public String getId() {
@@ -61,6 +67,14 @@ public class PaymentSurchargeD {
 
     public String getAppID() {
         return appID;
+    }
+
+    public String getSurchargeName() {
+        return surchargeName;
+    }
+
+    public void setSurchargeName(String surchargeName) {
+        this.surchargeName = surchargeName;
     }
 
     private void processHours(GrossWageManager grossWageManager)

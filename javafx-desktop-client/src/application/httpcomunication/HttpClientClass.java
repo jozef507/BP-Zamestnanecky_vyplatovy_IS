@@ -172,4 +172,5 @@ public class HttpClientClass
                     "Odpoveď: " + this.response.body();
         return s;
     }
+
 }

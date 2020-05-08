@@ -145,6 +145,17 @@ public class WageCompensationManager
         this.compensationsTotal = compensationsTotal;
     }
 
+    public ArrayList<PaymentWageCompensationD> getWageCompensationDS()
+    {
+        ArrayList<PaymentWageCompensationD> paymentWageCompensationDS = new ArrayList<>();
+        paymentWageCompensationDS.add(this.inActiveEmergency);
+        paymentWageCompensationDS.add(this.holiday);
+        paymentWageCompensationDS.add(this.incapacityForWork);
+        paymentWageCompensationDS.add(this.nursing);
+        paymentWageCompensationDS.addAll(this.customCompensations);
+        return paymentWageCompensationDS;
+    }
+
     /*----------------------------------------------------------------------------------------------------------------*/
     /*---------------------------------------------------METHODS------------------------------------------------------*/
     private void downloadAbsences()

@@ -14,7 +14,7 @@ public class PaymentBasicComponentD
     String wageID;
 
     /* table */
-    String wageForm, wageCharacteristic, wageTarif;
+    String wageForm, wageFormUnitShort, wageCharacteristic, wageTarif;
 
     /* app*/
     String workedHours;
@@ -58,6 +58,14 @@ public class PaymentBasicComponentD
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getWageFormUnitShort() {
+        return wageFormUnitShort;
+    }
+
+    public void setWageFormUnitShort(String wageFormUnitShort) {
+        this.wageFormUnitShort = wageFormUnitShort;
     }
 
     public String getWorkedUnits() {
@@ -126,6 +134,26 @@ public class PaymentBasicComponentD
 
     public WageD getWageD() {
         return wageD;
+    }
+
+    public void setWageForm(String wageForm) {
+        this.wageForm = wageForm;
+    }
+
+    public void setWageCharacteristic(String wageCharacteristic) {
+        this.wageCharacteristic = wageCharacteristic;
+    }
+
+    public void setWageTarif(String wageTarif) {
+        this.wageTarif = wageTarif;
+    }
+
+    public void setBasicComponentManager(BasicComponentManager basicComponentManager) {
+        this.basicComponentManager = basicComponentManager;
+    }
+
+    public void setWageD(WageD wageD) {
+        this.wageD = wageD;
     }
 
     private void processWorkedUnits()

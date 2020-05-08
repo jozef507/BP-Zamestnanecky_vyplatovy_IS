@@ -9,6 +9,9 @@ import application.httpcomunication.LoggedInUser;
 import application.models.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 
 public class PaymentManager
 {
@@ -149,7 +152,7 @@ public class PaymentManager
         this.employeeConditionsManager = new EmployeeConditionsManager();
 
         ImportantD importantD = new ImportantD();
-        importantD.setId(json.getElement(row, "id"));
+        importantD.setId(json.getElement(row, "dup_id"));
         importantD.setInsComp(json.getElement(row, "zdravotna_poistovna"));
         importantD.setTown(json.getElement(row, "dup_mesto"));
         importantD.setStreet(json.getElement(row, "dup_ulica"));
@@ -302,24 +305,229 @@ public class PaymentManager
         this.employeeConditionsManager.getMonthDS().add(monthD);
     }
 
+    public boolean exportPayment()
+    {
+        try{
+            exportModels();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return false;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return false;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                "\nKontaktujte administrátora systému!", e.toString());
+            return false;
+        }
+
+        return true;
+    }
 
 
+    private void exportModels() throws InterruptedException, IOException, CommunicationException {
+        HttpClientClass ht = new HttpClientClass();
+        ht.addParam("hoursFund", paymentD.getHoursFund());
+        ht.addParam("daysFund", paymentD.getDaysFund());
+        ht.addParam("hoursWorked", this.paymentD.getHoursWorked());
+        ht.addParam("daysWorked", this.paymentD.getDaysWorked());
+        ht.addParam("grossWage", this.paymentD.getGrossWage());
+        ht.addParam("assessmentBasis", this.paymentD.getAssessmentBasis());
+        ht.addParam("employeeEnsurence", this.paymentD.getEmployeeEnsurence());
+        ht.addParam("nonTaxableWage", this.paymentD.getNonTaxableWage());
+        ht.addParam("taxableWage", this.paymentD.getTaxableWage());
+        ht.addParam("taxAdvances", this.paymentD.getTaxAdvances());
+        ht.addParam("taxBonus", this.paymentD.getTaxBonus());
+        ht.addParam("netWage", this.paymentD.getNetWage());
+        ht.addParam("workPrice", this.paymentD.getWorkPrice());
+        ht.addParam("employerLevies", this.paymentD.getEmployerLevies());
+        ht.addParam("employeeLevies", this.paymentD.getEmployeeLevies());
+        ht.addParam("leviesSum", this.paymentD.getLeviesSum());
+        ht.addParam("total", this.paymentD.getTotal());
+        ht.addParam("onAccount", this.paymentD.getOnAccount());
+        ht.addParam("cash", this.paymentD.getCash());
+        ht.addParam("whoCreatedID", this.paymentD.getWhoCreatedID());
+        ht.addParam("employeeImportantID", this.paymentD.getEmployeeImportantID());
+        ht.addParam("minimumWageID", this.paymentD.getMinimumWageID());
+        ht.addParam("wageConstantsID", this.paymentD.getWageConstantsID());
+        ht.addParam("yearAverageWage", this.paymentD.getYearAverageWage());
 
+        int i = 0;
+        for(MonthD m : employeeConditionsManager.getMonthDS())
+        {
+            ht.addParam("month"+i, m.getId());
+            i++;
+        }
+        ht.addParam("monthsCount", i+"");
+
+        i = 0;
+        for(PaymentBasicComponentD m : grossWageManager.getBasicComponentManager().getPaymentBasicComponentDS())
+        {
+            ht.addParam("bcWorkedUnits"+i, m.getWorkedUnits());
+            ht.addParam("bcWageForUnits"+i, m.getWageForUnits());
+            if(m.getWageD()==null)
+                ht.addParam("bcWageID"+i, m.getWorkedPerformanceOfWage().getWageD().getId());
+            else
+                ht.addParam("bcWageID"+i, m.getWageD().getId());
+            i++;
+        }
+        ht.addParam("bcCount", i+"");
+
+        i = 0;
+        for(PaymentDynamicComponentD m : grossWageManager.getDynamicComponentManager().getPaymentDynamicComponentDS())
+        {
+            ht.addParam("dcType"+i, m.getType());
+            ht.addParam("dcCharacteristic"+i, m.getCharacteristic());
+            ht.addParam("dcWage"+i, m.getWage());
+            i++;
+        }
+        ht.addParam("dcCount", i+"");
+
+        i = 0;
+        for(PaymentWageCompensationD m : grossWageManager.getWageCompensationManager().getWageCompensationDS())
+        {
+            ht.addParam("wcReason"+i, m.getReason());
+            ht.addParam("wcDays"+i, m.getDays());
+            ht.addParam("wcHours"+i, m.getHours());
+            ht.addParam("wcWage"+i, m.getWage());
+            i++;
+        }
+        ht.addParam("wcCount", i+"");
+
+        i = 0;
+        for(PaymentSurchargeD m : grossWageManager.getSurchargesManager().getPaymentSurchargeDS())
+        {
+            ht.addParam("sHours"+i, m.getHours());
+            ht.addParam("sWage"+i, m.getWage());
+            ht.addParam("sSurchargeTypeID"+i, m.getSurcharegeTypeID());
+            i++;
+        }
+        ht.addParam("sCount", i+"");
+
+        i = 0;
+        for(PaymentOtherComponentD m : grossWageManager.getOthersComponentsManager().getOtherComponentDS())
+        {
+            ht.addParam("ocName"+i, m.getName());
+            ht.addParam("ocWage"+i, m.getWage());
+            i++;
+        }
+        ht.addParam("ocCount", i+"");
+
+        i = 0;
+        ArrayList<LevyD> levyDS = new ArrayList<>();
+        levyDS.addAll(netWageManager.getLeviesSocialInsuranceManager().getAllLevyDS());
+        levyDS.addAll(netWageManager.getLeviesHealthInsuranceManager().getAllLevyDS());
+        for(LevyD m : levyDS)
+        {
+            ht.addParam("lName"+i, m.getName());
+            ht.addParam("lAssessmentBasis"+i, m.getAssessmentBasis());
+            ht.addParam("lEmployeeSum"+i, m.getEmployeeSum());
+            ht.addParam("lEmployerSum"+i, m.getEmployerSum());
+            i++;
+        }
+        ht.addParam("lCount", i+"");
+
+        i=0;
+        for(PaymentDeductionD m : netWageManager.getDeductionsManager().getPaymentDeductionDS())
+        {
+            ht.addParam("dName"+i, m.getName());
+            ht.addParam("dSum"+i, m.getSum());
+            i++;
+        }
+        ht.addParam("dCount", i+"");
+
+
+        ht.sendPost("payment/crt_pmnt", LoggedInUser.getToken(), LoggedInUser.getId());
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+        paymentD.setId(json.getElement(0, "id"));
+    }
+
+    public void calculateAverageWage()
+    {
+        if(!(employeeConditionsManager.getMonthDS().get(0).getMonthNumber().equals("3")
+            || employeeConditionsManager.getMonthDS().get(0).getMonthNumber().equals("6")
+            || employeeConditionsManager.getMonthDS().get(0).getMonthNumber().equals("9")
+            || employeeConditionsManager.getMonthDS().get(0).getMonthNumber().equals("12")))
+            return;
+
+        HttpClientClass ht = new HttpClientClass();
+        try{
+            ht.sendGet("payment/lst_thr_mnths/"+employeeConditionsManager.getRelationD().getId()+"/"+employeeConditionsManager.getYearDS().get(0).getYearNumber()+"/"
+                    +employeeConditionsManager.getMonthDS().get(0).getMonthNumber(), LoggedInUser.getToken(), LoggedInUser.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+        JsonArrayClass json = new JsonArrayClass(ht.getRespnseBody());
+
+        if(json.getSize()!=2)
+            return;
+
+        BigDecimal grossWage = new BigDecimal("0");
+        grossWage = grossWage
+                .add(grossWageManager.getGrossWage())
+                .add(new BigDecimal(json.getElement(0, "hruba_mzda")))
+                .add(new BigDecimal(json.getElement(1, "hruba_mzda")));
+
+        BigDecimal hoursWorked = new BigDecimal("0");
+        hoursWorked = hoursWorked
+                .add(new BigDecimal(paymentD.getHoursWorked()))
+                .add(new BigDecimal(json.getElement(0, "odpracovane_hodiny")))
+                .add(new BigDecimal(json.getElement(1, "odpracovane_hodiny")));
+
+        BigDecimal averageWage = grossWage.divide(hoursWorked, 2, RoundingMode.HALF_UP);
+        int averagetype ;
+        if(employeeConditionsManager.getMonthDS().get(0).getMonthNumber().equals("3"))
+            averagetype = 1;
+        else if(employeeConditionsManager.getMonthDS().get(0).getMonthNumber().equals("6"))
+            averagetype = 2;
+        else if(employeeConditionsManager.getMonthDS().get(0).getMonthNumber().equals("9"))
+            averagetype = 3;
+        else
+            averagetype = 4;
+
+
+        ht = new HttpClientClass();
+        ht.addParam("yearID", employeeConditionsManager.getYearDS().get(0).getId());
+        ht.addParam("averagetype", averagetype+"");
+        ht.addParam("averagewage", averageWage.toPlainString());
+
+        try{
+            ht.sendPost("payment/st_vrg_wg", LoggedInUser.getToken(), LoggedInUser.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
+                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
+            return;
+        } catch (CommunicationException e) {
+            e.printStackTrace();
+            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
+                    "\nKontaktujte administrátora systému!", e.toString());
+            return;
+        }
+
+    }
 
 }
-/*----------------------------------------------------------------------------------------------------------------*/
-/*----------------------------------------------------FIELDS------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------------------------------------------*/
-/*-------------------------------------------------CONSTRUCTORS---------------------------------------------------*/
-
-
-
-/*----------------------------------------------------------------------------------------------------------------*/
-/*-----------------------------------------------SETTERS/GETTERS--------------------------------------------------*/
-
-
-
-/*----------------------------------------------------------------------------------------------------------------*/
-/*---------------------------------------------------METHODS------------------------------------------------------*/

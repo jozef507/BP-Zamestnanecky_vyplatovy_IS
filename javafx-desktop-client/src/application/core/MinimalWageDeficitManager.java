@@ -56,9 +56,10 @@ public class MinimalWageDeficitManager
                         if(w.getWorkedPerformanceOfWage().getWageD().getTimeImportant().equals("áno"))
                         {
                             BigDecimal tmp = w.getWorkedPerformanceOfWage().getTimeTotal()
-                                    .subtract(w.getWorkedPerformanceOfWage().getOvertimeFromTotal())
-                                    .subtract(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal())
-                                    .subtract(w.getWorkedPerformanceOfWage().getInactiveEmergencyInPlaceFromTotal());
+                                    .subtract(w.getWorkedPerformanceOfWage().getOvertimeFromTotal());
+                            if(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal() != null)
+                                tmp = tmp.subtract(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal())
+                                        .subtract(w.getWorkedPerformanceOfWage().getInactiveEmergencyInPlaceFromTotal());
                             workedTime = workedTime.add(tmp);
 
                             BigDecimal tmp1 = tmp.divide(new BigDecimal(grossWageManager.getPaymentManager()
@@ -108,8 +109,10 @@ public class MinimalWageDeficitManager
                         {
                             timeTotal = w.getWorkedPerformanceOfWage().getTimeTotal();
                             BigDecimal tmp = w.getWorkedPerformanceOfWage().getTimeTotal()
-                                    .subtract(w.getWorkedPerformanceOfWage().getOvertimeFromTotal())
-                                    .subtract(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal())
+                                    .subtract(w.getWorkedPerformanceOfWage().getOvertimeFromTotal());
+
+                            if(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal() != null)
+                                tmp = tmp.subtract(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal())
                                     .subtract(w.getWorkedPerformanceOfWage().getInactiveEmergencyInPlaceFromTotal());
                             workedTime = workedTime.add(tmp);
 
@@ -157,9 +160,11 @@ public class MinimalWageDeficitManager
                         {
                             timeTotal = w.getWorkedPerformanceOfWage().getTimeTotal();
                             BigDecimal tmp = w.getWorkedPerformanceOfWage().getTimeTotal()
-                                    .subtract(w.getWorkedPerformanceOfWage().getOvertimeFromTotal())
-                                    .subtract(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal())
-                                    .subtract(w.getWorkedPerformanceOfWage().getInactiveEmergencyInPlaceFromTotal());
+                                    .subtract(w.getWorkedPerformanceOfWage().getOvertimeFromTotal());
+
+                            if(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal() != null)
+                                tmp = tmp.subtract(w.getWorkedPerformanceOfWage().getActiveEmergencyTimeFromTotal())
+                                        .subtract(w.getWorkedPerformanceOfWage().getInactiveEmergencyInPlaceFromTotal());
                             workedTime = workedTime.add(tmp);
 
                             wage = wage.add(new BigDecimal(w.getWageForUnits()));
@@ -192,8 +197,6 @@ public class MinimalWageDeficitManager
                     paymentOtherComponentD.setWage(deficit.multiply(timeTotal).setScale(2, RoundingMode.HALF_UP).toPlainString());
             }
         }
-
-        setPaymentModel();
     }
 
     private boolean getIsItMonthWage()
@@ -216,22 +219,6 @@ public class MinimalWageDeficitManager
         return false;
     }
 
-    private void setPaymentModel()
-    {
-        grossWageManager.getPaymentManager().getPaymentD().setGrossWage(grossWageManager.getGrossWage().setScale(2, RoundingMode.HALF_UP).toPlainString());
-
-        WorkedPerformanceOfWage workedPerformanceOfWage = null;
-        for(WorkedPerformanceOfWage w : grossWageManager.getWorkedPerformanceManager().getWorkedPerformanceOfWages())
-        {
-            if(w.getWageD().getTimeImportant().equals("áno"))
-            {
-                workedPerformanceOfWage = w;
-            }
-        }
-
-        grossWageManager.getPaymentManager().getPaymentD().setHoursWorked(workedPerformanceOfWage.getTimeTotal().setScale(0, RoundingMode.HALF_UP).toPlainString());
-        grossWageManager.getPaymentManager().getPaymentD().setDaysWorked((workedPerformanceOfWage.getDaysTotal().toPlainString()));
-    }
 
 
 }

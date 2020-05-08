@@ -67,7 +67,7 @@ public class LevyD
 
     public void calculate(BigDecimal assesmentBasis, BigDecimal[] partsOfLevies)
     {
-        if (partsOfLevies.length != 2)
+        if (partsOfLevies.length != 3)
             return;
 
         BigDecimal employeePart = partsOfLevies[0];

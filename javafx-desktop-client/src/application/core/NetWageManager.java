@@ -388,7 +388,6 @@ public class NetWageManager
                             this.deductibleItem = maxDeductibleItem;
                     }
                 }
-
             }
         }
     }
@@ -428,6 +427,20 @@ public class NetWageManager
 
     private void setPaymentModel()
     {
+        paymentManager.getGrossWageManager().getPaymentManager().getPaymentD().setGrossWage(paymentManager.getGrossWageManager().getGrossWage().setScale(2, RoundingMode.HALF_UP).toPlainString());
+
+        WorkedPerformanceOfWage workedPerformanceOfWage = null;
+        for(WorkedPerformanceOfWage w : paymentManager.getGrossWageManager().getWorkedPerformanceManager().getWorkedPerformanceOfWages())
+        {
+            if(w.getWageD().getTimeImportant().equals("áno"))
+            {
+                workedPerformanceOfWage = w;
+            }
+        }
+
+        paymentManager.getGrossWageManager().getPaymentManager().getPaymentD().setHoursWorked(workedPerformanceOfWage.getTimeTotal().setScale(0, RoundingMode.HALF_UP).toPlainString());
+        paymentManager.getGrossWageManager().getPaymentManager().getPaymentD().setDaysWorked((workedPerformanceOfWage.getDaysTotal().toPlainString()));
+
         paymentManager.getPaymentD().setAssessmentBasis(assessmentBasis.setScale(2, RoundingMode.HALF_UP).toPlainString());
         paymentManager.getPaymentD().setEmployeeEnsurence(employeeLeviesTotal.setScale(2, RoundingMode.HALF_UP).toPlainString());
         paymentManager.getPaymentD().setNonTaxableWage(nonTaxablePartOfTaxBase.setScale(2, RoundingMode.HALF_UP).toPlainString());
@@ -453,5 +466,9 @@ public class NetWageManager
             paymentManager.getPaymentD().setMinimumWageID(paymentManager.getEmployeeConditionsManager().getMinimumWageD().getId());
         paymentManager.getPaymentD().setWageConstantsID(paymentManager.getWageConstantsD().getId());
 
+        if(paymentManager.getGrossWageManager().getAverageWage()!=null)
+            paymentManager.getPaymentD().setYearAverageWage(paymentManager.getGrossWageManager().getAverageWage().setScale(4, RoundingMode.HALF_UP).toPlainString());
+        else
+            paymentManager.getPaymentD().setYearAverageWage("NULL");
     }
 }
