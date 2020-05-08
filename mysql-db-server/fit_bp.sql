@@ -305,10 +305,10 @@ create table mzdove_konstanty
 create table vyplatna_paska
 (
     id int not null auto_increment,
-    fond_hodin float  not null,
-    fond_dni float  not null,
-    odpracovane_hodiny float  not null,
-	odpracovane_dni float not null,
+    fond_hodin decimal(12,4)  not null,
+    fond_dni decimal(12,4)  not null,
+    odpracovane_hodiny decimal(12,4)  not null,
+	odpracovane_dni decimal(12,4) not null,
     hruba_mzda decimal(12,4) not null,
 
     vymeriavaci_zaklad decimal(12,4) not null,
@@ -332,6 +332,8 @@ create table vyplatna_paska
     vypracoval_pracujuci int not null,
     minimalna_mzda int not null,
     mzdove_konstanty int not null,
+
+    priemerny_zarobok decimal(12,4) null,
 
     primary key (id),
     constraint vyplatna_paska_c1 foreign key (dolezite_udaje_pracujuceho) references dolezite_udaje_pracujuceho(id),
@@ -1992,3 +1994,35 @@ select * from typ_priplatku;
 select mk.* from mzdove_konstanty mk where (('2020-01-01' between mk.platnost_od and mk.platnost_do) or ('2020-01-01'>=mk.platnost_od and mk.platnost_do is null));
 
 select * from odpracovany_mesiac_nepritomnost omn join nepritomnost n on omn.nepritomnost = n.id where omn.odpracovany_mesiac=19;
+
+select om.*, vp.*
+from pracovny_vztah pv
+    join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah
+    join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu
+    join odpracovany_mesiac om on o.id = om.odpracovany_rok
+    left join vyplatna_paska vp on om.vyplatna_paska = vp.id
+where pv.id=1 and o.rok=2019 and om.poradie_mesiaca=12;
+
+select * from vyplatna_paska;
+
+
+select * from vyplatna_paska where id=4;
+select pv.typ, dp.dohodnuty_tyzdenny_pracovny_cas, p2.nazov, p3.priezvisko, p3.meno as pracovisko, p.nazov as pozicia from vyplatna_paska vp join odpracovany_mesiac om on vp.id = om.vyplatna_paska join odpracovany_rok o on om.odpracovany_rok = o.id join podmienky_pracovneho_vztahu ppv on o.podmienky_pracovneho_vztahu = ppv.id join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pozicia p on ppv.pozicia = p.id join pracovisko p2 on p.pracovisko = p2.id join pracujuci p3 on pv.pracujuci = p3.id left join dalsie_podmienky dp on ppv.dalsie_podmienky = dp.id where vp.id=4 limit 1;
+
+
+select o.rok, om.poradie_mesiaca from odpracovany_rok o join odpracovany_mesiac om on o.id = om.odpracovany_rok where om.vyplatna_paska=4;
+
+select zakladna_zlozka.*, zakladna_mzda.popis, zakladna_mzda.tarifa_za_jednotku_mzdy, forma_mzdy.nazov, forma_mzdy.skratka_jednotky from zakladna_zlozka join zakladna_mzda on zakladna_zlozka.zakladna_mzda = zakladna_mzda.id join forma_mzdy on zakladna_mzda.forma_mzdy = forma_mzdy.id where vyplatna_paska=4;
+select * from pohybliva_zlozka where vyplatna_paska=4;
+select * from nahrada where vyplatna_paska=4;
+select priplatok.*, typ_priplatku.nazov from priplatok join typ_priplatku on priplatok.typ_priplatku = typ_priplatku.id where vyplatna_paska=4;
+select * from ina_zlozka_mzdy where vyplatna_paska=4;
+select * from odvod where vyplatna_paska=4;
+select * from zrazka where vyplatna_paska=4;
+
+
+select * from pracujuci p join dolezite_udaje_pracujuceho dup on p.id = dup.pracujuci
+where p.prihlasovacie_konto = 1 and now() > dup.platnost_od and (now() < dup.platnost_do or dup.platnost_do is null);
+
+select p.prihlasovacie_konto from podmienky_pracovneho_vztahu ppv join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pracujuci p on pv.pracujuci = p.id where ppv.id=2;
+select zm.id as zm_id, zm.*, fm.id as fm_id from  podmienky_pracovneho_vztahu ppv join zakladna_mzda zm on ppv.id = zm.podmienky_pracovneho_vztahu join forma_mzdy fm on zm.forma_mzdy = fm.id where ppv.id=9;
