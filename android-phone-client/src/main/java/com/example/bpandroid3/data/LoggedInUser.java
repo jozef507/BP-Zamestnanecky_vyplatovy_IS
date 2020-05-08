@@ -1,5 +1,7 @@
 package com.example.bpandroid3.data;
 
+import com.example.bpandroid3.httpcomunication.HttpClient;
+
 public class LoggedInUser
 {
     private static String id;
@@ -31,31 +33,19 @@ public class LoggedInUser
         LoggedInUser.email = email;
     }
 
-    /*public static void logout()
+    public static void logout()
     {
-        HttpClientClass ht = new HttpClientClass();
+        HttpClient ht = new HttpClient();
         try {
             ht.sendPost("auth/logout", LoggedInUser.getToken(), LoggedInUser.getId());
-        }catch (IOException e) {
+        }catch (Exception e) {
             e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba",
-                    "Problem s pripojením na aplikačný server!\nKontaktujte administrátora systému", e.getMessage());
-
-        } catch (CommunicationException e) {
-            e.printStackTrace();
-            CustomAlert a = new CustomAlert("error", "Komunikačná chyba", "Komunikačná chyba na strane servera." +
-                    "\nKontaktujte administrátora systému!", e.toString());
         }
 
         id = null;
         token = null;
         email = null;
-    }*/
+    }
 
     public static String getRole() {
         return role;

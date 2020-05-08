@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/home_fragment"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".mainactivity.home.HomeFragment">
+    tools:context=".mainactivity.home.RelationWagesFragment">
 
     <LinearLayout
         android:id="@+id/linearlayout"
@@ -18,12 +16,14 @@
         android:paddingRight="10dp">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pracovné vzťahy"
+            android:text="Dohodnuté mzdy"
             android:textAlignment="center"
             android:textSize="22sp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"/>
     </LinearLayout>
+
 </ScrollView>

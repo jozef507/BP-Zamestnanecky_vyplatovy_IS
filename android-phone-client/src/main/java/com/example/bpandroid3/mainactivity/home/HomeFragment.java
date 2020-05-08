@@ -1,6 +1,5 @@
 package com.example.bpandroid3.mainactivity.home;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,16 +12,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.bpandroid3.R;
 import com.example.bpandroid3.data.LoggedInUser;
 import com.example.bpandroid3.data.RelationD;
 import com.example.bpandroid3.httpcomunication.HttpClient;
 import com.example.bpandroid3.httpcomunication.JsonArrayClass;
-import com.example.bpandroid3.mainactivity.MainActivity;
-import com.example.bpandroid3.relationwages.RelationWagesActivity;
-import com.example.bpandroid3.ui.login.LoginActivity;
 
 import java.util.ArrayList;
 
@@ -32,7 +29,13 @@ public class HomeFragment extends Fragment {
     LinearLayout linearLayout;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+                             ViewGroup container, Bundle savedInstanceState)
+    {
+        final FragmentManager ft = getParentFragmentManager();
+        for(int i = 0; i < ft.getBackStackEntryCount(); ++i) {
+            ft.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+
         new MyDownloadTask().execute();
 
         View root = inflater.inflate(R.layout.fragment_home, container, false);
@@ -74,7 +77,7 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(getContext(), (finalR.getType() + "" +finalI), Toast.LENGTH_SHORT).show();
-                    loadMainActivity(finalR);
+                    loadOtherFragment(finalR);
                 }
             }));
 
@@ -84,11 +87,15 @@ public class HomeFragment extends Fragment {
     }
 
 
-    private void loadMainActivity(RelationD relationD)
+    private void loadOtherFragment(RelationD relationD)
     {
-        Intent MainIntent = new Intent(getContext(), RelationWagesActivity.class);
-        MainIntent.putExtra("conditionsID", relationD.getConditionsID());
-        startActivity(MainIntent);
+        RelationWagesFragment fragment = new RelationWagesFragment();
+        Bundle arguments = new Bundle();
+        arguments.putString( "conditionsID" , relationD.getConditionsID());
+        fragment.setArguments(arguments);
+        final FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+        ft.replace(R.id.nav_host_fragment, fragment).addToBackStack("home");
+        ft.commit();
     }
 
 
