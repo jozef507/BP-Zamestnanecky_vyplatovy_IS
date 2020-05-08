@@ -23,6 +23,10 @@ function assign_value($var)
 	{
 		return null;
 	}
+	elseif(	$var === 'NULL')
+	{
+		return null;
+	}
 	else
 	{
 		return $var;

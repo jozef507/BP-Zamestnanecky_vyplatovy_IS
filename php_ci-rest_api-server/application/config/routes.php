@@ -71,6 +71,9 @@ $route['employee/all_imp/(:num)']['get'] 		= 'Employee/all_imp/$1';
 $route['employee/delete_imp/(:num)']['delete'] 			= 'Employee/delete_imp/$1';
 $route['employee/del_emp/(:num)']['delete'] 			= 'Employee/del_emp/$1';
 
+$route['employee/nf/(:num)']['get']           = 'Employee/info/$1';
+
+
 $route['relation/detail/(:num)']['get']           = 'Relation/detail/$1';
 $route['relation/nxt_dmnds_d/(:num)']['get']           = 'Relation/nxt_dmnds_d/$1';
 $route['relation/con_ncon_po_pl/(:num)']['get']           = 'Relation/con_ncon_po_pl/$1';
@@ -81,6 +84,10 @@ $route['relation/upd_rel']['post']           = 'Relation/upd_rel';
 $route['relation/del_rel/(:num)']['delete']           = 'Relation/del_rel/$1';
 $route['relation/del_cons/(:num)']['delete']           = 'Relation/del_cons/$1';
 $route['relation/del_lst_cons/(:num)/(:num)']['delete']           = 'Relation/del_lst_cons/$1/$2';
+
+$route['relation/emp_rel_cons_po_pl_of_emp/(:num)']['get']           = 'Relation/emp_rel_cons_po_pl_of_emp/$1';
+$route['relation/wgs_of_rltn/(:num)']['get']           = 'Relation/wages_of_relation/$1';
+
 
 $route['place']['get']           = 'Place';
 $route['place/del_place/(:num)']['delete']           = 'Place/del_place/$1';
@@ -125,15 +132,22 @@ $route['hours/upd_hrs']['post']           = 'Hours/upd_hrs';
 $route['hours/del_hrs/(:num)']['delete']           = 'Hours/del_hrs/$1';
 $route['hours/emp-hrs-mnth/(:any)']['get']           = 'Hours/employee_hours_of_month/$1';
 
+$route['hours/crt_hrs_by_emp']['post']           = 'Hours/crt_hrs_by_emp';
+
 $route['absence/bsnc/(:any)']['get']           = 'Absence/bsnc/$1';
 $route['absence/bsnc-by-mnthid/(:num)']['get']           = 'Absence/absences_by_monthid/$1';
 $route['absence/crt_bsnc']['post']           = 'Absence/crt_bsnc';
 $route['absence/crt_fst']['post']           = 'Absence/crt_fst';
 $route['absence/del_bsnc/(:num)']['delete']           = 'Absence/del_bsnc/$1';
 
+$route['payment/crt_pmnt']['post']           = 'Payment/crt_pmnt';
+$route['payment/st_vrg_wg']['post']           = 'Payment/st_vrg_wg';
+$route['payment/del_pmnt/(:num)']['delete']           = 'Payment/del_pmnt/$1';
+$route['payment/lst_thr_mnths/(:num)/(:num)/(:num)']['get']           = 'Payment/lst_thr_mnths/$1/$2/$3';
 $route['payment/mnth/(:num)/(:num)']['get']           = 'Payment/payments_month/$1/$2';
 $route['payment/lstmnth']['get']           = 'Payment/payments_last_month';
 $route['payment/nffr_mplpmnt/(:num)']['get']           = 'Payment/info_for_emplyee_payment/$1';
+$route['payment/pmnt/(:num)']['get']           = 'Payment/pmnt/$1';
 
 $route['default_controller'] = 'Employee';
 $route['404_override'] = '';

@@ -14,6 +14,7 @@ class SurchargeMod extends CI_Model
 		$params = $_REQUEST;
 		$surcharge_id = null;
 		$surcharge_name = $params['name'];
+		$surcharge_description = assign_value($params['description']);
 		$surcharge_part = $params['part'];
 		$surcharge_base = $params['base'];
 		$surcharge_from = $params['from'];
@@ -26,6 +27,7 @@ class SurchargeMod extends CI_Model
 				'platnost_od' => $surcharge_from,
 				'platnost_do' => $surcharge_to,
 				'nazov' => $surcharge_name,
+				'popis' => $surcharge_description,
 				'percentualna_cast' => $surcharge_part,
 				'pocitany_zo' => $surcharge_base
 			);

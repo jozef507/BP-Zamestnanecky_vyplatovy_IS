@@ -48,6 +48,7 @@ class AuthMod extends CI_Model
 		return $q->typ_prav;
 	}
 
+
 	public function login($username,$password)
 	{
 		$client_service = $this->input->get_request_header('Client-Service', TRUE);
@@ -105,7 +106,12 @@ class AuthMod extends CI_Model
 		return array('status' => 200,'message' => 'Successfully logout.');
 	}
 
-
+	public function get_userid_from_conditionsid($conditionsID)
+	{
+		$query = $this->db->query("select p.prihlasovacie_konto from podmienky_pracovneho_vztahu ppv join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pracujuci p on pv.pracujuci = p.id where ppv.id=".$conditionsID);
+		$arr = $query->result_array();
+		return $arr[0]['prihlasovacie_konto'];
+	}
 
 
 }

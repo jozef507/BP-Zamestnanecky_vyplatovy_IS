@@ -21,6 +21,12 @@ class RelationMod extends CI_Model
 		return $query->result();
 	}
 
+	public function get_emp_rel_cons_po_pl_of_emp($id)
+	{
+		$query = $this->db->query("select p.id as p_id, p.meno as p_meno, p.priezvisko as p_priezvisko, pv.*,  DATE_FORMAT(pv.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(pv.datum_vyprsania,'%d.%m.%Y') as nice_date2, ppv.id as ppv_id,  DATE_FORMAT(ppv.platnost_od,'%d.%m.%Y')  as ppv_platnost_od,  DATE_FORMAT(ppv.platnost_do,'%d.%m.%Y') as ppv_platnost_do, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov from pracujuci p join pracovny_vztah pv on p.id = pv.pracujuci join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah join pozicia po on ppv.pozicia = po.id join pracovisko pr on po.pracovisko = pr.id where p.prihlasovacie_konto = ".$id." and now() >= pv.datum_vzniku and (now() <= DATE_ADD(pv.datum_vyprsania, INTERVAL 1 MONTH) or pv.datum_vyprsania is null) and now() >= ppv.platnost_od and (now() <= DATE_ADD(ppv.platnost_do, INTERVAL 1 MONTH) or ppv.platnost_do is null)");
+		return $query->result();
+	}
+
 	public function get_next_demands_detail($id)
 	{
 		$query = $this->db->query("select * from dalsie_podmienky dup where dup.id=".$id);
@@ -36,6 +42,12 @@ class RelationMod extends CI_Model
 	public function get_relation_by_conditions($con_id)
 	{
 		$query = $this->db->query("select p.id as p_id, p.meno as p_meno, p.priezvisko as p_priezvisko, pv.*,  DATE_FORMAT(pv.datum_vzniku,'%d.%m.%Y') as nice_date1,  DATE_FORMAT(pv.datum_vyprsania,'%d.%m.%Y') as nice_date2, ppv.id as ppv_id, ppv.platnost_od as ppv_platnost_od, ppv.platnost_do as ppv_platnost_do, po.id as po_id, po.nazov as po_nazov, pr.id as pr_id, pr.nazov as pr_nazov from pracujuci p join pracovny_vztah pv on p.id = pv.pracujuci join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah join pozicia po on ppv.pozicia = po.id join pracovisko pr on po.pracovisko = pr.id where ppv.id= ".$con_id);
+		return $query->result();
+	}
+
+	public function get_wages_of_relation($conditionsID)
+	{
+		$query = $this->db->query("select zm.id as zm_id, zm.*, fm.id as fm_id, fm.* from  podmienky_pracovneho_vztahu ppv join zakladna_mzda zm on ppv.id = zm.podmienky_pracovneho_vztahu join forma_mzdy fm on zm.forma_mzdy = fm.id where ppv.id=".$conditionsID);
 		return $query->result();
 	}
 

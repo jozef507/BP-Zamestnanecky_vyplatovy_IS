@@ -481,4 +481,33 @@ class Employee extends CI_Controller
 		json_output($resp['status'],$resp);
 	}
 
+	public function info($id)
+	{
+		$method = $_SERVER['REQUEST_METHOD'];
+		if($method != 'GET' || $this->uri->segment(3) == '' || is_numeric($this->uri->segment(3)) == FALSE){
+			json_output(400,array('status' => 400,'message' => 'Bad request.'));
+			return;
+		}
+
+		$check_auth_client = $this->AuthMod->check_auth_client();
+		if($check_auth_client != true) {
+			json_output($check_auth_client['status'], $check_auth_client);
+			return;
+		}
+		$response = $this->AuthMod->auth();
+		if($response['status'] != 200){
+			json_output($response['status'], $response);
+			return;
+		}
+		$usertype = $this->AuthMod->get_user_type();
+		$users_id  = $this->input->get_request_header('User-ID', TRUE);
+		if(!($usertype=="riaditeľ" || $usertype=="účtovník" || ($usertype=="zamestnanec" && $users_id==$id) ))		{
+			json_output(403,array('status' => 403,'message' => 'Forbidden'));
+			return;
+		}
+
+		$resp = $this->EmployeeMod->get_info($id);
+		json_output(200, $resp);
+	}
+
 }

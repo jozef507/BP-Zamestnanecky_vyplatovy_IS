@@ -3,6 +3,231 @@
 
 class PaymentMod extends CI_Model
 {
+
+
+	public function create_payment()
+	{
+		$params = $_REQUEST;
+		$id = null;
+
+		$userID = assign_value($params['whoCreatedID']);
+		$query = $this->db->query("select id from pracujuci where prihlasovacie_konto=".$userID);
+		$result = $query->result_array();
+		$employeeID = $result[0]['id'];
+
+
+		$this->db->trans_start();
+
+			$data = array(
+				'fond_hodin' => assign_value($params['hoursFund']),
+				'fond_dni' => assign_value($params['daysFund']),
+				'odpracovane_hodiny' => assign_value($params['hoursWorked']),
+				'odpracovane_dni' => assign_value($params['daysWorked']),
+				'hruba_mzda' => assign_value($params['grossWage']),
+				'vymeriavaci_zaklad' => assign_value($params['assessmentBasis']),
+				'poistne_zamestnanca' => assign_value($params['employeeEnsurence']),
+				'nezdanitelna_mzda' =>  assign_value($params['nonTaxableWage']),
+				'zdanitelna_mzda' => assign_value($params['taxableWage']),
+				'preddavky_na_dan' => assign_value($params['taxAdvances']),
+				'danovy_bonus' => assign_value($params['taxBonus']),
+				'cista_mzda' => assign_value($params['netWage']),
+				'cena_prace' => assign_value($params['workPrice']),
+				'odvody_zamestnavatela' => assign_value($params['employerLevies']),
+				'odvody_dan_zamestnanca' => assign_value($params['employeeLevies']),
+				'odvody_dan_spolu' => assign_value($params['leviesSum']),
+				'k_vyplate' => assign_value($params['total']),
+				'na_ucet' => assign_value($params['onAccount']),
+				'v_hotovosti' => assign_value($params['cash']),
+				'dolezite_udaje_pracujuceho' => assign_value($params['employeeImportantID']),
+				'vypracoval_pracujuci' => $employeeID,
+				'minimalna_mzda' => assign_value($params['minimumWageID']),
+				'mzdove_konstanty' => assign_value($params['wageConstantsID']),
+				'priemerny_zarobok' => assign_value($params['yearAverageWage'])
+			);
+			$this->db->insert('vyplatna_paska', $data);
+			$id = $this->db->insert_id();
+
+			$monthsCount = intval(assign_value($params['monthsCount']));
+			for ($i=0; $i<$monthsCount ; $i++)
+			{
+				$data = array(
+					'vyplatna_paska' => $id,
+					'je_mesiac_uzatvoreny' => 1
+				);
+				$this->db->where('id', assign_value($params['month'.$i]))->update('odpracovany_mesiac', $data);
+			}
+
+			$count = intval(assign_value($params['bcCount']));
+			for ($i=0; $i<$count ; $i++)
+			{
+				$data = array(
+					'mnozstvo_jednotiek' => assign_value($params['bcWorkedUnits'.$i]),
+					'suma_za_mnozstvo' => assign_value($params['bcWageForUnits'.$i]),
+					'vyplatna_paska' => $id,
+					'zakladna_mzda' => assign_value($params['bcWageID'.$i])
+				);
+				$this->db->insert('zakladna_zlozka', $data);
+			}
+
+			$count = intval(assign_value($params['dcCount']));
+			for ($i=0; $i<$count ; $i++)
+			{
+				$data = array(
+					'typ' => assign_value($params['dcType'.$i]),
+					'popis' => assign_value($params['dcCharacteristic'.$i]),
+					'suma' => assign_value($params['dcWage'.$i]),
+					'vyplatna_paska' => $id
+				);
+				$this->db->insert('pohybliva_zlozka', $data);
+			}
+
+
+			$count = intval(assign_value($params['wcCount']));
+			for ($i=0; $i<$count ; $i++)
+			{
+				$data = array(
+					'typ' => assign_value($params['wcReason'.$i]),
+					'pocet_dni' => assign_value($params['wcDays'.$i]),
+					'mnozstvo_jednotiek' => assign_value($params['wcHours'.$i]),
+					'suma' => assign_value($params['wcWage'.$i]),
+					'vyplatna_paska' => $id
+				);
+				$this->db->insert('nahrada', $data);
+			}
+
+			$count = intval(assign_value($params['sCount']));
+			for ($i=0; $i<$count ; $i++)
+			{
+				$data = array(
+					'mnozstvo_jednotiek' => assign_value($params['sHours'.$i]),
+					'suma' => assign_value($params['sWage'.$i]),
+					'typ_priplatku' => assign_value($params['sSurchargeTypeID'.$i]),
+					'vyplatna_paska' => $id
+				);
+				$this->db->insert('priplatok', $data);
+			}
+
+			$count = intval(assign_value($params['ocCount']));
+			for ($i=0; $i<$count ; $i++)
+			{
+				$data = array(
+					'nazov' => assign_value($params['ocName'.$i]),
+					'suma' => assign_value($params['ocWage'.$i]),
+					'vyplatna_paska' => $id
+				);
+				$this->db->insert('ina_zlozka_mzdy', $data);
+			}
+
+			$count = intval(assign_value($params['lCount']));
+			for ($i=0; $i<$count ; $i++)
+			{
+				$data = array(
+					'nazov' => assign_value($params['lName'.$i]),
+					'vymeriavaci_zaklad' => assign_value($params['lAssessmentBasis'.$i]),
+					'suma_zamestnanec' => assign_value($params['lEmployeeSum'.$i]),
+					'suma_zamestnavatel' => assign_value($params['lEmployerSum'.$i]),
+					'vyplatna_paska' => $id
+				);
+				$this->db->insert('odvod', $data);
+			}
+
+			$count = intval(assign_value($params['dCount']));
+			for ($i=0; $i<$count ; $i++)
+			{
+				$data = array(
+					'nazov' => assign_value($params['dName'.$i]),
+					'suma' => assign_value($params['dSum'.$i]),
+					'vyplatna_paska' => $id
+				);
+				$this->db->insert('zrazka', $data);
+			}
+
+
+		if($this->db->trans_status() === FALSE){
+			$this->db->trans_rollback();
+			return array('status' => 500,'message' => 'Internal server error.');
+		} else {
+			$this->db->trans_commit();
+			return array('status' => 200, 'message' => 'Operation done successfuly!', 'id' => $id);
+		}
+	}
+	public function set_average_wage()
+	{
+		$params = $_REQUEST;
+		$id = null;
+
+		$yearID = assign_value($params['yearID']);
+		$averageType = assign_value($params['averagetype']);
+		$averageWage = assign_value($params['averagewage']);
+
+		$this->db->trans_start();
+
+			$data = array();
+			if($averageType==='1')
+			{
+				$data = array(
+					'priemerna_mzda_1' => $averageWage
+				);
+			}
+			elseif($averageType==='2')
+			{
+				$data = array(
+					'priemerna_mzda_2' => $averageWage
+				);
+			}
+			elseif($averageType==='3')
+			{
+				$data = array(
+					'priemerna_mzda_3' => $averageWage
+				);
+			}
+			elseif($averageType==='4')
+			{
+				$data = array(
+					'priemerna_mzda_4' => $averageWage
+				);
+			}
+			$this->db->where('id', $yearID)->update('odpracovany_rok', $data);
+
+		if($this->db->trans_status() === FALSE){
+			$this->db->trans_rollback();
+			return array('status' => 500,'message' => 'Internal server error.');
+		} else {
+			$this->db->trans_commit();
+			return array('status' => 200, 'message' => 'Operation done successfuly!', 'id' => $id);
+		}
+	}
+
+	public function delete_payment($paymentID)
+	{
+		$this->db->trans_start();
+
+			$data = array(
+				'vyplatna_paska' => null,
+				'je_mesiac_uzatvoreny' => 0
+			);
+			$this->db->where('vyplatna_paska', $paymentID)->update('odpracovany_mesiac', $data);
+
+			$this->db->where('vyplatna_paska', $paymentID)->delete('zakladna_zlozka');
+			$this->db->where('vyplatna_paska', $paymentID)->delete('pohybliva_zlozka');
+			$this->db->where('vyplatna_paska', $paymentID)->delete('priplatok');
+			$this->db->where('vyplatna_paska', $paymentID)->delete('nahrada');
+			$this->db->where('vyplatna_paska', $paymentID)->delete('ina_zlozka_mzdy');
+			$this->db->where('vyplatna_paska', $paymentID)->delete('odvod');
+			$this->db->where('vyplatna_paska', $paymentID)->delete('zrazka');
+
+			$this->db->where('id', $paymentID)->delete('vyplatna_paska');
+
+		if($this->db->trans_status() === FALSE){
+			$this->db->trans_rollback();
+			return array('status' => 500,'message' => 'Internal server error.');
+		} else {
+			$this->db->trans_commit();
+			return array('status' => 200, 'message' => 'Operation done successfuly!', 'id' => $id);
+		}
+
+	}
+
 	public function get_payments_last_month()
 	{
 		$prev_month_date = date("Y-m-d", strtotime("first day of previous month"));
@@ -42,6 +267,20 @@ class PaymentMod extends CI_Model
 		$query = $this->db->query("select p.id as p_id, p.priezvisko, p.meno, pv.id as pv_id, pv.typ, ppv.id as ppv_id, ppv.platnost_od, ppv.platnost_do, p2.id as p2_id, p2.nazov as p2_nazov, p3.id as p3_id, p3.nazov as p3_nazov, o.id as o_id, o.rok, om.id as om_id, om.poradie_mesiaca, om.je_mesiac_uzatvoreny, vp.id as vp_id, vp.* from pracujuci p join pracovny_vztah pv on p.id = pv.pracujuci join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah join pozicia p2 on ppv.pozicia = p2.id join pracovisko p3 on p2.pracovisko = p3.id left join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu left join odpracovany_mesiac om on o.id = om.odpracovany_rok left join vyplatna_paska vp on om.vyplatna_paska = vp.id where (('".$date."' between ppv.platnost_od and ppv.platnost_do) or (ppv.platnost_od<= '".$date."' and platnost_do is null)) and o.rok = ".$year." and om.poradie_mesiaca = ".$month." order by p.priezvisko, p.meno, p.id");
 
 		return $query->result_array();
+	}
+
+	public function get_last_three_months($relID, $year, $month)
+	{
+		$month1 = $month-1;
+		$month2 = $month-2;
+
+		$query = $this->db->query("select  vp.* from pracovny_vztah pv join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu join odpracovany_mesiac om on o.id = om.odpracovany_rok left join vyplatna_paska vp on om.vyplatna_paska = vp.id where pv.id=".$relID." and o.rok=".$year." and om.poradie_mesiaca=".$month1);
+		$result =  $query->result_array();
+
+		$query = $this->db->query("select  vp.* from pracovny_vztah pv join podmienky_pracovneho_vztahu ppv on pv.id = ppv.pracovny_vztah join odpracovany_rok o on ppv.id = o.podmienky_pracovneho_vztahu join odpracovany_mesiac om on o.id = om.odpracovany_rok left join vyplatna_paska vp on om.vyplatna_paska = vp.id where pv.id=".$relID." and o.rok=".$year." and om.poradie_mesiaca=".$month2);
+		$result = array_merge($result, $query->result_array());
+
+		return $result;
 	}
 
 	public function get_info_for_emplyee_payment($month_id)
@@ -113,6 +352,71 @@ class PaymentMod extends CI_Model
 		$result = array_merge($result, $conditions);
 		$result = array_merge($result, $basicwages);
 		$result = array_merge($result, $interesting_unclosed_months);
+		return $result;
+
+	}
+
+	public function get_payment($payment_id)
+	{
+
+		$query = $this->db->query("select * from vyplatna_paska where id=".$payment_id);
+		$payment = $query->result_array();
+
+		$query = $this->db->query("select pv.typ, dp.dohodnuty_tyzdenny_pracovny_cas, p2.nazov as pracovisko, p3.priezvisko, p3.meno, p.nazov as pozicia from vyplatna_paska vp join odpracovany_mesiac om on vp.id = om.vyplatna_paska join odpracovany_rok o on om.odpracovany_rok = o.id join podmienky_pracovneho_vztahu ppv on o.podmienky_pracovneho_vztahu = ppv.id join pracovny_vztah pv on ppv.pracovny_vztah = pv.id join pozicia p on ppv.pozicia = p.id join pracovisko p2 on p.pracovisko = p2.id join pracujuci p3 on pv.pracujuci = p3.id left join dalsie_podmienky dp on ppv.dalsie_podmienky = dp.id where vp.id=".$payment_id." limit 1;");
+		$position = $query->result_array();
+
+
+		$query = $this->db->query("select o.*, om.poradie_mesiaca from odpracovany_rok o join odpracovany_mesiac om on o.id = om.odpracovany_rok where om.vyplatna_paska=".$payment_id);
+		$months = $query->result_array();
+		$months_count = $query->num_rows();
+
+		$query = $this->db->query("select zakladna_zlozka.*, zakladna_mzda.popis, zakladna_mzda.tarifa_za_jednotku_mzdy, forma_mzdy.nazov, forma_mzdy.skratka_jednotky from zakladna_zlozka join zakladna_mzda on zakladna_zlozka.zakladna_mzda = zakladna_mzda.id join forma_mzdy on zakladna_mzda.forma_mzdy = forma_mzdy.id where vyplatna_paska=".$payment_id);
+		$basiccomponents = $query->result_array();
+		$basiccomponents_count = $query->num_rows();
+
+		$query = $this->db->query("select * from pohybliva_zlozka where vyplatna_paska=".$payment_id);
+		$dynamiccomponents = $query->result_array();
+		$dynamiccomponents_count = $query->num_rows();
+
+		$query = $this->db->query("select * from nahrada where vyplatna_paska=".$payment_id);
+		$compensations = $query->result_array();
+		$compensations_count = $query->num_rows();
+
+		$query = $this->db->query("select priplatok.*, typ_priplatku.nazov from priplatok join typ_priplatku on priplatok.typ_priplatku = typ_priplatku.id where vyplatna_paska=".$payment_id);
+		$surcharges = $query->result_array();
+		$surcharges_count = $query->num_rows();
+
+		$query = $this->db->query("select * from ina_zlozka_mzdy where vyplatna_paska=".$payment_id);
+		$others = $query->result_array();
+		$others_count = $query->num_rows();
+
+		$query = $this->db->query("select * from odvod where vyplatna_paska=".$payment_id);
+		$levies = $query->result_array();
+		$levies_count = $query->num_rows();
+
+		$query = $this->db->query("select * from zrazka where vyplatna_paska=".$payment_id);
+		$deductions = $query->result_array();
+		$deductions_count = $query->num_rows();
+
+
+
+		$result = array();
+
+		$count_arr = array("mesiace"=>$months_count, "zakladne"=>$basiccomponents_count, "dynamicke"=>$dynamiccomponents_count,
+			"nahrady"=>$compensations_count, "priplatky"=>$surcharges_count, "ine"=>$others_count,
+			"odvody"=>$levies_count, "zrazky"=>$deductions_count);
+		array_push($result, $count_arr);
+
+		$result = array_merge($result, $payment);
+		$result = array_merge($result, $position);
+		$result = array_merge($result, $months);
+		$result = array_merge($result, $basiccomponents);
+		$result = array_merge($result, $dynamiccomponents);
+		$result = array_merge($result, $compensations);
+		$result = array_merge($result, $surcharges);
+		$result = array_merge($result, $others);
+		$result = array_merge($result, $levies);
+		$result = array_merge($result, $deductions);
 		return $result;
 
 	}

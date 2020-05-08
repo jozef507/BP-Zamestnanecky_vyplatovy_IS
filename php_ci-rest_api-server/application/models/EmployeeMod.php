@@ -15,6 +15,12 @@ class EmployeeMod extends CI_Model
 		return $query->result();
 	}
 
+	public function get_info($id)
+	{
+		$query = $this->db->query("select *,  DATE_FORMAT(p.datum_narodenia,'%d.%m.%Y') as datum_narodenia from pracujuci p join dolezite_udaje_pracujuceho dup on p.id = dup.pracujuci  where p.prihlasovacie_konto = ".$id." and now() > dup.platnost_od and (now() < dup.platnost_do or dup.platnost_do is null)");
+		return $query->result();
+	}
+
 	public function get_emps_usrs()
 	{
 		$query = $this->db->query("select *, p.id as p_id, pk.id as pk_id from pracujuci p left join prihlasovacie_konto pk on p.prihlasovacie_konto = pk.id");
