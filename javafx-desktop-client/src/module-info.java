@@ -3,6 +3,7 @@ module BP {
     requires javafx.controls;
     requires java.net.http;
     requires json.simple;
+    requires itextpdf;
 
     opens application;
     opens application.gui;
@@ -15,4 +16,5 @@ module BP {
     opens application.gui.payment;
     opens application.gui.payment.create;
     opens application.models;
+    opens application.pdf;
 }
