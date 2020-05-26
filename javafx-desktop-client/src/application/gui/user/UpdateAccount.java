@@ -47,8 +47,6 @@ public class UpdateAccount
     public Button cancel;
     public Button create;
     public Label label;
-    public TextField email;
-    public PasswordField password1, password2;
     public ComboBox role;
     public ComboBox current;
 
@@ -99,9 +97,9 @@ public class UpdateAccount
     private void changeFocus()
     {
         final SimpleBooleanProperty firstTime = new SimpleBooleanProperty(true);
-        password1.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        role.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue && firstTime.get()) {
-                password1.getParent().requestFocus();
+                role.getParent().requestFocus();
                 firstTime.setValue(false);
             }
         });

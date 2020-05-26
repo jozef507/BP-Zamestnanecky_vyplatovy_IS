@@ -212,7 +212,7 @@ public class PageUsers
             CustomAlert a = new CustomAlert("warning", "Chyba", "Nevybrali ste žiadny riadok z tabuľky." );
             return;
         }
-        FXMLLoader l = new FXMLLoader(getClass().getResource("fxml/"+"page_users_details"+".fxml"));
+        FXMLLoader l = new FXMLLoader(getClass().getResource("PageUsersDetails.fxml"));
         l.setControllerFactory(c -> {
             return new PageUsersDetails(employeeD.getId());
         });

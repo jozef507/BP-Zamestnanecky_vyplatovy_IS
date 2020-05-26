@@ -51,7 +51,7 @@ public class MainPain implements Initializable {
     @FXML
     private BorderPane bp;
     @FXML
-    private Button button1, button2, button3, button4, button5, button6, button7, button8, back;
+    private Button button1, button2, button3, button4, button6, button7, button8, back;
     @FXML
     private Text user;
 
@@ -92,11 +92,6 @@ public class MainPain implements Initializable {
     {
         loadAnchorPage("payment/PagePayment");
         menuButtonClicked("b4");
-    }
-
-    public void btn5(MouseEvent mouseEvent)
-    {
-        menuButtonClicked("b5");
     }
 
     public void btn6(MouseEvent mouseEvent)
@@ -174,12 +169,12 @@ public class MainPain implements Initializable {
         button3.getStyleClass().removeAll("menubuttonclicked");
         button3.getStyleClass().add("soft-border");
         button4.getStyleClass().removeAll("menubuttonclicked");
-        button5.getStyleClass().removeAll("menubuttonclicked");
-        button5.getStyleClass().add("soft-border");
+        button4.getStyleClass().add("soft-border");
         button6.getStyleClass().removeAll("menubuttonclicked");
         button7.getStyleClass().removeAll("menubuttonclicked");
         button7.getStyleClass().add("soft-border");
         button8.getStyleClass().removeAll("menubuttonclicked");
+        button8.getStyleClass().add("soft-border");
 
         if(button.equals("b1"))
         {
@@ -197,11 +192,7 @@ public class MainPain implements Initializable {
         else if(button.equals("b4"))
         {
             button4.getStyleClass().add("menubuttonclicked");
-        }
-        else if(button.equals("b5"))
-        {
-            button5.getStyleClass().removeAll("soft-border");
-            button5.getStyleClass().add("menubuttonclicked");
+            button4.getStyleClass().removeAll("soft-border");
         }
         else if(button.equals("b6"))
         {
@@ -214,6 +205,7 @@ public class MainPain implements Initializable {
         }
         else if(button.equals("b8"))
         {
+            button8.getStyleClass().removeAll("soft-border");
             button8.getStyleClass().add("menubuttonclicked");
         }
     }
@@ -348,21 +340,26 @@ public class MainPain implements Initializable {
     {
         if(LoggedInUser.getRole().equals("admin"))
         {
-            loadAnchorPage("user/PageUsers");
-            menuButtonClicked("b8");
+
             button1.setDisable(true);
             button2.setDisable(true);
             button3.setDisable(true);
             button4.setDisable(true);
-            button5.setDisable(true);
             button6.setDisable(true);
             button7.setDisable(true);
+            loadAnchorPage("user/PageUsers");
+            menuButtonClicked("b8");
         }
         else
         {
             loadAnchorPage("employee/PageEmployee");
             menuButtonClicked("b1");
             button8.setDisable(true);
+
+            if(LoggedInUser.getRole().equals("účtovník"))
+            {
+                button2.setDisable(true);
+            }
         }
     }
 

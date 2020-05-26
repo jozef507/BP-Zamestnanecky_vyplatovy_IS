@@ -33,7 +33,7 @@
                             <RowConstraints minHeight="10.0" prefHeight="40.0" valignment="BOTTOM" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Text fx:id="name" strokeType="OUTSIDE" strokeWidth="0.0" text="Meno a priezvisko" wrappingWidth="162.21484375">
+                              <Text fx:id="name" strokeType="OUTSIDE" strokeWidth="0.0" text="Meno a priezvisko">
                                  <font>
                                     <Font size="20.0" />
                                  </font>
@@ -127,9 +127,9 @@
                         <GridPane prefHeight="37.0" prefWidth="755.0" HBox.hgrow="ALWAYS">
                            <columnConstraints>
                               <ColumnConstraints hgrow="ALWAYS" />
-                              <ColumnConstraints halignment="RIGHT" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="100.0" />
-                              <ColumnConstraints halignment="RIGHT" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="65.0" />
-                              <ColumnConstraints halignment="RIGHT" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="70.0" />
+                              <ColumnConstraints halignment="RIGHT" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="120.0" />
+                              <ColumnConstraints halignment="RIGHT" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="85.0" />
+                              <ColumnConstraints halignment="RIGHT" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="90.0" />
                            </columnConstraints>
                            <rowConstraints>
                               <RowConstraints minHeight="10.0" prefHeight="40.0" valignment="BOTTOM" vgrow="SOMETIMES" />
