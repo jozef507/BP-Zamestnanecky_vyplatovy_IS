@@ -1690,9 +1690,9 @@ call pridat_odpracovane_hodiny(@m, 14,'2020-01-30', '10:00', '13:00', null, 150,
 call pridat_odpracovane_hodiny(@m, 14,'2020-01-31', '10:00', '13:00', null, 150,null, null);
 
 insert into mzdove_konstanty(zakladny_tyzdenny_pracovny_cas, max_vymeriavaci_zaklad, min_vymeriavaci_zaklad, max_denny_vymeriavaci_zaklad, danovy_bonus_na_dieta_nad_6, danovy_bonus_na_dieta_pod_6, NCZD_na_danovnika, nasobok_zivotneho_minima_pre_preddavok, platnost_od, platnost_do, zaciatok_nocnej_prace, koniec_nocnej_prace, max_vymeriavaci_zaklad_pre_OP, max_vyska_OP, hranica_prekrocenia_OV)
-    values (40, 6678.00, 0.00, 66.6083, 22.17, 44.34, 367.58, 3096.95, '2019-07-01', '2019-12-31', '20:00', '06:00', 570, 380, 200);
+    values (40, 6678.00, 0.00, 66.6083, 22.17, 44.34, 367.58, 3096.95, '2019-07-01', '2019-12-31', '22:00', '06:00', 570, 380, 200);
 insert into mzdove_konstanty(zakladny_tyzdenny_pracovny_cas, max_vymeriavaci_zaklad, min_vymeriavaci_zaklad, max_denny_vymeriavaci_zaklad, danovy_bonus_na_dieta_nad_6, danovy_bonus_na_dieta_pod_6, NCZD_na_danovnika, nasobok_zivotneho_minima_pre_preddavok, platnost_od, platnost_do, zaciatok_nocnej_prace, koniec_nocnej_prace, max_vymeriavaci_zaklad_pre_OP, max_vyska_OP, hranica_prekrocenia_OV)
-    values (40, 7091.00, 0.00, 66.6083, 22.72, 45.44, 367.58, 3096.95, '2020-01-01', '2020-06-30', '20:00', '06:00', 570, 380, 200);
+    values (40, 7091.00, 0.00, 66.6083, 22.72, 45.44, 367.58, 3096.95, '2020-01-01', '2020-06-30', '22:00', '06:00', 570, 380, 200);
 
 insert into typ_priplatku(nazov, popis, percentualna_cast, pocitany_zo, platnost_od, platnost_do)
     values('sobota', 'nepravidelné vyk.', 0.5, 'minimálna mzda', '2019-05-01', '2019-12-31');
