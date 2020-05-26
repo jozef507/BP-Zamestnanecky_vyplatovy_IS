@@ -294,6 +294,39 @@ class RelationMod extends CI_Model
 		}
 	}
 
+	public function update_relation_to()
+	{
+		$params = $_REQUEST;
+		$con_id = $params['id'];
+		$to = $params['to'];
+
+		$this->db->trans_start();
+
+			$query = $this->db->query("select pracovny_vztah from podmienky_pracovneho_vztahu where id = ".$con_id);
+			$result = $query->result_array();
+
+			$rel_id = $result[0]['pracovny_vztah'];
+
+			$data = array(
+				'platnost_do' => $to
+			);
+			$this->db->where('id', $con_id)->update('podmienky_pracovneho_vztahu', $data);
+
+
+			$data = array(
+				'datum_vyprsania' => $to
+			);
+			$this->db->where('id', $rel_id)->update('pracovny_vztah', $data);
+
+		if ($this->db->trans_status() === FALSE){
+			$this->db->trans_rollback();
+			return array('status' => 500,'message' => 'Internal server error.');
+		} else {
+			$this->db->trans_commit();
+			return array('status' => 200, 'message' => 'Operation done successfuly!', 'id' => $id);
+		}
+	}
+
 	public function delete_relation($id)
 	{
 		$this->db->trans_start();
