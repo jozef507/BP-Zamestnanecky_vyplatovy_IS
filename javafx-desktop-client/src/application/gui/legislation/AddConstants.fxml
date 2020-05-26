@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="696.0" prefWidth="671.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.legislation.AddConstants">
+   <content>
+      <AnchorPane minHeight="223.0" minWidth="455.0" prefHeight="290.0" prefWidth="503.0">
+         <children>
+            <VBox fx:id="vb" layoutX="192.0" layoutY="44.0" prefHeight="241.0" prefWidth="503.0" spacing="15.0" stylesheets="@../../../css/fullpackstyling.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+               <children>
+                  <GridPane prefHeight="199.0" prefWidth="463.0" VBox.vgrow="ALWAYS">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="330.0" percentWidth="50.0" prefWidth="330.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="419.0" minWidth="10.0" percentWidth="50.0" prefWidth="299.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Základný týždenný prac. čas">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Platné od" GridPane.rowIndex="13">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Min. vymeriavací základ" GridPane.rowIndex="2">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Max. denný vymeriavací základ" GridPane.rowIndex="3">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <TextField fx:id="maxDayAssessmentBasis" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <DatePicker fx:id="from" prefHeight="25.0" prefWidth="168.0" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Max. vymeriavací základ" GridPane.rowIndex="1">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <TextField fx:id="maxAssessmentBasis" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="basicWeekTime" promptText="desatiný tvar v hodinách (40.00)" GridPane.columnIndex="1" />
+                        <TextField fx:id="minAssessmentBasis" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="taxBonusUnder6" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <TextField fx:id="taxBonusOver6" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <TextField fx:id="nonTaxablePart" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        <TextField fx:id="subsistenceMinimumForAdvances" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <TextField fx:id="nightFrom" promptText="časový tvar (20:00)" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                        <TextField fx:id="nightTo" promptText="časový tvar (4:00)" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                        <TextField fx:id="maxAssessmentBasisOP" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                        <TextField fx:id="maxOP" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+                        <TextField fx:id="limitOV" promptText="v €" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Dan. bonus na dieťa pod 6r." GridPane.rowIndex="4">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Dan. bonus na dieťa nad 6r." GridPane.rowIndex="5">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="NCZD na danovníka" GridPane.rowIndex="6">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Násobok živ. minima na preddavok" GridPane.rowIndex="7">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Začiatok nočnej práce" GridPane.rowIndex="8">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Koniec nočnej práce" GridPane.rowIndex="9">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Max. vymeriavací základ pre OP" GridPane.rowIndex="10">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Max. výška OP" GridPane.rowIndex="11">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hranica prekročenia OV" GridPane.rowIndex="12">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </GridPane>
+                  <HBox alignment="CENTER" prefHeight="40.0" prefWidth="200.0" spacing="20.0">
+                     <children>
+                        <Button fx:id="cancel" mnemonicParsing="false" onMouseClicked="#cancelClick" prefHeight="30.0" prefWidth="100.0" styleClass="button3" text="Zrušiť" />
+                        <Button fx:id="create" mnemonicParsing="false" onMouseClicked="#createClick" prefHeight="30.0" prefWidth="100.0" styleClass="button3" text="Vytvoriť" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="0.0" prefWidth="415.0">
+                     <children>
+                        <Label fx:id="label" text="Nevyplnené údaje!" textFill="RED" visible="false" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+   </content>
+</ScrollPane>

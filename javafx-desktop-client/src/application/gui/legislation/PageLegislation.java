@@ -39,4 +39,10 @@ public class PageLegislation
         FXMLLoader l = new FXMLLoader(getClass().getResource("PageLegislationSurcharge.fxml"));
         MainPaneManager.getC().loadAnchorPage(l);
     }
+
+    public void onConstantsClick(MouseEvent mouseEvent)
+    {
+        FXMLLoader l = new FXMLLoader(getClass().getResource("PageLegislationConstants.fxml"));
+        MainPaneManager.getC().loadAnchorPage(l);
+    }
 }

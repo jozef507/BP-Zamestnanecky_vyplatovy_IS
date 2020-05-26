@@ -3,6 +3,7 @@ package application.gui.employee;
 import application.alerts.CustomAlert;
 import application.exceptions.CommunicationException;
 import application.gui.MainPaneManager;
+import application.gui.legislation.UpdateSurcharge;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
@@ -69,7 +70,7 @@ public class PageEmployeeDetailsRelation
     public void updateInfo()
     {
         try {
-            //this.setRelationD();
+            this.setRelationD();
             this.setConditionsDs();
         } catch (IOException e) {
             e.printStackTrace();
@@ -317,6 +318,26 @@ public class PageEmployeeDetailsRelation
             return new PageEmployeeDetails(this.employeeD.getId());
         });
         MainPaneManager.getC().loadScrollPage(l);
+    }
+
+    @FXML
+    private void finish(MouseEvent mouseEvent) {
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdateRelationTo.fxml"));
+        loader.setControllerFactory(c -> {
+            return new UpdateRelationTo(this, conditionsDs.get(conditionsDs.size()-1));
+        });
+        Parent root1 = null;
+        try {
+            root1 = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Úprava platnosti vzťahu");
+        primaryStage.setScene(new Scene(root1, 505, 279));
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.show();
     }
 
 
