@@ -18,6 +18,8 @@ public class HttpClient
     String response;
     int responseCode;
 
+    public static String server_url;
+
     public HttpClient() {
         postParams = new LinkedHashMap<>();
     }
@@ -52,7 +54,7 @@ public class HttpClient
 
     public void sendLoginPost() throws Exception {
 
-        URL url = new URL("http://192.168.56.1/bp_rest_api/auth/login");
+        URL url = new URL("http://"+server_url+"auth/login");
 
         processParamsToPostdatabytes();
 
@@ -98,7 +100,7 @@ public class HttpClient
 
     public void sendPost(String uriSufix, String authorization, String userID) throws Exception
     {
-        URL url = new URL("http://192.168.56.1/bp_rest_api/"+uriSufix);
+        URL url = new URL("http://"+server_url+uriSufix);
 
         processParamsToPostdatabytes();
 
@@ -146,7 +148,7 @@ public class HttpClient
 
     public void sendGet(String uriSufix, String authorization, String userID) throws Exception {
 
-        URL url = new URL("http://192.168.56.1/bp_rest_api/"+uriSufix);
+        URL url = new URL("http://"+server_url+uriSufix);
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
