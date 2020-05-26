@@ -17,6 +17,8 @@ import java.util.Map;
 public class HttpClientClass
 {
      // one instance, reuse
+    public static String url;
+
     private HttpClient httpClient;
     private HttpRequest request;
     private HttpResponse<String> response;
@@ -58,7 +60,7 @@ public class HttpClientClass
 
         this.request = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://localhost/bp_rest_api/"+uriSufix))
+                .uri(URI.create("http://"+url+uriSufix))
                 .setHeader("Client-Service", "jfx-desktop-frontend-client")
                 .setHeader("Auth-Key", "simplerestapi")
                 .setHeader("Content-Type", "application/x-www-form-urlencoded")
@@ -73,7 +75,7 @@ public class HttpClientClass
     {
         this.request = HttpRequest.newBuilder()
                 .DELETE()
-                .uri(URI.create("http://localhost/bp_rest_api/"+uriSufix))
+                .uri(URI.create("http://"+url+uriSufix))
                 .setHeader("Client-Service", "jfx-desktop-frontend-client")
                 .setHeader("Auth-Key", "simplerestapi")
                 .setHeader("Content-Type", "application/x-www-form-urlencoded")
@@ -92,7 +94,7 @@ public class HttpClientClass
 
         this.request = HttpRequest.newBuilder()
                 .POST(buildFormDataFromMap(data))
-                .uri(URI.create("http://localhost/bp_rest_api/auth/login"))
+                .uri(URI.create("http://"+url+"auth/login"))
                 .setHeader("Client-Service", "jfx-desktop-frontend-client")
                 .setHeader("Auth-Key", "simplerestapi")
                 .setHeader("Content-Type", "application/x-www-form-urlencoded")
@@ -115,7 +117,7 @@ public class HttpClientClass
 
         this.request = HttpRequest.newBuilder()
                 .POST(buildFormDataFromMap(data))
-                .uri(URI.create("http://localhost/bp_rest_api/"+uriSufix))
+                .uri(URI.create("http://"+url+uriSufix))
                 .setHeader("Client-Service", "jfx-desktop-frontend-client")
                 .setHeader("Auth-Key", "simplerestapi")
                 .setHeader("Content-Type", "application/x-www-form-urlencoded")

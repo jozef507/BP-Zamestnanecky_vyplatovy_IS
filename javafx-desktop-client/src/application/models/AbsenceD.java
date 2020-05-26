@@ -61,13 +61,12 @@ public class AbsenceD
     public void setTo(String to) {
         this.to = to;
 
-        try {
+        try{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             this.toT = LocalDate.parse(to, formatter);
         }catch (DateTimeParseException e){
             e.printStackTrace();
         }
-
     }
 
     public String getReason() {
