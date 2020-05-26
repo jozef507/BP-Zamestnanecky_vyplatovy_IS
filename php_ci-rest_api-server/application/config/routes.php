@@ -81,6 +81,7 @@ $route['relation/rel_by_cons/(:num)']['get']           = 'Relation/rel_by_cons/$
 $route['relation/emp_rel_cons_po_pl']['get']           = 'Relation/emp_rel_cons_po_pl';
 $route['relation/crt_rel']['post']           = 'Relation/crt_rel';
 $route['relation/upd_rel']['post']           = 'Relation/upd_rel';
+$route['relation/upd_rel_to']['post']           = 'Relation/upd_rel_to';
 $route['relation/del_rel/(:num)']['delete']           = 'Relation/del_rel/$1';
 $route['relation/del_cons/(:num)']['delete']           = 'Relation/del_cons/$1';
 $route['relation/del_lst_cons/(:num)/(:num)']['delete']           = 'Relation/del_lst_cons/$1/$2';
@@ -148,6 +149,11 @@ $route['payment/mnth/(:num)/(:num)']['get']           = 'Payment/payments_month/
 $route['payment/lstmnth']['get']           = 'Payment/payments_last_month';
 $route['payment/nffr_mplpmnt/(:num)']['get']           = 'Payment/info_for_emplyee_payment/$1';
 $route['payment/pmnt/(:num)']['get']           = 'Payment/pmnt/$1';
+
+$route['wageconstants']['get']           = 'WageConstants';
+$route['wageconstants/del_cons/(:num)']['delete']           = 'WageConstants/del_cons/$1';
+$route['wageconstants/crt_cons']['post']           = 'WageConstants/crt_cons';
+$route['wageconstants/upd_cons']['post']           = 'WageConstants/upd_cons';
 
 $route['default_controller'] = 'Employee';
 $route['404_override'] = '';
