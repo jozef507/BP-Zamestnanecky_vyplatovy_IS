@@ -381,7 +381,7 @@ public class PageHours
         }
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Pridanie odpracovaných hodín");
-        primaryStage.setScene(new Scene(root1, 505, 600));
+        primaryStage.setScene(new Scene(root1, 890, 610));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
 
@@ -443,7 +443,7 @@ public class PageHours
         }
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Úprava odpracovaných hodín");
-        primaryStage.setScene(new Scene(root1, 505, 600));
+        primaryStage.setScene(new Scene(root1, 890, 600));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }

@@ -310,7 +310,7 @@ public class PageFirmPosition
         }
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Pridanie pracovnej pozície");
-        primaryStage.setScene(new Scene(root1, 505, 279));
+        primaryStage.setScene(new Scene(root1, 510, 300));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }

@@ -249,7 +249,7 @@ public class PageEmployeeDetailsRelation
         }
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Úprava informácií pracujúceho");
-        primaryStage.setScene(new Scene(root1, 826, 600));
+        primaryStage.setScene(new Scene(root1, 1000, 700));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }

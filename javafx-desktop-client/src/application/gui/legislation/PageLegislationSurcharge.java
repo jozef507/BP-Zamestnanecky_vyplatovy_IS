@@ -253,7 +253,7 @@ public class PageLegislationSurcharge
         }
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Pridanie typu príplatku");
-        primaryStage.setScene(new Scene(root1, 505, 279));
+        primaryStage.setScene(new Scene(root1, 505, 310));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }

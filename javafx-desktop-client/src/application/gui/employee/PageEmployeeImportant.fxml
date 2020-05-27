@@ -15,7 +15,7 @@
 
 <ScrollPane fitToWidth="true" prefHeight="570.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.employee.PageEmployeeImportant">
    <content>
-      <AnchorPane minWidth="650.0" prefHeight="568.0" prefWidth="808.0">
+      <AnchorPane minWidth="900.0" prefHeight="568.0" prefWidth="808.0">
          <children>
             <VBox layoutX="192.0" layoutY="44.0" prefHeight="200.0" prefWidth="100.0" spacing="15.0" stylesheets="@../../../css/fullpackstyling.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <padding>
@@ -26,17 +26,20 @@
                      <children>
                         <GridPane prefHeight="37.0" prefWidth="755.0" HBox.hgrow="ALWAYS">
                            <columnConstraints>
-                              <ColumnConstraints halignment="LEFT" hgrow="NEVER" minWidth="-Infinity" prefWidth="265.0" />
+                              <ColumnConstraints halignment="LEFT" hgrow="NEVER" minWidth="-Infinity" />
                               <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="503.0" />
                            </columnConstraints>
                            <rowConstraints>
                               <RowConstraints />
                            </rowConstraints>
                            <children>
-                              <Text opacity="0.48" strokeType="OUTSIDE" strokeWidth="0.0" text="Všetky dôležité osobné informácie:" wrappingWidth="252.7734375">
+                              <Text opacity="0.48" strokeType="OUTSIDE" strokeWidth="0.0" text="Všetky dôležité osobné informácie:">
                                  <font>
                                     <Font size="16.0" />
                                  </font>
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
                               </Text>
                               <Text fx:id="name" nodeOrientation="LEFT_TO_RIGHT" strokeType="OUTSIDE" strokeWidth="0.0" text="T" GridPane.columnIndex="1">
                                  <font>

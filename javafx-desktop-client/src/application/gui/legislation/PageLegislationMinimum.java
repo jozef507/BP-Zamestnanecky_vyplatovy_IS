@@ -254,7 +254,7 @@ public class PageLegislationMinimum
         }
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Pridanie minimálnej mzdy");
-        primaryStage.setScene(new Scene(root1, 505, 279));
+        primaryStage.setScene(new Scene(root1, 505, 290));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }

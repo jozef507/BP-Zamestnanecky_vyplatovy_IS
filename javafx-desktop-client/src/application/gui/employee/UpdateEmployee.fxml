@@ -15,7 +15,7 @@
 
 <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="375.0" prefWidth="457.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.employee.UpdateEmployee">
    <content>
-      <AnchorPane minHeight="356.0" minWidth="455.0" prefHeight="568.0" prefWidth="268.0">
+      <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="356.0" prefWidth="268.0">
          <children>
             <VBox fx:id="vb" layoutX="192.0" layoutY="44.0" prefHeight="200.0" prefWidth="100.0" spacing="15.0" stylesheets="@../../../css/fullpackstyling.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <padding>

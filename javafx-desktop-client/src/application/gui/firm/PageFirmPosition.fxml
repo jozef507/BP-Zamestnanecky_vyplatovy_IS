@@ -48,7 +48,7 @@
                </cursor></TableView>
          <HBox alignment="CENTER" prefHeight="69.0" prefWidth="810.0" spacing="15.0">
             <children>
-                  <Button fx:id="update" mnemonicParsing="false" onMouseClicked="#onUpdateClick" prefHeight="40.0" prefWidth="130.0" text="Upraviť stup. nár." />
+                  <Button fx:id="update" mnemonicParsing="false" onMouseClicked="#onUpdateClick" prefHeight="40.0" text="Upraviť stup. nár." />
                   <Button fx:id="remove" mnemonicParsing="false" onMouseClicked="#onRemoveClick" prefHeight="40.0" prefWidth="130.0" text="Odobrať" />
                <Button fx:id="add" mnemonicParsing="false" onMouseClicked="#onAddClick" prefHeight="40.0" prefWidth="130.0" text="Pridať" />
             </children>

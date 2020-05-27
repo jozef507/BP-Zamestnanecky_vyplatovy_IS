@@ -20,7 +20,7 @@
 
 <ScrollPane fitToWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="905.0" prefWidth="881.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.employee.AddRelation">
   <content>
-    <AnchorPane minHeight="0.0" minWidth="0.0">
+    <AnchorPane minHeight="0.0" minWidth="950.0">
          <children>
             <VBox fx:id="vb" alignment="TOP_CENTER" prefHeight="897.0" prefWidth="918.0" spacing="15.0" stylesheets="@../../../css/fullpackstyling.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <padding>

@@ -304,7 +304,7 @@ public class PageLegislationConstants
         }
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Pridanie typu príplatku");
-        primaryStage.setScene(new Scene(root1, 505, 279));
+        primaryStage.setScene(new Scene(root1, 670, 700));
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.show();
     }
