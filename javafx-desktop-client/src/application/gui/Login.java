@@ -5,6 +5,8 @@ import application.exceptions.CommunicationException;
 import application.httpcomunication.HttpClientClass;
 import application.httpcomunication.JsonArrayClass;
 import application.httpcomunication.LoggedInUser;
+import application.pdf.PaymentPDF;
+import application.pdf.PaymnetTable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -20,11 +22,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
+import java.util.Properties;
 
 
 public class Login /*implements Initializable*/
@@ -40,7 +44,7 @@ public class Login /*implements Initializable*/
     /*---------------------------------------------------------------------------------------*/
     /*----------------------------------------METHODS----------------------------------------*/
     private String getMd5(String input)
-    { //geeksforgeeks
+    { //from geeksforgeeks.com
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] messageDigest = md.digest(input.getBytes());
@@ -54,6 +58,37 @@ public class Login /*implements Initializable*/
         catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean setProperties()
+    {
+        Properties p = new Properties();
+
+        InputStream is = null;
+        try {
+            is = new FileInputStream("config.properties");
+            p.load(is);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        HttpClientClass.url= p.getProperty("server_url");
+        PaymnetTable.companyName= p.getProperty("company_name");
+        PaymentPDF.path= p.getProperty("pdf_output_path");
+
+        boolean flag = true;
+        if(HttpClientClass.url==null || HttpClientClass.url.trim().isEmpty())
+            flag = false;
+        else if (PaymnetTable.companyName==null || PaymnetTable.companyName.trim().isEmpty())
+            flag = false;
+        else if (PaymentPDF.path==null || PaymentPDF.path.trim().isEmpty())
+            flag = false;
+
+        CustomAlert a;
+        if (!flag)
+            a = new CustomAlert("warning", "Chyba", "Nesprávne nastavený súbor config.properties!" );
+
+        return flag;
     }
 
 
@@ -147,9 +182,9 @@ public class Login /*implements Initializable*/
                 Parent root1 = loader.load();
 
                 primaryStage.setTitle("Hlavné okno");
-                primaryStage.setScene(new Scene(root1, 985, 602));
+                primaryStage.setScene(new Scene(root1, 1200, 700));
                 primaryStage.setMinHeight(500);
-                primaryStage.setMinWidth(600);
+                primaryStage.setMinWidth(900);
                 primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
                     public void handle(WindowEvent we) {
                         System.out.println("Stage is closing");

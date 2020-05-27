@@ -91,10 +91,11 @@ public class PageWageCompensationsAddCustom {
     {
         fromCol0.setCellValueFactory(new PropertyValueFactory<>("fromT"));
         toCol0.setCellValueFactory(new PropertyValueFactory<>("toT"));
-        halfCol0.setCellValueFactory(new PropertyValueFactory<>("half"));
+        halfCol0.setCellValueFactory(new PropertyValueFactory<>("halfT"));
         reasonCol0.setCellValueFactory(new PropertyValueFactory<>("reason"));
         descriptionCol0.setCellValueFactory(new PropertyValueFactory<>("characteristic"));
         tab0.setItems(absenceDS);
+        tab0.setPlaceholder(new Label("Pracujúci nemá v danom období žiadne absencie."));
 
         fromCol1.setCellValueFactory(new PropertyValueFactory<>("fromT"));
         toCol1.setCellValueFactory(new PropertyValueFactory<>("toT"));
