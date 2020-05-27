@@ -501,7 +501,7 @@ class Employee extends CI_Controller
 		}
 		$usertype = $this->AuthMod->get_user_type();
 		$users_id  = $this->input->get_request_header('User-ID', TRUE);
-		if(!($usertype=="riaditeľ" || $usertype=="účtovník" || ($usertype=="zamestnanec" && $users_id==$id) ))		{
+		if(!(($usertype=="riaditeľ" || $usertype=="účtovník" || $usertype=="zamestnanec" || $usertype=="admin") && $users_id==$id ))		{
 			json_output(403,array('status' => 403,'message' => 'Forbidden'));
 			return;
 		}

@@ -234,10 +234,6 @@ class PaymentMod extends CI_Model
 		$prev_month_year = date("Y", strtotime("first day of previous month"));
 		$prev_month_month = strval(intval(date("m", strtotime("first day of previous month"))));
 
-		$prev_month_date = '2020-01-01';
-		$prev_month_year = '2020';
-		$prev_month_month = '1';
-
 		$query = $this->db->query("select rok from odpracovany_rok group by rok order by rok");
 		$count = $query->num_rows();
 		$years = $query->result_array();
