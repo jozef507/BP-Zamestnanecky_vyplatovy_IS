@@ -1,6 +1,10 @@
 package application;
 
+import application.alerts.CustomAlert;
+import application.gui.Login;
 import application.httpcomunication.HttpClientClass;
+import application.pdf.PaymentPDF;
+import application.pdf.PaymnetTable;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,7 +22,11 @@ public class Main extends Application
     @Override
     public void start(Stage primaryStage) throws Exception{
 
-        Parent root = FXMLLoader.load(getClass().getResource("gui/Login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("gui/Login.fxml"));
+        Parent root = loader.load();
+        Login login = loader.getController();
+        if (!login.setProperties()) return;
+
         primaryStage.setTitle("Prihlasovacie okno");
         primaryStage.setScene(new Scene(root, 464, 294));
         primaryStage.setResizable(false);
@@ -27,22 +35,8 @@ public class Main extends Application
 
 
     public static void main(String[] args) {
-        setServerUrl();
         launch(args);
     }
 
-    private static void setServerUrl()
-    {
-        Properties p = new Properties();
 
-        InputStream is = null;
-        try {
-            is = new FileInputStream("config.properties");
-            p.load(is);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        HttpClientClass.url= p.getProperty("server_url");
-    }
 }

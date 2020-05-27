@@ -9,7 +9,6 @@ import application.models.*;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.draw.LineSeparator;
-import javafx.collections.transformation.SortedList;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +21,8 @@ public class PaymentPDF
     ArrayList<PaymnetTable> paymnetTables;
 
     GeneratePdf generatePdf;
+
+    public static String path;
 
 
     public PaymentPDF(String name, ArrayList<PaymentD> inputPaymentDS)
@@ -50,7 +51,7 @@ public class PaymentPDF
             processPaymentDS();
             processPaymentTables();
 
-            setDocument(name);
+            setDocument(path+name);
         } catch (Exception e) {
             e.printStackTrace();
 

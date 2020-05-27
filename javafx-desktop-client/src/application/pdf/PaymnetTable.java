@@ -11,6 +11,8 @@ import java.math.RoundingMode;
 
 public class PaymnetTable
 {
+    public static String companyName;
+
     PaymentD paymentD;
 
     PdfPTable mainTable;
@@ -65,13 +67,13 @@ public class PaymnetTable
         headerCell1.setHorizontalAlignment(Element.ALIGN_LEFT);
         headerCell1.setVerticalAlignment(Element.ALIGN_MIDDLE);
 
-        PdfPCell headerCell2 = new PdfPCell(new Paragraph(getEmptyString(paymentD.getPlaceName()) + "/" + getEmptyString(paymentD.getPositionName()), fontH1));
+        PdfPCell headerCell2 = new PdfPCell(new Paragraph(getEmptyString(paymentD.getPlaceName()) + " / " + getEmptyString(paymentD.getPositionName()), fontH1));
         headerCell2.setBorder(PdfPCell.NO_BORDER);
         headerCell2.setHorizontalAlignment(Element.ALIGN_CENTER);
         headerCell2.setVerticalAlignment(Element.ALIGN_MIDDLE);
 
 
-        PdfPCell headerCell3 = new PdfPCell(new Paragraph("Andre Topic, s.r.o.", fontH1));
+        PdfPCell headerCell3 = new PdfPCell(new Paragraph(companyName, fontH1));
         headerCell3.setBorder(PdfPCell.NO_BORDER);
         headerCell3.setHorizontalAlignment(Element.ALIGN_RIGHT);
         headerCell3.setVerticalAlignment(Element.ALIGN_MIDDLE);
