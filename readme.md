@@ -1,5 +1,6 @@
-INFORMATION SYSTEM FOR EMPLOYEES AND SALARIES RECORDS
-Bachelor thesis
+Bachelor thesis -- INFORMATION SYSTEM FOR EMPLOYEES AND SALARIES RECORDS
+
+
 
 This thesis aimed to design and create an information system for employees and salary records. The system is based on a client-server architecture and uses multiple technologies. First, the MySQL system was chosen for the database implementation, PHP language and CodeIgniter framework for the REST server interface, and lastly Java for both the desktop and also Android mobile client application. The implemented system offers the ability to calculate employees’ salaries, record their attendance, manage their accounts along with their personal and work data, and manage the legislative and company data as well.
 
